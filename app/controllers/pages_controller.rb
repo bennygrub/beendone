@@ -38,12 +38,17 @@ class PagesController < ApplicationController
 
 	  	#arrival information
 	  	#arrival_data = matches[0].match(/AR (.*)/).to_s.strip.split(/\s+/)
-	  	matches[0].scan(/AR (.*)/).each do |arrival|
-	  		raise "#{arrival}"
-	  		arrival_airport = arrival_data[1]
-	  		arrival_hour = get_first_number(arrival_data[2])
-	  		arrival_hour_seg = get_string_from_number_split(arrival_data[2].to_s, arrival_hour)
-	  	end
+	  	matches[0].scan(/AR (.*)/).map{ |arrival|
+	  		arrival_data = arrival.to_s.strip.split(/\s+/)
+	  		raise "#{arrival_data}"
+	  		word_count = arrival_data.count
+	  		if word_count > 3
+	  			arrival_airport = "#{arrival_data[0]} #{arrival_data[1]}"
+	  		else
+				arrival_airport = arrival_data[0] 
+	  		end
+	  	}
+	  		
 	  	#get airfare
 	  	fare = matches[2].scan(/Fare: (.+)/).first.first.strip.split(/\s+/).first
 	  	seat_type = arrival_data[3]
