@@ -1,8 +1,9 @@
 Beendone::Application.routes.draw do
+  get "user/edit"
   get "pages/home"
   get "pages/about"
   get "pages/contact"
-  devise_for :users
+  devise_for :users, :controllers => { omniauth_callbacks: 'omniauth_callbacks' }
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
