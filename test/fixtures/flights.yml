@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  trip_id: 1
+  airline_id: 1
+  depart_airport: MyText
+  depart_time: 2014-07-03
+  arrival_airport: MyText
+  arrival_time: 2014-07-03
+  seat_type: MyText
+
+two:
+  trip_id: 1
+  airline_id: 1
+  depart_airport: MyText
+  depart_time: 2014-07-03
+  arrival_airport: MyText
+  arrival_time: 2014-07-03
+  seat_type: MyText

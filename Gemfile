@@ -50,3 +50,6 @@ gem "twitter-bootstrap-rails"
 gem "haml-rails"
 gem 'omniauth'
 gem "omniauth-google-oauth2"
+gem 'contextio'
+gem "nokogiri"
+gem "chronic"
