@@ -20,44 +20,73 @@ class PagesController < ApplicationController
   	delta_messages.each do |message_string|
 	  	dom = Nokogiri::HTML(message_string)
 	  	matches = dom.xpath('/html/body//pre/text()').map(&:to_s)
-
-	  	#flight_count = matches[0].scan(/(^.*?)LV/).count
 	  	
-	  	#departure information
-	  	departure_date_data = matches[0].scan(/(^.*?)LV/).first.first.strip.split(/\s+/)
-	  	
-	  	departure_day_of_week = departure_date_data[0]
-	  	departure_day_of_month = departure_date_data[1].match(/\d+/)
-	  	departure_month = departure_date_data[1].split("#{departure_day_of_month}")[1]
-	  	departure_time_data = matches[0].match(/\LV(.*)/).to_s.strip.split(/\s+/)
-	  	departure_airport = departure_time_data[1]
-	  	departure_hour = departure_time_data[2].match(/\d+/)
-	  	departure_hour_seg = departure_time_data[2].split("#{departure_hour}")[1]
-
-
-
-	  	#arrival information
-	  	#arrival_data = matches[0].match(/AR (.*)/).to_s.strip.split(/\s+/)
-	  	matches[0].scan(/AR (.*)/).map{ |arrival|
-	  		arrival_data = arrival.to_s.strip.split(/\s+/)
-	  		raise "#{arrival_data}"
-	  		word_count = arrival_data.count
-	  		if word_count > 3
-	  			arrival_airport = "#{arrival_data[0]} #{arrival_data[1]}"
-	  		else
-				arrival_airport = arrival_data[0] 
-	  		end
-	  	}
-	  		
-	  	#get airfare
+		#get overall data
 	  	fare = matches[2].scan(/Fare: (.+)/).first.first.strip.split(/\s+/).first
-	  	seat_type = arrival_data[3]
 	  	issue_data = matches.last.match(/Issue date:(.*)/).to_s
 	  	issue_date = split_by_space(issue_data)[2]
 	  	issue_year = issue_date.split(//).last(2).join("").to_i
+	  	
+	  	ew#departure data 1
+	  	departure_day_array = Array.new
+	  	matches[0].scan(/(^.*?)LV/).each do |departures|
+	  		departure_date_data = departures.to_s.strip.split(/\s+/)
+	  		
+		  	#departure information
+		  	#departure_day_of_week = departure_date_data[0]
+		  	#departure_day_of_month = departure_date_data[1].match(/\d+/)
+		  	#departure_month = departure_date_data[1].split("#{departure_day_of_month}")[1]
+		  	#departure_time_data = matches[0].match(/\LV(.*)/).to_s.strip.split(/\s+/)
+		  	#departure_array << departure_time_data[1]
+		  	departure_day_array << departure_date_data.second
+		  	#departure_array << departure_time_data[2]
+		  	#departure_hour = departure_time_data[2].match(/\d+/)
+		  	#departure_hour_seg = departure_time_data[2].split("#{departure_hour}")[1]
+		end
+		
+		#departure_time_data = matches[0].match(/\LV(.*)/).to_s.strip.split(/\s+/)
+		departure_airport_array = Array.new
+		departure_time_array = Array.new
+		matches[0].scan(/\LV(.*)/).each do |departure|
+			departure_data = departure.to_s.strip.split(/\s+/)	
+			word_count = departure_data.count
+			if word_count > 5
+				if word_count == 6
+					departure_airport_array << "#{departure_data[1]} #{departure_data[2]}" 
+					departure_time_array << departure_data[3]
+				else
+					departure_airport_array << "#{departure_data[1]} #{departure_data[2]} #{departure_data[3]}"
+					departure_time_array << departure_data[4]
+				end
+			else
+				departure_airport_array << departure_data[1]
+				departure_time_array << departure_data[2]
+			end
+		end
+	  	
+	  	#arrival information
+	  	arrival_array = Array.new
+	  	seat_array = Array.new
+	  	matches[0].scan(/AR (.*)/).map{ |arrival|
+	  		arrival_data = arrival.to_s.strip.split(/\s+/)
+	  		word_count = arrival_data.count
+	  		if word_count > 3
+	  			if word_count == 4
+	  				arrival_array << "#{arrival_data[0]} #{arrival_data[1]}"
+	  				seat_array << arrival_data[3]
+	  			else
+	  				arrival_array << "#{arrival_data[0]} #{arrival_data[1]} #{arrival_data[2]}"
+	  				seat_array << arrival_data[4]
+	  			end
+	  		else
+				arrival_array << arrival_data[0] 
+				seat_array << arrival_data[2]
+	  		end
+	  	}
 
-	  	departure_full_date_time = create_saveable_date(departure_day_of_month,departure_month,issue_year, departure_time_data[2] )
-	  	arrival_full_date_time = create_saveable_date(departure_day_of_month,departure_month,issue_year, arrival_data[2] )
+
+	  	#departure_full_date_time = create_saveable_date(departure_day_of_month,departure_month,issue_year, departure_time_data[2] )
+	  	#arrival_full_date_time = create_saveable_date(departure_day_of_month,departure_month,issue_year, arrival_data[2] )
 
 	  	Flight.create(trip_id: 14, airline_id: 12, depart_airport: departure_airport, depart_time: departure_full_date_time, arrival_airport: arrival_airport, arrival_time: arrival_full_date_time, seat_type: seat_type )
 	end
