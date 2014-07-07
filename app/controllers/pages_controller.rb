@@ -104,7 +104,17 @@ class PagesController < ApplicationController
   end
 
   def contact
-  	#matches = ""
+  	#auth into contextio
+  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	#get the correct account
+  	account = contextio.accounts.where(email: 'blgruber@gmail.com', subject: "E-Ticket Confirmation-FQUWKY 01OCT").first
+  	
+  	#get messages from delta and pick the html
+  	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com", limit: 10)
+  	
+  	@aa_message = aa_messages.map {|message| message.body_parts.first.content}
+  	#Get the First Flight LV and AR string.split[0..15]
+
   end
 
   private
