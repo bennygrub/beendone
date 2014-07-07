@@ -13,9 +13,8 @@ class PagesController < ApplicationController
   	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
   	
   	#get messages from delta and pick the html
-  	delta_messages = account.messages.where(from: "deltaelectronicticketreceipt@delta.com", subject: "BEN G - NYC-KENNEDY 13JUN11")
+  	delta_messages = account.messages.where(from: "deltaelectronicticketreceipt@delta.com")
   	delta_messages = delta_messages.map {|message| message.body_parts.first.content}
-
 
   	delta_messages.each do |message_string|
 	  	dom = Nokogiri::HTML(message_string)
@@ -27,15 +26,17 @@ class PagesController < ApplicationController
 	  	issue_date = split_by_space(issue_data)[2]
 	  	issue_year = issue_date.split(//).last(2).join("").to_i
 	  	
-	  	ew#departure data 1
+	  	#departure data 1
 	  	departure_day_array = Array.new
+	  	departure_day_of_month_array = Array.new
+	  	departure_month_array = Array.new
 	  	matches[0].scan(/(^.*?)LV/).each do |departures|
 	  		departure_date_data = departures.to_s.strip.split(/\s+/)
 	  		
 		  	#departure information
 		  	#departure_day_of_week = departure_date_data[0]
-		  	#departure_day_of_month = departure_date_data[1].match(/\d+/)
-		  	#departure_month = departure_date_data[1].split("#{departure_day_of_month}")[1]
+		  	departure_day_of_month_array << departure_date_data[1].match(/\d+/)
+		  	departure_month_array << departure_date_data[1].split("#{departure_date_data[1].match(/\d+/)}")[1]
 		  	#departure_time_data = matches[0].match(/\LV(.*)/).to_s.strip.split(/\s+/)
 		  	#departure_array << departure_time_data[1]
 		  	departure_day_array << departure_date_data.second
@@ -43,7 +44,7 @@ class PagesController < ApplicationController
 		  	#departure_hour = departure_time_data[2].match(/\d+/)
 		  	#departure_hour_seg = departure_time_data[2].split("#{departure_hour}")[1]
 		end
-		
+
 		#departure_time_data = matches[0].match(/\LV(.*)/).to_s.strip.split(/\s+/)
 		departure_airport_array = Array.new
 		departure_time_array = Array.new
@@ -61,34 +62,44 @@ class PagesController < ApplicationController
 			else
 				departure_airport_array << departure_data[1]
 				departure_time_array << departure_data[2]
-			end
+			end			
 		end
 	  	
 	  	#arrival information
 	  	arrival_array = Array.new
+	  	arrival_time_array = Array.new
 	  	seat_array = Array.new
 	  	matches[0].scan(/AR (.*)/).map{ |arrival|
-	  		arrival_data = arrival.to_s.strip.split(/\s+/)
+	  		arrival_data = arrival.first.split
 	  		word_count = arrival_data.count
 	  		if word_count > 3
 	  			if word_count == 4
 	  				arrival_array << "#{arrival_data[0]} #{arrival_data[1]}"
+	  				arrival_time_array << arrival_data[2]
 	  				seat_array << arrival_data[3]
 	  			else
 	  				arrival_array << "#{arrival_data[0]} #{arrival_data[1]} #{arrival_data[2]}"
+	  				arrival_time_array << arrival_data[3]
 	  				seat_array << arrival_data[4]
 	  			end
 	  		else
-				arrival_array << arrival_data[0] 
+				arrival_array << arrival_data[0]
+				arrival_time_array << arrival_data[1] 
 				seat_array << arrival_data[2]
 	  		end
 	  	}
-
-
-	  	#departure_full_date_time = create_saveable_date(departure_day_of_month,departure_month,issue_year, departure_time_data[2] )
-	  	#arrival_full_date_time = create_saveable_date(departure_day_of_month,departure_month,issue_year, arrival_data[2] )
-
-	  	Flight.create(trip_id: 14, airline_id: 12, depart_airport: departure_airport, depart_time: departure_full_date_time, arrival_airport: arrival_airport, arrival_time: arrival_full_date_time, seat_type: seat_type )
+	  	flight_array = (0...departure_day_array.length).map{|i| 
+	  		{
+	  			departure_time: create_saveable_date(departure_day_of_month_array[i].to_s,departure_month_array[i],issue_year, departure_time_array[i] ),
+	  			departure_airport: departure_airport_array[i],
+	  			arrival_airport: arrival_array[i],
+	  			arrival_time: create_saveable_date(departure_day_of_month_array[i].to_s,departure_month_array[i],issue_year, arrival_time_array[i] ),
+	  			seat: seat_array[i]
+	  		}
+	  	}
+	  	flight_array.each do |flight|
+	  		Flight.create(trip_id: 14, airline_id: 12, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
+	  	end
 	end
   end
 
