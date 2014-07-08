@@ -107,12 +107,52 @@ class PagesController < ApplicationController
   	#auth into contextio
   	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com', subject: "E-Ticket Confirmation-FQUWKY 01OCT").first
+  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
   	
   	#get messages from delta and pick the html
-  	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com", limit: 10)
+  	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com", subject: "E-Ticket Confirmation")
   	
-  	@aa_message = aa_messages.map {|message| message.body_parts.first.content}
+  	aa_messages = aa_messages.map {|message| message.body_parts.first.content}
+  	aa_messages.each do |message|
+			
+			#departure info 1
+			departure_array = Array.new
+  			departure_time_array = Array.new
+  			message.scan(/LV (.*)/).each do |departure|
+		  		departure_data = departure.first.split
+		  		word_count = departure_data.count
+		  		if word_count > 7
+		  			if word_count == 8
+		  				departure_array << "#{departure_data[0]} #{departure_data[1]} #{departure_data[2]}"
+		  				departure_time_array << "#{departure_data[3]} #{departure_data[4]}"
+		  			else
+		  				departure_array << "#{departure[0]} #{departure_data[1]} #{departure_data[2]} #{departure_data[3]}"
+		  				departure_time_array << "#{departure_data[4]} #{departure_data[5]}"
+		  			end
+		  		else
+					departure_array << "#{departure_data[0]} #{departure_data[1]}"
+					departure_time_array << "#{departure_data[2]} #{departure_data[3]}"
+		  		end
+  			end
+
+  			#departure info 2
+	  		departure_day_of_month_array = Array.new
+	  		departure_month_array = Array.new
+	  		departure_total = Array.new
+	  		#raise "#{message.split("LV").first.split.last(3)}"
+	  		#raise "#{message.split("LV")}"
+	  		new_message = message.split("LV")
+	  		new_message.pop
+  			new_message.each do |departure_split|
+  				departure_total << departure_split.split.last(3)
+  				departure_day_of_month_array << get_first_number(departure_split.split.last(3)[0])
+  				temp_num = get_first_number(departure_split.split.last(3)[0])
+  				departure_month_array << get_string_from_number_split(departure_split.split.last(3)[0], temp_num)
+  			end
+  			departure_day_of_month_array = departure_day_of_month_array.reject(&:empty?)
+  			raise "#{departure_month_array}"
+
+  	end
   	#Get the First Flight LV and AR string.split[0..15]
 
   end
