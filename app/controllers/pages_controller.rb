@@ -208,6 +208,29 @@ class PagesController < ApplicationController
   	end
 
   end
+  def usairways
+  	#auth into contextio
+  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	#get the correct account
+  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	
+  	#get messages from delta and pick the html
+  	usa_messages = account.messages.where(from: "reservations@email-usairways.com")
+  	usa_messages = usa_messages.map {|message| message.body_parts.first.content}
+  	usa_messages.each do |message|
+  		#:bold;color:#277DB2;">(.*?)<\/span>
+  		airport_array = message.scan(/:bold;color:#277DB2;">(.*?)<\/span>/)
+	  	stripped = ActionView::Base.full_sanitizer.sanitize(message)
+	  	raise "#{stripped.scan(/Subtotal(.*?)Number/)}"
+	  	raise "#{stripped.scan(/(^.*?)FLIGHT#/)}"
+	  	#raise "#{stripped.scan(/DEPART &nbsp;(.*?)AIRCRAFT/)}"
+	  	#raise "#{stripped.scan(/ARRIVE &nbsp; &nbsp;(.*?)&nbsp;/)}"
+
+
+
+
+  	end
+  end
 
   private
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140703215533) do
+ActiveRecord::Schema.define(version: 20140708195946) do
 
   create_table "authentications", force: true do |t|
     t.integer  "user_id"
@@ -25,9 +25,9 @@ ActiveRecord::Schema.define(version: 20140703215533) do
     t.integer  "trip_id"
     t.integer  "airline_id"
     t.text     "depart_airport"
-    t.date     "depart_time"
+    t.datetime "depart_time"
     t.text     "arrival_airport"
-    t.date     "arrival_time"
+    t.datetime "arrival_time"
     t.text     "seat_type"
     t.datetime "created_at"
     t.datetime "updated_at"
