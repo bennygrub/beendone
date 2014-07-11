@@ -98,7 +98,7 @@ class PagesController < ApplicationController
 	  		}
 	  	}
 	  	flight_array.each do |flight|
-	  		Flight.create(trip_id: 14, airline_id: 12, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
+	  		Flight.find_or_create_by_depart_time(trip_id: 14, airline_id: 12, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
 	  	end
 	end
   end
@@ -203,7 +203,7 @@ class PagesController < ApplicationController
 	  		}
   		}
   		flight_array.each do |flight|
-  			Flight.create(trip_id: 3, airline_id: 2, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
+  			Flight.find_or_create_by_depart_time(trip_id: 3, airline_id: 2, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
   		end
   	end
 
@@ -296,10 +296,8 @@ class PagesController < ApplicationController
 			  		departure_date = match_split[1]
 			  		departure_time = match_split[2]
 			  		arrival_time = match_split[3]
-
 					departure_time = create_saveable_date(departure_date, departure_month, 2011, departure_time)
 			  		arrival_time = create_saveable_date(departure_date, departure_month, 2011, arrival_time)
-
 			  	end
 	  		else
 		  		date_shift = match_split.shift(5)
@@ -309,7 +307,7 @@ class PagesController < ApplicationController
 		  		arrival_time = create_saveable_date(flight_date[2], flight_date[1], 2012, both_times[1])
 		  	end
 
-	  		Flight.create(trip_id: 6, airline_id: 1, depart_airport: both_airports.first.first, depart_time: departure_time, arrival_airport: both_airports[1].first, arrival_time: arrival_time, seat_type: "COACH" )
+	  		Flight.find_or_create_by_depart_time(trip_id: 6, airline_id: 1, depart_airport: both_airports.first.first, depart_time: departure_time, arrival_airport: both_airports[1].first, arrival_time: arrival_time, seat_type: "COACH" )
 	  		
 	  	end
   	end
