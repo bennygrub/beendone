@@ -262,9 +262,9 @@ class PagesController < ApplicationController
 	  	matches.pop(5)
 	  	matches.shift
 	  	matches = matches.select.each_with_index { |str, i| i.even? }
-
+	  	#match = matches[1]
 	  	matches.each do |match|
-	  		both_airports = match.scan(/<strong>(.*?)<\/strong>/)
+	  		both_airports = match.scan(/<strong>(.*?)<\/strong>/)	  		
 	  		@both_airports = both_airports
 	  		match_strip = ActionView::Base.full_sanitizer.sanitize(match)
 	  		match_split = match_strip.split
@@ -279,6 +279,7 @@ class PagesController < ApplicationController
 		  		arrival_time = match_split[8]
 				departure_time = create_saveable_date(departure_date, departure_month, 2012, departure_time)
 		  		arrival_time = create_saveable_date(arrival_date, arrival_month, 2012, arrival_time)
+
 	  		elsif match_split[1].to_i !=0
 	  			if match_split[2] == "-"
 			  		departure_month = match_split[0]
@@ -288,9 +289,9 @@ class PagesController < ApplicationController
 			  		arrival_month = match_split[4]
 			  		arrival_date = match_split[5]
 			  		arrival_time = match_split[7]
+					
 					departure_time = create_saveable_date(departure_date, departure_month, 2012, departure_time)
 			  		arrival_time = create_saveable_date(arrival_date, arrival_month, 2012, arrival_time)
-
 	  			else 
 		  			departure_month = match_split[0]
 			  		departure_date = match_split[1]
@@ -327,14 +328,25 @@ class PagesController < ApplicationController
   	return full_string.strip.split(/\s+/)
   end
 
+  def am_pm_split(full_time)
+  	if full_time.scan("a.m.").count > 0
+  		reg_time = full_time.split("p.m.").first
+  	else
+  		reg_time = full_time.split("a.m.").first
+  	end
+  	return reg_time
+  end
+
   def create_saveable_date(day, month, year, hour)
   	if month.length < 4
   		num_month = Date::ABBR_MONTHNAMES.index(month.capitalize)
   	else
   		num_month = month
   	end
-  	string_date = "#{day}/#{num_month}/#{year} #{hour}"
-  	real_date = Chronic.parse(string_date)
-  	return real_date
+
+  	new_date = Time.parse("#{year}-#{num_month}-#{day} #{hour}")
+  	#string_date = "#{day}/#{num_month}/#{year} #{hour}"
+  	#real_date = Chronic.parse(string_date)
+  	return new_date
   end
 end
