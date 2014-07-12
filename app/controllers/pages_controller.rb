@@ -359,8 +359,7 @@ class PagesController < ApplicationController
   	#get messages from Virgin and pick the html
   	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare for your trip/i")
   	o_messages = o_messages.map {|message| message.body_parts.first.content}
-  	#o_messages.each do |message|
-  	message = o_messages[1]
+  	o_messages.each do |message|
   		dom = Nokogiri::HTML(message)
 	  	matches = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[1]/div[1]/table[2]/tr[2]/td/table/tr/td/table/tr').map(&:to_s)
 	  	year_array = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[2]/div[1]/table[1]/tr[3]/td/div[3]/text()')
@@ -424,7 +423,7 @@ class PagesController < ApplicationController
 	  	end
 	  	
 	  	
-	#end
+	end
   end
 
   private
