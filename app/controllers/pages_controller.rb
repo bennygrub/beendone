@@ -350,6 +350,82 @@ class PagesController < ApplicationController
   	
 
   end
+  def orbitz
+  	#auth into contextio
+  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	#get the correct account
+  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	
+  	#get messages from Virgin and pick the html
+  	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare for your trip/i")
+  	o_messages = o_messages.map {|message| message.body_parts.first.content}
+  	#o_messages.each do |message|
+  	message = o_messages[1]
+  		dom = Nokogiri::HTML(message)
+	  	matches = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[1]/div[1]/table[2]/tr[2]/td/table/tr/td/table/tr').map(&:to_s)
+	  	year_array = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[2]/div[1]/table[1]/tr[3]/td/div[3]/text()')
+	  	year = year_array.to_s.split[8]
+	  	flight_arrays = matches.each_slice(7).to_a
+	  	flight_arrays.pop
+	  	flight_arrays.each do |flight|
+	  		
+	  		#flight data
+	  		flight_date_split = ActionView::Base.full_sanitizer.sanitize(flight[0]).split
+	  		word_count = flight_date_split.count
+	  		if word_count == 9
+		  		month = flight_date_split[3]
+		  		day = flight_date_split[4]
+		  	else
+		  		month = flight_date_split[2]
+		  		day = flight_date_split[3]
+		  	end
+
+	  		#departure data
+	  		depart_array_extra = ActionView::Base.full_sanitizer.sanitize(flight[2])
+	  		depart_array_extra = depart_array_extra.gsub("\t","")
+	  		depart_array_extra = depart_array_extra.gsub("\n","")
+	  		depart_array_extra = depart_array_extra.gsub("\r","")
+	  		depart_array_extra = depart_array_extra.gsub("&nbsp;","")
+	  		depart_array = depart_array_extra.scan(/(^.*?)\|/)
+	  		depart_array = depart_array.first.first
+	  		depart_array = depart_array.split
+	  		depart_time = "#{depart_array[0]} #{depart_array[1]}"
+	  		depart_array.shift(2)
+	  		depart_airport = depart_array
+	  		depart_airport = depart_airport.join(" ")
+	  		airport_data = flight[1]
+	  		airport_data = airport_data.gsub("\t","")
+	  		airport_data = airport_data.gsub("\n","")
+	  		airport_data = airport_data.gsub("\r","")
+	  		airport_data = airport_data.gsub("&nbsp;","")
+	  		airline_array = airport_data.scan(/<span class="flightNameAndNumber">(.*?)<\/span>/).first.first.split
+	  		airline_array.pop
+	  		airline = airline_array.join(" ")
+	  		depart_time = create_saveable_date(day, month, year, depart_time)
+
+	  		#arrival data
+	  		arrival_array_extra = ActionView::Base.full_sanitizer.sanitize(flight[4])
+	  		arrival_array_extra = arrival_array_extra.gsub("\t","")
+	  		arrival_array_extra = arrival_array_extra.gsub("\n","")
+	  		arrival_array_extra = arrival_array_extra.gsub("\r","")
+	  		arrival_array_extra = arrival_array_extra.gsub("&nbsp;","")
+	  		arrival_array = arrival_array_extra.scan(/(^.*?)\|/)
+	  		arrival_array = arrival_array.first.first
+	  		arrival_array = arrival_array.split
+	  		arrival_time = "#{arrival_array[0]} #{arrival_array[1]}"
+	  		arrival_array.shift(2)
+	  		arrival_airport = arrival_array
+	  		arrival_airport = arrival_airport.join(" ")
+	  		arrival_time = create_saveable_date(day, month, year, arrival_time)
+
+	  		Flight.find_or_create_by_depart_time(trip_id: 28, airline_id: 43, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
+
+	  		
+	  	end
+	  	
+	  	
+	#end
+  end
 
   private
 
@@ -380,7 +456,6 @@ class PagesController < ApplicationController
   	else
   		num_month = month
   	end
-
   	new_date = Time.parse("#{year}-#{num_month}-#{day} #{hour}")
   	#string_date = "#{day}/#{num_month}/#{year} #{hour}"
   	#real_date = Chronic.parse(string_date)

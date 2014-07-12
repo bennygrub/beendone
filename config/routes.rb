@@ -6,6 +6,7 @@ Beendone::Application.routes.draw do
   get "pages/usairways"
   get "pages/jetblue"
   get "pages/virgin"
+  get "pages/orbitz"
   devise_for :users, :controllers => { omniauth_callbacks: 'omniauth_callbacks' }
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
