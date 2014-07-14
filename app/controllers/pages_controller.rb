@@ -356,8 +356,43 @@ class PagesController < ApplicationController
   	#get the correct account
   	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
   	
+  	
   	#get messages from Virgin and pick the html
-  	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare for your trip/i")
+  	email_change_date = Date.new(2011,1,1).to_time.to_i
+  	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare For Your Trip/i", date_before: email_change_date)
+  	o_messages = o_messages.map {|message| message.body_parts.first.content}
+	o_messages.each do |message|
+		dom = Nokogiri::HTML(message)
+  		matches = dom.xpath('//*[@id="emailFrame"]/tr/td/table/tr[2]/td[2]/table/tr[2]/td').map(&:to_s)
+  		matches.each do |match|
+		  	match = match.gsub("\t","")
+  			match = match.gsub("\n","")
+  			match = match.gsub("\r","")	
+  			@year = match.scan(/<b>(.*?)<\/b>/)[2].first.split.last
+  			split_flights = ActionView::Base.full_sanitizer.sanitize(match).split("--------------------------------")
+  			split_flights.each do |flight|
+  				flight = flight.gsub("\t","")
+	  			flight = flight.gsub("\n","")
+	  			flight = flight.gsub("\r","")
+	  			flight = flight.gsub("&nbsp;","")
+	  			departure_data = flight.scan(/Departure(.*?)Arrival/)
+	  			arrival_data = flight.scan(/Arrival(.*?)Seat/)
+	  			depart_airport = departure_data.first.first.scan(/\((.*?)\)/).first.first
+	  			depart_time = orbitz_time(departure_data.first.first.scan(/\:(.*?)\(/).first.first)
+	  			arrival_airport = arrival_data.first.first.scan(/\((.*?)\)/).first.first
+	  			arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
+	  			seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
+	  			Flight.find_or_create_by_depart_time(trip_id: 28, airline_id: 43, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+  			end
+
+  		end
+  	end
+
+
+
+  	#get messages from Virgin and pick the html
+  	email_change_date = Date.new(2011,1,1).to_time.to_i
+  	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare For Your Trip/i", date_after: email_change_date)
   	o_messages = o_messages.map {|message| message.body_parts.first.content}
   	o_messages.each do |message|
   		dom = Nokogiri::HTML(message)
@@ -426,6 +461,19 @@ class PagesController < ApplicationController
 	end
   end
 
+  def united
+  	#auth into contextio
+  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	#get the correct account
+  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	
+  	#get messages from Virgin and pick the html
+  	u_messages = account.messages.where(from: "unitedairlines@united.com", subject: "/eTicket Itinerary and Receipt for Confirmation/i")
+  	u_oldest_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com")
+  	raise "#{u_oldest_messages.count}"
+  	u_messages = u_messages.map {|message| message.body_parts.first.content}
+  end
+
   private
 
   def get_first_number(full_string)
@@ -450,14 +498,25 @@ class PagesController < ApplicationController
   end
 
   def create_saveable_date(day, month, year, hour)
-  	if month.length < 4
-  		num_month = Date::ABBR_MONTHNAMES.index(month.capitalize)
-  	else
-  		num_month = month
-  	end
+  	if month.class != Fixnum
+	  	if month.length < 4
+	  		num_month = Date::ABBR_MONTHNAMES.index(month.capitalize)
+	  	else
+	  		num_month = month
+	  	end
+	else
+		num_month = month
+	end
   	new_date = Time.parse("#{year}-#{num_month}-#{day} #{hour}")
   	#string_date = "#{day}/#{num_month}/#{year} #{hour}"
   	#real_date = Chronic.parse(string_date)
   	return new_date
+  end
+  def orbitz_time(string_date)
+  	month_name = string_date.split[0]
+  	month = Date::MONTHNAMES.index("#{month_name}")
+  	day = string_date.split[1]
+  	hour = "#{string_date.split[2]} #{string_date[3]}"
+  	create_saveable_date(day, month, @year, hour)
   end
 end
