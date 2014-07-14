@@ -493,57 +493,52 @@ class PagesController < ApplicationController
   	#get messages from Virgin and pick the html
   	#u_messages = account.messages.where(from: "unitedairlines@united.com", subject: "/eTicket Itinerary and Receipt for Confirmation/i")
   	#u_oldest_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: "/Your United flight confirmation -/")
-  	u_oldest_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation - January 27, 2011 - New York to Santa Barbara/')
+  	u_oldest_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/')
   	u_oldest_messages = u_oldest_messages.map {|message| message.body_parts.first.content}
   	u_oldest_messages.each do |message|
   		dom = Nokogiri::HTML(message)
-  		matches = dom.xpath('//*[@id="flightTable"]/tr').map(&:to_s)
-
-  		if matches.count.odd?
-  			odd_first_test = matches[4]
-  			odd_first_test = odd_first_test.gsub("&lt;","")
-  			odd_first_test = odd_first_test.gsub("&gt;","")
-  			connect = odd_first_test.scan(/<p>(.*?)<\/p>/).first.first
-  			if connect == " connecting to "
-  				raise "equal"
-  			else
-  				raise "not equal"
-  			end
-  		end
-  		matches = matches.each_slice(4).to_a
+  		#matches = dom.xpath('//*[@id="flightTable"]/tr').map(&:to_s)
+  		matches = dom.xpath('//*[@id="flightTable"]/tr[@style="vertical-align: top;"]').map(&:to_s)
+  		#matches = matches.each_slice(4).to_a
+  		#flight = matches[1]
+  		#raise "#{flight.scan(/<p>(.*?)<\/p>/).count}"
   		matches.each do |flight|
-  			#strip = ActionView::Base.full_sanitizer.sanitize(flight[0])
-  			#split_date = strip.split[0].split(",")
-  			#month_day = split_date[1]
-  			#day = get_first_number(month_day)
-			#month = month_day.split("#{day}") 
-  			#month = month.first
-  			#year = get_first_number(split_date[2])
-			flight_data = flight[2].gsub("\t","")
-	  		flight_data = flight_data.gsub("\n","")
-	  		flight_data = flight_data.gsub("\r","")
-	  		seat_type = flight_data.scan(/<td style="padding-bottom:20px;">(.*?)<\/td>/).first.first
-  			flight_data = flight_data.scan(/<td>(.*?)<\/td>/)
-  			departure_data = flight_data[0].first.scan(/\>(.*?)\</)
-  			depart_airport = departure_data[0].first
-  			depart_hour = departure_data[1].first
-  			depart_time_data = departure_data[3].first.split
-  			depart_month = depart_time_data[1]
-  			depart_day = depart_time_data[2]
-  			depart_year = depart_time_data[3]
-  			depart_time = create_saveable_date(depart_day, depart_month, depart_year, depart_hour)
+  			if flight.scan(/<p>(.*?)<\/p>/).count > 0 
 
-  			arrival_data = flight_data[1].first.scan(/\>(.*?)\</)
-  			arrival_airport = arrival_data[0].first
-  			arrival_hour = arrival_data[1].first
-  			arrival_time_data = arrival_data[3].first.split
-  			arrival_month = arrival_time_data[1]
-  			arrival_day = arrival_time_data[2]
-  			arrival_year = arrival_time_data[3]
-  			arrival_time = create_saveable_date(arrival_day, arrival_month, arrival_year, arrival_hour)
+  			else
+	  			#strip = ActionView::Base.full_sanitizer.sanitize(flight[0])
+	  			#split_date = strip.split[0].split(",")
+	  			#month_day = split_date[1]
+	  			#day = get_first_number(month_day)
+				#month = month_day.split("#{day}") 
+	  			#month = month.first
+	  			#year = get_first_number(split_date[2])
+				flight_data = flight.gsub("\t","")
+		  		flight_data = flight_data.gsub("\n","")
+		  		flight_data = flight_data.gsub("\r","")
+		  		seat_type = flight_data.scan(/<td style="padding-bottom:20px;">(.*?)<\/td>/).first.first
+	  			flight_data = flight_data.scan(/<td>(.*?)<\/td>/)  			
+	  			departure_data = flight_data.first.first.scan(/\>(.*?)\</)
 
-  			Flight.find_or_create_by_depart_time(trip_id: 48, airline_id: 83, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+	  			depart_airport = departure_data[0].first
+	  			depart_hour = departure_data[1].first
+	  			depart_time_data = departure_data[3].first.split
+	  			depart_month = depart_time_data[1]
+	  			depart_day = depart_time_data[2]
+	  			depart_year = depart_time_data[3]
+	  			depart_time = create_saveable_date(depart_day, depart_month, depart_year, depart_hour)
 
+	  			arrival_data = flight_data[1].first.scan(/\>(.*?)\</)
+	  			arrival_airport = arrival_data[0].first
+	  			arrival_hour = arrival_data[1].first
+	  			arrival_time_data = arrival_data[3].first.split
+	  			arrival_month = arrival_time_data[1]
+	  			arrival_day = arrival_time_data[2]
+	  			arrival_year = arrival_time_data[3]
+	  			arrival_time = create_saveable_date(arrival_day, arrival_month, arrival_year, arrival_hour)
+
+	  			Flight.find_or_create_by_depart_time(trip_id: 48, airline_id: 83, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+  			end
   		end
 
   		
