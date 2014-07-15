@@ -490,29 +490,51 @@ class PagesController < ApplicationController
   	#get the correct account
   	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
   	
+  	email_change_date = Date.new(2011,1,1).to_time.to_i
+
+
+  	u_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/', date_before: email_change_date)
+	u_messages = u_messages.map {|message| message.body_parts.first.content}
+
+	u_messages.each do |message|
+		dom = Nokogiri::HTML(message)
+		matches = dom.xpath('//*[@id="i"]/table[@style="width:511px;font:11px/15px Arial, sans-serif;"]').map(&:to_s)
+		matches.each do |flight|
+				flight_data = flight.gsub("\t","")
+		  		flight_data = flight_data.gsub("\n","")
+		  		flight_data = flight_data.gsub("\r","")
+		  		date_split = flight_data.scan(/<span>(.*?)<\/span>/).first.first.split
+		  		date_split = date_split.first.split(",")
+		  		year = date_split[2]
+		  		day = get_first_number(date_split[1])
+		  		month = date_split[1].split("#{day}").first
+		  		depart_split = flight_data.scan(/Depart: (.*?)<br>/).first.first.split
+		  		depart_airport = depart_split[0]
+		  		depart_hour_min = am_pm_split(depart_split[1] + depart_split[2])
+		  		depart_time = flight_date_time(day, month, year, depart_hour_min[:hour], depart_hour_min[:min])
+		  		arrive_split = flight_data.scan(/Arrive: (.*?)<\/td>/).first.first.split
+		  		arrival_airport = arrive_split[0]
+		  		arrive_hour_min = am_pm_split(arrive_split[1]+arrive_split[2])
+		  		arrival_time = flight_date_time(day, month, year, arrive_hour_min[:hour], arrive_hour_min[:min])
+		  		#seat_split = flight_data.scan(/Booking class: (.*?)<a/).first.first
+		  		#seat_type = seat_split.scan(/<br>(.*?)<br>/).first.first
+		  		seat_type = "Economy"
+		  		Flight.find_or_create_by_depart_time(trip_id: 48, airline_id: 83, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+			
+		end
+	end
   	#get messages from Virgin and pick the html
   	#u_messages = account.messages.where(from: "unitedairlines@united.com", subject: "/eTicket Itinerary and Receipt for Confirmation/i")
   	#u_oldest_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: "/Your United flight confirmation -/")
-  	u_oldest_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/')
+  	u_oldest_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/', date_after: email_change_date)
   	u_oldest_messages = u_oldest_messages.map {|message| message.body_parts.first.content}
   	u_oldest_messages.each do |message|
   		dom = Nokogiri::HTML(message)
   		#matches = dom.xpath('//*[@id="flightTable"]/tr').map(&:to_s)
   		matches = dom.xpath('//*[@id="flightTable"]/tr[@style="vertical-align: top;"]').map(&:to_s)
   		#matches = matches.each_slice(4).to_a
-  		#flight = matches[1]
-  		#raise "#{flight.scan(/<p>(.*?)<\/p>/).count}"
   		matches.each do |flight|
-  			if flight.scan(/<p>(.*?)<\/p>/).count > 0 
-
-  			else
-	  			#strip = ActionView::Base.full_sanitizer.sanitize(flight[0])
-	  			#split_date = strip.split[0].split(",")
-	  			#month_day = split_date[1]
-	  			#day = get_first_number(month_day)
-				#month = month_day.split("#{day}") 
-	  			#month = month.first
-	  			#year = get_first_number(split_date[2])
+  			if flight.scan(/<p>(.*?)<\/p>/).count < 1 
 				flight_data = flight.gsub("\t","")
 		  		flight_data = flight_data.gsub("\n","")
 		  		flight_data = flight_data.gsub("\r","")
@@ -540,7 +562,6 @@ class PagesController < ApplicationController
 	  			Flight.find_or_create_by_depart_time(trip_id: 48, airline_id: 83, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
   			end
   		end
-
   		
   	end
 
@@ -561,12 +582,30 @@ class PagesController < ApplicationController
   end
 
   def am_pm_split(full_time)
-  	if full_time.scan("a.m.").count > 0
-  		reg_time = full_time.split("p.m.").first
+  	if full_time.scan(/a.m./i).count > 0
+  		reg_time = full_time.split(/a.m./i).first
+  		hour_min = reg_time.split(":")
+  		hour = hour_min[0].to_i
+  	elsif full_time.scan(/p.m./i).count > 0
+  		reg_time = full_time.split(/p.m./i).first
+  		hour_min = reg_time.split(":")
+  		hour = hour_min[0].to_i + 12
+  	elsif full_time.scan(/pm/i).count > 0
+  		reg_time = full_time.split(/pm/i).first
+  		hour_min = reg_time.split(":")
+  		hour = hour_min[0].to_i  + 12
+
+  	elsif full_time.scan(/am/i).count > 0
+  		reg_time = full_time.split(/am/i).first
+  		hour_min = reg_time.split(":")
+  		hour = hour_min[0].to_i
   	else
-  		reg_time = full_time.split("a.m.").first
+  		reg_time = full_time
+  		hour_min = reg_time.split(":")
+  		hour = hour_min[0].to_i
   	end
-  	return reg_time
+  	min = hour_min[1]
+  	return {hour: hour, min: min}
   end
 
   def create_saveable_date(day, month, year, hour)
@@ -579,12 +618,35 @@ class PagesController < ApplicationController
 	else
 		num_month = month
 	end
+	
   	new_date = Time.parse("#{year}-#{num_month}-#{day} #{hour}")
   	#string_date = "#{day}/#{num_month}/#{year} #{hour}"
   	#real_date = Chronic.parse(string_date)
   	return new_date
   end
   
+  def flight_date_time(day, monthy, year, hour, min)
+	month = month_to_number(monthy)
+	year_new = year.gsub(/\W+/, '')
+	flight_date = DateTime.new(year_new.to_i,month.to_i,day.to_i,hour.to_i,min.to_i, 0, 0)
+	
+	return flight_date
+  end
+
+  def month_to_number(monthly)
+  	month = monthly.gsub(/\W+/, '')
+  	if month.class != Fixnum
+	  	if month.length < 4
+	  		num_month = Date::ABBR_MONTHNAMES.index(month.capitalize)
+	  	else
+	  		num_month = Date::MONTHNAMES.index(month)
+	  	end
+	else
+		num_month = month
+	end
+	return num_month
+  end
+
   def orbitz_time(string_date)
   	month_name = string_date.split[0]
   	month = Date::MONTHNAMES.index("#{month_name}")
