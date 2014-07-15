@@ -567,6 +567,53 @@ class PagesController < ApplicationController
 
   end
 
+  def cheapo
+  	#auth into contextio
+  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	#get the correct account
+  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	
+
+  	c_messages = account.messages.where(from: "cheapoair@cheapoair.com", subject: '/AIR TICKET/i')
+	c_messages = c_messages.map {|message| message.body_parts.first.content}
+	
+	c_messages.each do |message|
+		dom = Nokogiri::HTML(message)
+		year_data = dom.xpath('//*[@id="FlightBookingDetails"]/td/table[4]/tr/td/table/tr[1]').map(&:to_s).first
+		year_data = year_data.gsub("\t","")
+  		year_data = year_data.gsub("\n","")
+  		year_data = year_data.gsub("\r","")
+		year = year_data.scan(/- (.*?)<\/span>/).first.first.split.last
+		matches = dom.xpath('//*[@id="FlightBookingDetails"]/td/table[4]/tr/td/table/tr/td[@style="border-right: 1px solid #D0E0ED; padding-left: 12px"]').map(&:to_s)
+		flight_arrays = matches.each_slice(2).to_a
+		flight_arrays.each do |flight|
+			departure_data = flight[0].gsub("\t","")
+	  		departure_data = departure_data.gsub("\n","")
+	  		departure_data = departure_data.gsub("\r","")
+			depart_data = departure_data.scan(/<b>(.*?)<\/b>/)
+			depart_airport = depart_data[0].first.strip
+			depart_hour_min = am_pm_split(depart_data[1].first)
+		  	depart_month_day = departure_data.scan(/- (.*?)<\/span>/).first.first.split
+		  	depart_day = depart_month_day[1]
+		  	depart_month = month_to_number(depart_month_day[0])
+		  	depart_time = flight_date_time(depart_day, depart_month, year, depart_hour_min[:hour], depart_hour_min[:min])
+		  	
+		  	arrival_data = flight[1].gsub("\t","")
+	  		arrival_data = arrival_data.gsub("\n","")
+	  		arrival_data = arrival_data.gsub("\r","")
+	  		arrival_data_port = arrival_data.scan(/<b>(.*?)<\/b>/)
+	  		arrival_airport = arrival_data_port[0].first.strip
+			arrival_hour_min = am_pm_split(arrival_data_port[1].first)
+		  	arrival_month_day = arrival_data.scan(/- (.*?)<\/span>/).first.first.split
+		  	arrival_day = arrival_month_day[1]
+		  	arrival_month = month_to_number(arrival_month_day[0])
+		  	arrival_time = flight_date_time(arrival_day, arrival_month, year, arrival_hour_min[:hour], arrival_hour_min[:min])
+		  	seat_type = "CHEAPO"
+		  	Flight.find_or_create_by_depart_time(trip_id: 72, airline_id: 103, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+		end
+	end
+  end
+
   private
 
   def get_first_number(full_string)
@@ -633,9 +680,9 @@ class PagesController < ApplicationController
 	return flight_date
   end
 
-  def month_to_number(monthly)
-  	month = monthly.gsub(/\W+/, '')
+  def month_to_number(month)
   	if month.class != Fixnum
+	  	month = month.gsub(/\W+/, '')
 	  	if month.length < 4
 	  		num_month = Date::ABBR_MONTHNAMES.index(month.capitalize)
 	  	else
