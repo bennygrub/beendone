@@ -4,11 +4,21 @@ class PagesController < ApplicationController
   require 'chronic'
 
   def home
+  	#FlightGrab.perform_async('bob', 5)
+  	Resque.enqueue(VirginGrab, 5)
+  	Resque.enqueue(JetblueGrab, 5)
+  	Resque.enqueue(CheapoGrab, 5)
+  	Resque.enqueue(DeltaGrab, 5)
+  	Resque.enqueue(UnitedGrab, 5)
+  	Resque.enqueue(OrbitzGrab, 5)
+  	Resque.enqueue(AaGrab, 5)
+  	Resque.enqueue(FlightGrab, 5)
+
   end
 
   def about
   	#auth into contextio
-  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
   	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
   	
@@ -105,7 +115,7 @@ class PagesController < ApplicationController
 
   def contact
   	#auth into contextio
-  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
   	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
   	
@@ -210,7 +220,7 @@ class PagesController < ApplicationController
   end
   def usairways
   	#auth into contextio
-  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
   	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
   	
@@ -252,7 +262,7 @@ class PagesController < ApplicationController
   end
   def jetblue
   	#auth into contextio
-  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
   	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
   	jb_messages_old = account.messages.where(from: "mail@jetblueconnect.com", subject: "Your JetBlue E-tinerary")
@@ -342,7 +352,7 @@ class PagesController < ApplicationController
 
   def virgin
   	#auth into contextio
-  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
   	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
   	
@@ -375,7 +385,7 @@ class PagesController < ApplicationController
   end
   def orbitz
   	#auth into contextio
-  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
   	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
   	
@@ -486,7 +496,7 @@ class PagesController < ApplicationController
 
   def united
   	#auth into contextio
-  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
   	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
   	
@@ -569,7 +579,7 @@ class PagesController < ApplicationController
 
   def cheapo
   	#auth into contextio
-  	contextio = ContextIO.new('p3o3c7vm', '8kYkj7Qv9xKeVitj')
+  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
   	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
   	

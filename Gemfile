@@ -57,3 +57,5 @@ gem "omniauth-google-oauth2"
 gem 'contextio'
 gem "nokogiri"
 gem "chronic"
+gem 'resque', :require => "resque/server"
+#gem "sidekiq"
