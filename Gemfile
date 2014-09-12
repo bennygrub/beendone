@@ -58,4 +58,6 @@ gem 'contextio'
 gem "nokogiri"
 gem "chronic"
 gem 'resque', :require => "resque/server"
+gem 'gmaps4rails'
+gem 'underscore-rails'
 #gem "sidekiq"

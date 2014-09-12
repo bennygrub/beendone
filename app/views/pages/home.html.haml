@@ -5,6 +5,8 @@
   -@trips.each do |trip|
     -trip.flights.each do |flight|
       %p{style: "border-top:1px solid lightgrey;border-bottom:1px solid lightgrey;"}
+        =flight.depart_time
+        %br
         =flight.depart_airport
         %br
         to
