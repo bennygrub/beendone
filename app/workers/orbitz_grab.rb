@@ -3,16 +3,19 @@ class OrbitzGrab
   extend ResHelper
   @queue = :orbitz_queue
 
-  def self.perform(flight_id)
+  def self.perform(user_id)
+  	user = User.find(user_id)
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: user.email).first
+
 	email_change_date = Date.new(2011,1,1).to_time.to_i
   	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare For Your Trip/i", date_before: email_change_date)
-  	if o_messages.count > 1
+  	if o_messages.count > 0
 	  	o_messages = o_messages.map {|message| message.body_parts.first.content}
 		o_messages.each do |message|
+			trip = Trip.create(user_id: user.id)
 			dom = Nokogiri::HTML(message)
 	  		matches = dom.xpath('//*[@id="emailFrame"]/tr/td/table/tr[2]/td[2]/table/tr[2]/td').map(&:to_s)
 	  		matches.each do |match|
@@ -28,7 +31,7 @@ class OrbitzGrab
 		  			arrival_airport = arrival_data.first.first.scan(/\((.*?)\)/).first.first
 		  			arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
 		  			seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
-		  			Flight.find_or_create_by_depart_time(trip_id: 28, airline_id: 43, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+		  			Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 43, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
 	  			end
 
 	  		end
@@ -38,9 +41,10 @@ class OrbitzGrab
 	#ORBITZ OLD
 	email_change_date = Date.new(2011,1,1).to_time.to_i
   	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare For Your Trip/i", date_after: email_change_date)
-  	if o_messages.count > 1
+  	if o_messages.count > 0
 	  	o_messages = o_messages.map {|message| message.body_parts.first.content}
 	  	o_messages.each do |message|
+	  		trip = Trip.create(user_id: user.id)
 	  		dom = Nokogiri::HTML(message)
 		  	matches = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[1]/div[1]/table[2]/tr[2]/td/table/tr/td/table/tr').map(&:to_s)
 		  	year_array = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[2]/div[1]/table[1]/tr[3]/td/div[3]/text()')
@@ -89,7 +93,7 @@ class OrbitzGrab
 		  		arrival_airport = arrival_airport.join(" ")
 		  		arrival_time = create_saveable_date(day, month, year, arrival_time)
 
-		  		Flight.find_or_create_by_depart_time(trip_id: 28, airline_id: 43, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
+		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 43, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
 		  	end	
 		end
 	end

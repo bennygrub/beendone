@@ -3,11 +3,12 @@ class FlightGrab
   extend ResHelper
   @queue = :flights_queue
 
-  def self.perform(flight_id)
-	#auth into contextio
+  def self.perform(user_id)
+  	user = User.find(user_id)
+  	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: user.email).first
   	
   	
 	#VIRGIN

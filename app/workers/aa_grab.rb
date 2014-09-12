@@ -3,17 +3,19 @@ class AaGrab
   extend ResHelper
   @queue = :aa_queue
 
-  def self.perform(flight_id)
+  def self.perform(user_id)
+  	user = User.find(user_id)
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: user.email).first
 	
 	##AMERICAN AIRLINES
   	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com")
-  	if aa_messages.count > 1
+  	if aa_messages.count > 0
 	  	aa_messages = aa_messages.map {|message| message.body_parts.first.content}
 	  	aa_messages.each do |message|
+	  		trip = Trip.create(user_id: user.id)
 			#trip info
 			message.scan(/TICKET TOTAL (.*)/).each do |trip|
 				fare = trip.first
@@ -102,7 +104,7 @@ class AaGrab
 		  		}
 	  		}
 	  		flight_array.each do |flight|
-	  			Flight.find_or_create_by_depart_time(trip_id: 3, airline_id: 2, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
+	  			Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 2, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
 	  		end
 	  	end
 	end

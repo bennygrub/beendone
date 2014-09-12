@@ -3,11 +3,13 @@ class UnitedGrab
   extend ResHelper
   @queue = :united_queue
 
-  def self.perform(flight_id)
+  def self.perform(user_id)
+  	user = User.find(user_id)
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: user.email).first
+
 	email_change_date = Date.new(2011,1,1).to_time.to_i #date that email changed
   	u_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/', date_before: email_change_date)
 	
@@ -15,6 +17,7 @@ class UnitedGrab
 		u_messages = u_messages.map {|message| message.body_parts.first.content}
 
 		u_messages.each do |message|
+			trip = Trip.create(user_id: user.id)
 			dom = Nokogiri::HTML(message)
 			matches = dom.xpath('//*[@id="i"]/table[@style="width:511px;font:11px/15px Arial, sans-serif;"]').map(&:to_s)
 			matches.each do |flight|
@@ -35,7 +38,7 @@ class UnitedGrab
 			  		#seat_split = flight_data.scan(/Booking class: (.*?)<a/).first.first
 			  		#seat_type = seat_split.scan(/<br>(.*?)<br>/).first.first
 			  		seat_type = "Economy"
-			  		Flight.find_or_create_by_depart_time(trip_id: 48, airline_id: 83, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+			  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 83, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
 				
 			end
 		end
@@ -47,6 +50,7 @@ class UnitedGrab
   	if u_oldest_messages.count > 0 
 	  	u_oldest_messages = u_oldest_messages.map {|message| message.body_parts.first.content}
 	  	u_oldest_messages.each do |message|
+	  		trip = Trip.create(user_id: user.id)
 	  		dom = Nokogiri::HTML(message)
 	  		matches = dom.xpath('//*[@id="flightTable"]/tr[@style="vertical-align: top;"]').map(&:to_s)
 	  		matches.each do |flight|
@@ -73,7 +77,7 @@ class UnitedGrab
 		  			arrival_year = arrival_time_data[3]
 		  			arrival_time = create_saveable_date(arrival_day, arrival_month, arrival_year, arrival_hour)
 
-		  			Flight.find_or_create_by_depart_time(trip_id: 48, airline_id: 83, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+		  			Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 83, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
 	  			end
 	  		end
 	  	end

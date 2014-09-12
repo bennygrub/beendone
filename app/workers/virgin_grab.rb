@@ -3,15 +3,19 @@ class VirginGrab
   extend ResHelper
   @queue = :virgin_queue
 
-  def self.perform(flight_id)
+  def self.perform(user_id)
+  	user = User.find(user_id)
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: user.email).first
+
+
   	va_messages = account.messages.where(from: "virginamerica@elevate.virginamerica.com", subject: "/Virgin America Reservation/")
 	if va_messages.count > 0 
 		va_messages = va_messages.map {|message| message.body_parts.first.content}
 	  	va_messages.each do |message|
+	  		trip = Trip.create(user_id: user.id)
 	  		dom = Nokogiri::HTML(message)
 		  	matches = dom.xpath('/html/body/table/tr[14]/td/table/tr[2]/td/table/tr').map(&:to_s)
 		  	matches.shift
@@ -27,7 +31,7 @@ class VirginGrab
 		  		both_airports = match_join.scan(/\((.*?)\)/)
 		  		d_time = Time.parse("#{date} #{both_times[0].first}")
 		  		a_time = Time.parse("#{date} #{both_times[1].first}")
-		  		Flight.find_or_create_by_depart_time(trip_id: 24, airline_id: 23, depart_airport: both_airports[0].first, depart_time: d_time, arrival_airport: both_airports[1].first, arrival_time: a_time, seat_type: "COACH" )
+		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 23, depart_airport: both_airports[0].first, depart_time: d_time, arrival_airport: both_airports[1].first, arrival_time: a_time, seat_type: "COACH" )
 		  	end	
 	  	end
 	end

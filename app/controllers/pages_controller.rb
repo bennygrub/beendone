@@ -4,7 +4,9 @@ class PagesController < ApplicationController
   require 'chronic'
 
   def home
-
+  	if current_user
+  		@trips = current_user.trips
+  	end
 
   end
 
@@ -24,7 +26,7 @@ class PagesController < ApplicationController
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: current_user.email).first
   	
   	#get messages from delta and pick the html
   	delta_messages = account.messages.where(from: "deltaelectronicticketreceipt@delta.com")
@@ -121,7 +123,7 @@ class PagesController < ApplicationController
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: current_user.email).first
   	
   	#get messages from delta and pick the html
   	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com")
@@ -226,7 +228,7 @@ class PagesController < ApplicationController
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: current_user.email).first
   	
   	#get messages from delta and pick the html
   	usa_messages = account.messages.where(from: "reservations@email-usairways.com")
@@ -268,7 +270,7 @@ class PagesController < ApplicationController
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: current_user.email).first
   	jb_messages_old = account.messages.where(from: "mail@jetblueconnect.com", subject: "Your JetBlue E-tinerary")
   	jb_messages_old = jb_messages_old.map {|message| message.body_parts.first.content}
   	jb_messages_old.each do |message|
@@ -358,12 +360,14 @@ class PagesController < ApplicationController
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: current_user.email).first
   	
   	#get messages from Virgin and pick the html
   	va_messages = account.messages.where(from: "virginamerica@elevate.virginamerica.com", subject: "/Virgin America Reservation/")
   	va_messages = va_messages.map {|message| message.body_parts.first.content}
   	va_messages.each do |message|
+  		trip = Trip.create(user_id: current_user.id, name: "virginamerica test")
+  		#raise "#{trip.id}"
   		dom = Nokogiri::HTML(message)
 	  	matches = dom.xpath('/html/body/table/tr[14]/td/table/tr[2]/td/table/tr').map(&:to_s)
 	  	matches.shift
@@ -380,7 +384,7 @@ class PagesController < ApplicationController
 	  		both_airports = match_join.scan(/\((.*?)\)/)
 	  		d_time = Time.parse("#{date} #{both_times[0].first}")
 	  		a_time = Time.parse("#{date} #{both_times[1].first}")
-	  		Flight.find_or_create_by_depart_time(trip_id: 24, airline_id: 23, depart_airport: both_airports[0].first, depart_time: d_time, arrival_airport: both_airports[1].first, arrival_time: a_time, seat_type: "COACH" )
+	  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 23, depart_airport: both_airports[0].first, depart_time: d_time, arrival_airport: both_airports[1].first, arrival_time: a_time, seat_type: "COACH" )
 	  	end
   		
   	end
@@ -391,7 +395,7 @@ class PagesController < ApplicationController
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: current_user.email).first
   	
   	
   	#get messages from Virgin and pick the html
@@ -502,7 +506,7 @@ class PagesController < ApplicationController
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: current_user.email).first
   	
   	email_change_date = Date.new(2011,1,1).to_time.to_i
 
@@ -585,7 +589,7 @@ class PagesController < ApplicationController
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: current_user.email).first
   	
 
   	c_messages = account.messages.where(from: "cheapoair@cheapoair.com", subject: '/AIR TICKET/i')

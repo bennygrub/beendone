@@ -3,16 +3,18 @@ class CheapoGrab
   extend ResHelper
   @queue = :cheapo_queue
 
-  def self.perform(flight_id)
+  def self.perform(user_id)
+  	user = User.find(user_id)
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: user.email).first
 	c_messages = account.messages.where(from: "cheapoair@cheapoair.com", subject: '/AIR TICKET/i')
 	if c_messages.count > 0
 		c_messages = c_messages.map {|message| message.body_parts.first.content}
 		
 		c_messages.each do |message|
+			trip = Trip.create(user_id: user.id)
 			dom = Nokogiri::HTML(message)
 			year_data = dom.xpath('//*[@id="FlightBookingDetails"]/td/table[4]/tr/td/table/tr[1]').map(&:to_s).first
 			year_data = year_data.gsub("\t","")
@@ -40,7 +42,7 @@ class CheapoGrab
 			  	arrival_month = month_to_number(arrival_month_day[0])
 			  	arrival_time = flight_date_time(arrival_day, arrival_month, year, arrival_hour_min[:hour], arrival_hour_min[:min])
 			  	seat_type = "CHEAPO"
-			  	Flight.find_or_create_by_depart_time(trip_id: 72, airline_id: 103, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+			  	Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 103, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
 			end
 		end
 	end

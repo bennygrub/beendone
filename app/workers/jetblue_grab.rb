@@ -3,17 +3,19 @@ class JetblueGrab
   extend ResHelper
   @queue = :jetblue_queue
 
-  def self.perform(flight_id)
+  def self.perform(user_id)
+  	user = User.find(user_id)
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: 'blgruber@gmail.com').first
+  	account = contextio.accounts.where(email: user.email).first
 	
 	##JETBLUE NEW
   	jb_messages = account.messages.where(from: "reservations@jetblue.com", subject: "Itinerary for your upcoming trip")
   	if jb_messages.count > 0
 	  	jb_messages = jb_messages.map {|message| message.body_parts.first.content}
 	  	jb_messages.each do |message|
+	  		trip = Trip.create(user_id: user.id)
 	  		@message = message
 	  		dom = Nokogiri::HTML(message)
 		  	matches = dom.xpath('//*[@id="ticket"]/div/table/tr/td/table[4]/tr').map(&:to_s)
@@ -66,7 +68,7 @@ class JetblueGrab
 			  		arrival_time = create_saveable_date(flight_date[2], flight_date[1], 2012, both_times[1])
 			  	end
 
-		  		Flight.find_or_create_by_depart_time(trip_id: 6, airline_id: 1, depart_airport: both_airports.first.first, depart_time: departure_time, arrival_airport: both_airports[1].first, arrival_time: arrival_time, seat_type: "COACH" )
+		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 1, depart_airport: both_airports.first.first, depart_time: departure_time, arrival_airport: both_airports[1].first, arrival_time: arrival_time, seat_type: "COACH" )
 		  	end
 	  	end
 	end
@@ -76,6 +78,7 @@ class JetblueGrab
   	if jb_messages_old.count > 0
 	  	jb_messages_old = jb_messages_old.map {|message| message.body_parts.first.content}
 	  	jb_messages_old.each do |message|
+	  		trip = Trip.create(user_id: user.id)
 	  		dom = Nokogiri::HTML(message)
 		  	matches = dom.xpath('/html/body/div/table/tr[11]/td/table/tr').map(&:to_s)
 		  	matches.shift(2)
@@ -94,7 +97,7 @@ class JetblueGrab
 		  		arrival_airport = a_split.join(" ")
 		  		arrival_time = old_jb_time(date,arrival_time)
 		  		depart_time = old_jb_time(date,depart_time)
-		  		Flight.find_or_create_by_depart_time(trip_id: 6, airline_id: 1, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
+		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 1, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
 		  	end
 		end
 	end
