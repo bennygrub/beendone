@@ -8,7 +8,7 @@ class User < ActiveRecord::Base
 
   def self.find_for_google_oauth2(access_token, signed_in_resource=nil)
     data = access_token.extra["raw_info"]
-    #raise "#{data["email"]}"
+    #raise "#{access_token.credentials['token']}"
     user = User.where(:email => data["email"]).first
     contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
     account = contextio.accounts.create(email: data["email"])
@@ -20,9 +20,9 @@ class User < ActiveRecord::Base
         1,
         993,
         'IMAP',
-    	provider_refresh_token: access_token.credentials["refresh_token"],
-		provider_consumer_key: "329607164099-q5968gbogqqq6dkl4us5i70k6fmn7a0c.apps.googleusercontent.com",
-		callback_url: "localhost:3000"
+        provider_consumer_key: "329607164099-q5968gbogqqq6dkl4us5i70k6fmn7a0c.apps.googleusercontent.com",
+        provider_refresh_token: access_token.credentials["refresh_token"],
+        callback_url: "http:/localhost:3000"
 	)
     
 

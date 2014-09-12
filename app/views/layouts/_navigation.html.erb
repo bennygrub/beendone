@@ -7,11 +7,8 @@
   <% end %>
   <% if user_signed_in? %>
     <li><%= link_to 'Edit account', edit_user_registration_path %></li>
-    <% if current_user.has_role? :admin %>
-      <li><%= link_to 'Admin', users_path %></li>
-    <% end %>
   <% else %>
     <li><%= link_to 'Sign up', new_user_registration_path %></li>
+    <li><%= link_to "Sign in with Gmail", user_omniauth_authorize_path(:google) %></li>
   <% end %>
-  <li><%= link_to "Sign in with Gmail", user_omniauth_authorize_path(:google) %></li>
-</ul##>
+</ul>

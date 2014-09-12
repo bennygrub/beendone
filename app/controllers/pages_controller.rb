@@ -4,6 +4,11 @@ class PagesController < ApplicationController
   require 'chronic'
 
   def home
+
+
+  end
+
+  def all
   	#FlightGrab.perform_async('bob', 5)
   	Resque.enqueue(VirginGrab, 5)
   	Resque.enqueue(JetblueGrab, 5)
@@ -12,8 +17,7 @@ class PagesController < ApplicationController
   	Resque.enqueue(UnitedGrab, 5)
   	Resque.enqueue(OrbitzGrab, 5)
   	Resque.enqueue(AaGrab, 5)
-  	Resque.enqueue(FlightGrab, 5)
-
+  	#Resque.enqueue(FlightGrab, 5)
   end
 
   def about
