@@ -1,0 +1,40 @@
+= form_for @airport do |f|
+  - if @airport.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@airport.errors.count, "error")} prohibited this airport from being saved:"
+      %ul
+        - @airport.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :name
+    = f.text_field :name
+  .field
+    = f.label :city
+    = f.text_field :city
+  .field
+    = f.label :country
+    = f.text_field :country
+  .field
+    = f.label :faa
+    = f.text_field :faa
+  .field
+    = f.label :icao
+    = f.text_field :icao
+  .field
+    = f.label :latitude
+    = f.text_field :latitude
+  .field
+    = f.label :longitude
+    = f.text_field :longitude
+  .field
+    = f.label :altitude
+    = f.number_field :altitude
+  .field
+    = f.label :timezone
+    = f.number_field :timezone
+  .field
+    = f.label :dst
+    = f.text_field :dst
+  .actions
+    = f.submit 'Save'

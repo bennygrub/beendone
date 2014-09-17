@@ -31,7 +31,7 @@ class OrbitzGrab
 		  			arrival_airport = arrival_data.first.first.scan(/\((.*?)\)/).first.first
 		  			arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
 		  			seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
-		  			Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 43, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+		  			Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 43, depart_airport: Airport.find_by_faa(depart_airport).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_airport).id, arrival_time: arrival_time, seat_type: seat_type )
 	  			end
 
 	  		end
@@ -93,7 +93,7 @@ class OrbitzGrab
 		  		arrival_airport = arrival_airport.join(" ")
 		  		arrival_time = create_saveable_date(day, month, year, arrival_time)
 
-		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 43, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
+		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 43, depart_airport: Airport.find_by_faa(depart_airport.scan(/\((.*?)\)/).first.first).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_airport.scan(/\((.*?)\)/).first.first).id, arrival_time: arrival_time, seat_type: "COACH" )
 		  	end	
 		end
 	end

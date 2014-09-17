@@ -1,0 +1,36 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @airport.name
+%p
+  %b City:
+  = @airport.city
+%p
+  %b Country:
+  = @airport.country
+%p
+  %b Faa:
+  = @airport.faa
+%p
+  %b Icao:
+  = @airport.icao
+%p
+  %b Latitude:
+  = @airport.latitude
+%p
+  %b Longitude:
+  = @airport.longitude
+%p
+  %b Altitude:
+  = @airport.altitude
+%p
+  %b Timezone:
+  = @airport.timezone
+%p
+  %b Dst:
+  = @airport.dst
+
+= link_to 'Edit', edit_airport_path(@airport)
+\|
+= link_to 'Back', airports_path

@@ -1,0 +1,37 @@
+%h1 Listing airports
+
+%table
+  %tr
+    %th Name
+    %th City
+    %th Country
+    %th Faa
+    %th Icao
+    %th Latitude
+    %th Longitude
+    %th Altitude
+    %th Timezone
+    %th Dst
+    %th
+    %th
+    %th
+
+  - @airports.each do |airport|
+    %tr
+      %td= airport.name
+      %td= airport.city
+      %td= airport.country
+      %td= airport.faa
+      %td= airport.icao
+      %td= airport.latitude
+      %td= airport.longitude
+      %td= airport.altitude
+      %td= airport.timezone
+      %td= airport.dst
+      %td= link_to 'Show', airport
+      %td= link_to 'Edit', edit_airport_path(airport)
+      %td= link_to 'Destroy', airport, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Airport', new_airport_path

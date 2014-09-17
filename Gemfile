@@ -60,4 +60,5 @@ gem "chronic"
 gem 'resque', :require => "resque/server"
 gem 'gmaps4rails'
 gem 'underscore-rails'
+gem 'smarter_csv'
 #gem "sidekiq"

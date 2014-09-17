@@ -31,7 +31,7 @@ class VirginGrab
 		  		both_airports = match_join.scan(/\((.*?)\)/)
 		  		d_time = Time.parse("#{date} #{both_times[0].first}")
 		  		a_time = Time.parse("#{date} #{both_times[1].first}")
-		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 23, depart_airport: both_airports[0].first, depart_time: d_time, arrival_airport: both_airports[1].first, arrival_time: a_time, seat_type: "COACH" )
+		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 23, depart_airport: Airport.find_by_faa(both_airports[0].first).id, depart_time: d_time, arrival_airport: Airport.find_by_faa(both_airports[1].first).id, arrival_time: a_time, seat_type: "COACH" )
 		  	end	
 	  	end
 	end

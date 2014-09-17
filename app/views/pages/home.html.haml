@@ -2,6 +2,10 @@
 %p Map, track,  sort your past  future travel without inputting anything.
 
 -if current_user
+
+  %div{:style => "width: 800px;"}
+    #map{:style => "width: 800px; height: 400px;"}
+
   -@trips.each do |trip|
     -trip.flights.each do |flight|
       %p{style: "border-top:1px solid lightgrey;border-bottom:1px solid lightgrey;"}
@@ -11,7 +15,7 @@
         %br
         to
         %br
-        =flight.arrival_airport
+        =flight.arrival_airport        
 -else
   = form_for(:user, :as => :user, :url => registration_path(:user)) do |f|
     = f.text_field :name, placeholder: "Name"
