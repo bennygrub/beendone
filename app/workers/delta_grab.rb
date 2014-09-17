@@ -97,24 +97,24 @@ class DeltaGrab
 		  		}
 		  	}
 
-		  	if flight[:departure_airport] == "NYC-LAGUARDIA" || flight[:departure_airport] == "NYC-KENNEDY"
-		  		depart_nyc = flight[:departure_airport].split("-").second
-		  		depart_code = depart_nyc == "KENNEDY" ? "JFK" : "LGA"
-		  		depart_airport = Airport.find_by_faa(depart_code).id 
-		  	else
-		  		depart_airport = Airport.find_by_city(flight[:departure_airport].titleize).id
-		  	end
-		  	if flight[:arrival_airport] == "NYC-LAGUARDIA" || flight[:arrival_airport] == "NYC-KENNEDY"
-		  		arrival_nyc = flight[:arrival_airport].split("-").second
-		  		arrival_code = arrival_nyc == "KENNEDY" ? "JFK" : "LGA"
-		  		arrival_airport = Airport.find_by_faa(arrival_code).id 
-		  	else
-		  		arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
-		  	end
-
-		  	
 		  	flight_array.each do |flight|
-		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 12, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
+		  		
+		  		if flight[:departure_airport] == "NYC-LAGUARDIA" || flight[:departure_airport] == "NYC-KENNEDY"
+		  			depart_nyc = flight[:departure_airport].split("-").second
+		  			depart_code = depart_nyc == "KENNEDY" ? "JFK" : "LGA"
+		  			depart_airport = Airport.find_by_faa(depart_code).id 
+		  		else
+		  			depart_airport = Airport.find_by_city(flight[:departure_airport].titleize).id
+		  		end
+		  		if flight[:arrival_airport] == "NYC-LAGUARDIA" || flight[:arrival_airport] == "NYC-KENNEDY"
+		  			arrival_nyc = flight[:arrival_airport].split("-").second
+		  			arrival_code = arrival_nyc == "KENNEDY" ? "JFK" : "LGA"
+		  			arrival_airport = Airport.find_by_faa(arrival_code).id 
+		  		else
+		  			arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
+		  		end
+
+		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 12, depart_airport: depart_airport, depart_time: flight[:departure_time], arrival_airport: arrival_airport, arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
 		  	end
 		end
 	end

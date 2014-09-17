@@ -114,24 +114,23 @@ class PagesController < ApplicationController
 	  		}
 	  	}
 
-	  	if flight[:departure_airport] == "NYC-LAGUARDIA" || flight[:departure_airport] == "NYC-KENNEDY"
-	  		depart_nyc = flight[:departure_airport].split("-").second
-	  		depart_code = depart_nyc == "KENNEDY" ? "JFK" : "LGA"
-	  		depart_airport = Airport.find_by_faa(depart_code).id 
-	  	else
-	  		depart_airport = Airport.find_by_city(flight[:departure_airport].titleize).id
-	  	end
-	  	if flight[:arrival_airport] == "NYC-LAGUARDIA" || flight[:arrival_airport] == "NYC-KENNEDY"
-	  		arrival_nyc = flight[:arrival_airport].split("-").second
-	  		arrival_code = arrival_nyc == "KENNEDY" ? "JFK" : "LGA"
-	  		arrival_airport = Airport.find_by_faa(arrival_code).id 
-	  	else
-	  		arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
-	  	end
-
-
-
 	  	flight_array.each do |flight|
+	  		
+	  		if flight[:departure_airport] == "NYC-LAGUARDIA" || flight[:departure_airport] == "NYC-KENNEDY"
+	  			depart_nyc = flight[:departure_airport].split("-").second
+	  			depart_code = depart_nyc == "KENNEDY" ? "JFK" : "LGA"
+	  			depart_airport = Airport.find_by_faa(depart_code).id 
+	  		else
+	  			depart_airport = Airport.find_by_city(flight[:departure_airport].titleize).id
+	  		end
+	  		if flight[:arrival_airport] == "NYC-LAGUARDIA" || flight[:arrival_airport] == "NYC-KENNEDY"
+	  			arrival_nyc = flight[:arrival_airport].split("-").second
+	  			arrival_code = arrival_nyc == "KENNEDY" ? "JFK" : "LGA"
+	  			arrival_airport = Airport.find_by_faa(arrival_code).id 
+	  		else
+	  			arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
+	  		end
+
 	  		Flight.find_or_create_by_depart_time(trip_id: 14, airline_id: 12, depart_airport: depart_airport, depart_time: flight[:departure_time], arrival_airport: arrival_airport, arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
 	  	end
 	end
@@ -300,14 +299,29 @@ class PagesController < ApplicationController
 	  		date = flight_array[0].first
 	  		departure_data = flight_array[2].first	  		
 	  		depart_time = departure_data.split.pop
-	  		d_split = departure_data.split
-	  		d_split.pop
-	  		depart_airport = d_split.join(" ")
+	  		depart_city = flight_array[2].first.split(",").first
+	  		if depart_city == "New York"
+	  			depart_code = flight_array[2].first.split(",").second.split(" ").first
+	  			depart_airport = Airport.find_by_faa(depart_code).id
+	  		else
+	  			depart_airport = Airport.where("city = ?", depart_city).first.id
+	  		end
+	  		arrival_city = flight_array[3].first.split(",").first
+	  		if arrival_city == "New York"
+	  			arrival_code = flight_array[3].first.split(",").second.split(" ").first
+	  			arrival_airport = Airport.find_by_faa(arrival_code).id
+	  		else
+	  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
+	  		end
+	  		binding.pry
+	  		#d_split = departure_data.split
+	  		#d_split.pop
+	  		#depart_airport = d_split.join(" ")
 	  		arrival_data = flight_array[3].first
 	  		arrival_time = arrival_data.split.pop
-	  		a_split = arrival_data.split
-	  		a_split.pop
-	  		arrival_airport = a_split.join(" ")
+	  		#a_split = arrival_data.split
+	  		#a_split.pop
+	  		#arrival_airport = a_split.join(" ")
 	  		arrival_time = old_jb_time(date,arrival_time)
 	  		depart_time = old_jb_time(date,depart_time)
 	  		Flight.find_or_create_by_depart_time(trip_id: 6, airline_id: 1, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
@@ -325,8 +339,25 @@ class PagesController < ApplicationController
 	  	matches = matches.select.each_with_index { |str, i| i.even? }
 	  	#match = matches[1]
 	  	matches.each do |match|
-	  		both_airports = match.scan(/<strong>(.*?)<\/strong>/)	  		
-	  		@both_airports = both_airports
+	  		both_airports = match.scan(/<strong>(.*?)<\/strong>/)
+
+	  		depart_city = both_airports.first.first.split(",").first.titleize
+	  		if depart_city == "NEW YORK JFK" || depart_city == "NEW YORK LGA"
+	  			depart_nyc = depart_city.split(" ").last
+	  			depart_airport = Airport.find_by_faa("depart_nyc")
+	  		else
+	  			depart_airport = Airport.where("city = ?", depart_city).first.id
+	  		end
+	  		
+	  		arrival_city = both_airports.second.first.split(",").first.titleize
+	  		if arrival_city == "NEW YORK JFK" || arrival_city == "NEW YORK LGA"
+	  			arrival_city_nyc = arrival_city.split(" ").last
+	  			arrival_airport = Airport.find_by_faa("arrival_city_nyc").id
+	  		else
+	  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
+	  		end
+
+	  		#@both_airports = both_airports
 	  		match_strip = ActionView::Base.full_sanitizer.sanitize(match)
 	  		match_split = match_strip.split
 
@@ -369,7 +400,7 @@ class PagesController < ApplicationController
 		  		arrival_time = create_saveable_date(flight_date[2], flight_date[1], 2012, both_times[1])
 		  	end
 
-	  		Flight.find_or_create_by_depart_time(trip_id: 6, airline_id: 1, depart_airport: both_airports.first.first, depart_time: departure_time, arrival_airport: both_airports[1].first, arrival_time: arrival_time, seat_type: "COACH" )
+	  		Flight.find_or_create_by_depart_time(trip_id: 6, airline_id: 1, depart_airport: depart_airport, depart_time: departure_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
 	  	end
   	end
   end
@@ -627,6 +658,7 @@ class PagesController < ApplicationController
 	  		departure_data = departure_data.gsub("\n","")
 	  		departure_data = departure_data.gsub("\r","")
 			depart_data = departure_data.scan(/<b>(.*?)<\/b>/)
+			depart_code = departure_data.scan(/\(([^\)]+)\)/).last.first
 			depart_airport = depart_data[0].first.strip
 			depart_hour_min = am_pm_split(depart_data[1].first)
 		  	depart_month_day = departure_data.scan(/- (.*?)<\/span>/).first.first.split
@@ -637,6 +669,7 @@ class PagesController < ApplicationController
 		  	arrival_data = flight[1].gsub("\t","")
 	  		arrival_data = arrival_data.gsub("\n","")
 	  		arrival_data = arrival_data.gsub("\r","")
+	  		arrival_code = arrival_data.scan(/\(([^\)]+)\)/).last.first
 	  		arrival_data_port = arrival_data.scan(/<b>(.*?)<\/b>/)
 	  		arrival_airport = arrival_data_port[0].first.strip
 			arrival_hour_min = am_pm_split(arrival_data_port[1].first)
@@ -645,7 +678,7 @@ class PagesController < ApplicationController
 		  	arrival_month = month_to_number(arrival_month_day[0])
 		  	arrival_time = flight_date_time(arrival_day, arrival_month, year, arrival_hour_min[:hour], arrival_hour_min[:min])
 		  	seat_type = "CHEAPO"
-		  	Flight.find_or_create_by_depart_time(trip_id: 72, airline_id: 103, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+		  	Flight.find_or_create_by_depart_time(trip_id: 72, airline_id: 103, depart_airport: Airport.find_by_faa(depart_code).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_code).id, arrival_time: arrival_time, seat_type: seat_type )
 		end
 	end
   end
