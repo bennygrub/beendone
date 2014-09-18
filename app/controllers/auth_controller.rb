@@ -20,7 +20,7 @@ class AuthController < ApplicationController
   	Resque.enqueue(DeltaGrab, current_user.id)
   	Resque.enqueue(UnitedGrab, current_user.id)
   	Resque.enqueue(OrbitzGrab, current_user.id)
-  	Resque.enqueue(AaGrab, current_user.id)
+  	#Resque.enqueue(AaGrab, current_user.id)
   	flash[:notice] = "You're Map is being created, we will email you when you its ready"
   	redirect_to root_path
   end

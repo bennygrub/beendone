@@ -11,11 +11,18 @@
       %p{style: "border-top:1px solid lightgrey;border-bottom:1px solid lightgrey;"}
         =flight.depart_time
         %br
-        =flight.depart_airport
+        =Airport.find(flight.depart_airport).name
+        ="-"
+        =Airport.find(flight.depart_airport).city
+        ="(#{flight.depart_airport})"
         %br
         to
         %br
-        =flight.arrival_airport        
+        =Airport.find(flight.arrival_airport).name
+        ="-"
+        =Airport.find(flight.arrival_airport).city
+        ="(#{flight.arrival_airport})"
+  :javascript
 -else
   = form_for(:user, :as => :user, :url => registration_path(:user)) do |f|
     = f.text_field :name, placeholder: "Name"
@@ -23,3 +30,4 @@
     = f.password_field :password, placeholder: "Password"
     = button_tag :type => :submit do
       Sign up
+

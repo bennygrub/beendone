@@ -44,7 +44,7 @@ class CheapoGrab
 			  	arrival_month = month_to_number(arrival_month_day[0])
 			  	arrival_time = flight_date_time(arrival_day, arrival_month, year, arrival_hour_min[:hour], arrival_hour_min[:min])
 			  	seat_type = "CHEAPO"
-			  	Flight.find_or_create_by_depart_time(trip_id: 72, airline_id: 103, depart_airport: Airport.find_by_faa(depart_code).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_code).id, arrival_time: arrival_time, seat_type: seat_type )
+			  	Flight.find_or_create_by_depart_time(trip_id: trip, airline_id: 103, depart_airport: Airport.find_by_faa(depart_code).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_code).id, arrival_time: arrival_time, seat_type: seat_type )
 			end
 		end
 	end

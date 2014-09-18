@@ -1,4 +1,6 @@
 Beendone::Application.routes.draw do
+  resources :airlines
+
   resources :airports
 
   post "auth/connect"

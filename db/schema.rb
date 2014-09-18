@@ -11,7 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140917072654) do
+ActiveRecord::Schema.define(version: 20140918072556) do
+
+  create_table "airlines", force: true do |t|
+    t.string   "name"
+    t.string   "country"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "airports", force: true do |t|
     t.string   "name"

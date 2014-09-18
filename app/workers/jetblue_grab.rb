@@ -25,7 +25,21 @@ class JetblueGrab
 		  	#match = matches[1]
 		  	matches.each do |match|
 		  		both_airports = match.scan(/<strong>(.*?)<\/strong>/)	  		
-		  		@both_airports = both_airports
+		  		depart_city = both_airports.first.first.split(",").first.titleize
+		  		if depart_city == "New York Jfk" || depart_city == "New York Lga"
+		  			depart_nyc = depart_city.split(" ").last
+		  			depart_airport = Airport.find_by_faa("depart_nyc")
+		  		else
+		  			depart_airport = Airport.where("city = ?", depart_city).first.id
+		  		end
+		  		
+		  		arrival_city = both_airports.second.first.split(",").first.titleize
+		  		if arrival_city == "New York Jfk" || arrival_city == "New York Lga"
+		  			arrival_city_nyc = arrival_city.split(" ").last
+		  			arrival_airport = Airport.find_by_faa("arrival_city_nyc").id
+		  		else
+		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
+		  		end
 		  		match_strip = ActionView::Base.full_sanitizer.sanitize(match)
 		  		match_split = match_strip.split
 
@@ -68,7 +82,7 @@ class JetblueGrab
 			  		arrival_time = create_saveable_date(flight_date[2], flight_date[1], 2012, both_times[1])
 			  	end
 
-		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 1, depart_airport: both_airports.first.first, depart_time: departure_time, arrival_airport: both_airports[1].first, arrival_time: arrival_time, seat_type: "COACH" )
+		  		Flight.find_or_create_by_depart_time(trip_id: 6, airline_id: 1, depart_airport: depart_airport, depart_time: departure_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Jetblue" )
 		  	end
 	  	end
 	end
@@ -87,14 +101,28 @@ class JetblueGrab
 		  		date = flight_array[0].first
 		  		departure_data = flight_array[2].first	  		
 		  		depart_time = departure_data.split.pop
-		  		d_split = departure_data.split
-		  		d_split.pop
-		  		depart_airport = d_split.join(" ")
+		  		depart_city = flight_array[2].first.split(",").first
+		  		if depart_city == "New York"
+		  			depart_code = flight_array[2].first.split(",").second.split(" ").first
+		  			depart_airport = Airport.find_by_faa(depart_code).id
+		  		else
+		  			depart_airport = Airport.where("city = ?", depart_city).first.id
+		  		end
+		  		arrival_city = flight_array[3].first.split(",").first
+		  		if arrival_city == "New York"
+		  			arrival_code = flight_array[3].first.split(",").second.split(" ").first
+		  			arrival_airport = Airport.find_by_faa(arrival_code).id
+		  		else
+		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
+		  		end
+		  		#d_split = departure_data.split
+		  		#d_split.pop
+		  		#depart_airport = d_split.join(" ")
 		  		arrival_data = flight_array[3].first
 		  		arrival_time = arrival_data.split.pop
-		  		a_split = arrival_data.split
-		  		a_split.pop
-		  		arrival_airport = a_split.join(" ")
+		  		#a_split = arrival_data.split
+		  		#a_split.pop
+		  		#arrival_airport = a_split.join(" ")
 		  		arrival_time = old_jb_time(date,arrival_time)
 		  		depart_time = old_jb_time(date,depart_time)
 		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 1, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
