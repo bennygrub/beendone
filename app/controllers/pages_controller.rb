@@ -2,15 +2,61 @@ class PagesController < ApplicationController
   require 'nokogiri'
   require 'open-uri'
   require 'chronic'
+  require 'ostruct'
 
   def home
   	if current_user
   		@trips = current_user.trips
   		@flights = current_user.flights
-  		@hash = Gmaps4rails.build_markers(@flights) do |flight, marker|
-  			marker.lat Airport.find(flight.depart_airport).latitude
-  			marker.lng Airport.find(flight.depart_airport).longitude
+  		@departs = @flights.map{|flight|
+  			d_port = Airport.find(flight.depart_airport)
+  			OpenStruct.new(
+  				{
+  					latitude: d_port.latitude, 
+  					longitude: d_port.longitude, 
+  					name: d_port.name,
+  					city: d_port.city
+  				}
+  			)
+  		}
+  		@arrivals = @flights.map{|flight|
+  			port = Airport.find(flight.arrival_airport)
+  			OpenStruct.new(
+  				{
+  					latitude: port.latitude, 
+  					longitude: port.longitude, 
+  					name: port.name,
+  					city: port.city
+  				}
+  			)
+  		}
+  		@all_flights = @arrivals + @departs
+  		#sobj = OpenStruct.new({:color => ‘red’, :weight => 3 })
+  		@hash = Gmaps4rails.build_markers(@all_flights) do |flight, marker|
+  			marker.lat flight.latitude
+  			marker.lng flight.longitude
+  			marker.title flight.name
+  			marker.infowindow "#{flight.name}(#{flight.city})"
 		end
+
+		
+		#build polylines
+		@polylines = Array.new
+		@trips.each do |trip|
+			trip.flights.map{|flight| 
+				a_airport = Airport.find(flight.arrival_airport)
+				d_airport = Airport.find(flight.depart_airport)
+				hex = "%06x" % (rand * 0xffffff)
+				color = "##{hex}"
+				@polylines << 
+				[
+					{lng:d_airport.longitude, lat:d_airport.latitude, strokeColor: "#fff", strokeWeight: 1, strokeOpacity: 1},
+					{lng:a_airport.longitude, lat:a_airport.latitude}
+				]
+			}
+		end
+		@polylines = @polylines.to_json
+		#raise "#{@polylines}"
 
   	end
 
@@ -696,6 +742,45 @@ class PagesController < ApplicationController
   	#csv_path = Rails.root.join("public", "airports.csv")
   	#Airport.import(File.read(csv_path))
     #redirect_to root_url, notice: "Products imported."
+  end
+
+
+  def priceline
+  	#auth into contextio
+  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
+  	#get the correct account
+  	account = contextio.accounts.where(email: "blgruber@gmail.com").first
+  	
+
+  	#get messages from Virgin and pick the html
+  	va_messages = account.messages.where(from: "ItineraryAir@trans.priceline.com", subject: "/Your Itinerary for/")
+  	va_messages = va_messages.map {|message| message.body_parts.first.content}
+  	va_messages.each do |message|
+  		#trip = Trip.create(user_id: current_user.id, name: "Priceline test")
+  		
+  		dom = Nokogiri::HTML(message)	
+	  	matches = dom.xpath('/html/body/table[2]/tr/td/table').map(&:to_s)
+	  	raise "#{matches}"
+	  	matches.shift
+	  	matches.each do |match|
+	  		#raise "#{match}"
+	  		new_match = match.gsub("<br>"," ")
+	  		match_strip = ActionView::Base.full_sanitizer.sanitize(new_match)
+	  		flight_array = match_strip.gsub(",", "")
+	  		match_split = flight_array.split
+	  		date = match_split[0]
+	  		match_split.shift(3)
+	  		match_join = match_split.join(" ")
+	  		both_times = match_join.scan(/\)(.*?)M/)
+	  		both_airports = match_join.scan(/\((.*?)\)/)
+	  		d_time = Time.parse("#{date} #{both_times[0].first}")
+	  		a_time = Time.parse("#{date} #{both_times[1].first}")
+	  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 23, depart_airport: Airport.find_by_faa(both_airports[0].first).id, depart_time: d_time, arrival_airport: Airport.find_by_faa(both_airports[1].first).id, arrival_time: a_time, seat_type: "COACH" )
+	  	end
+  		
+  	end
+  	
+
   end
 
   private

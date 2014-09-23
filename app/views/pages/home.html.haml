@@ -22,7 +22,122 @@
         ="-"
         =Airport.find(flight.arrival_airport).city
         ="(#{flight.arrival_airport})"
+  
   :javascript
+    $(window).bind("load", function() {
+    
+     var Tab = #{raw @hash.to_json}
+     var Poly = #{@polylines}
+     var mapStyle =
+      [
+        {
+            "featureType": "administrative",
+            "elementType": "all",
+            "stylers": [
+                {
+                    "visibility": "off"
+                }
+            ]
+        },
+        {
+            "featureType": "administrative.country",
+            "elementType": "geometry.stroke",
+            "stylers": [
+                {
+                    "visibility": "on"
+                },
+                {
+                    "color": "#F7F5F2"
+                },
+                {
+                    "weight": 0.8
+                }
+            ]
+        },
+        {
+            "featureType": "water",
+            "elementType": "all",
+            "stylers": [
+                {
+                    "color": "#F7F5F2"
+                }
+            ]
+        },
+        {
+            "featureType": "landscape",
+            "elementType": "all",
+            "stylers": [
+                {
+                    "color": "#DDD4CB"
+                }
+            ]
+        },
+        {
+            "featureType": "poi",
+            "elementType": "all",
+            "stylers": [
+                {
+                    "color": "#DDD4CB"
+                }
+            ]
+        },
+        {
+            "featureType": "road",
+            "elementType": "all",
+            "stylers": [
+                {
+                    "visibility": "off"
+                }
+            ]
+        },
+        {
+            "featureType": "transit",
+            "elementType": "all",
+            "stylers": [
+                {
+                    "visibility": "off"
+                }
+            ]
+        },
+        {
+            "featureType": "all",
+            "elementType": "labels",
+            "stylers": [
+                {
+                    "visibility": "off"
+                }
+            ]
+        }
+      ] 
+
+
+
+
+
+      handler = Gmaps.build('Google');
+      //gmaps({"polylines"=> { "data" => Poly }})
+      handler.buildMap({
+          provider: {
+            //disableDefaultUI: true
+            // pass in other Google Maps API options here
+            styles: mapStyle,
+            zoom: -10
+
+          },
+          internal: {
+            id: 'map'
+          }
+      },
+        function(){
+          markers = handler.addMarkers(Tab);
+          handler.bounds.extendWith(markers);
+          handler.fitMapToBounds();
+          handler.addPolylines(Poly);
+        }
+      );        
+    
+
+    });
 -else
   = form_for(:user, :as => :user, :url => registration_path(:user)) do |f|
     = f.text_field :name, placeholder: "Name"

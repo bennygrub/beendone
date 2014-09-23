@@ -17,6 +17,7 @@ Beendone::Application.routes.draw do
   get "pages/cheapo"
   get "pages/all"
   get "pages/import"
+  get "pages/priceline"
   devise_for :users, :controllers => { omniauth_callbacks: 'omniauth_callbacks', :registrations => "registrations"  }
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
