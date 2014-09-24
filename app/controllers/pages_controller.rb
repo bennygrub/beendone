@@ -697,7 +697,7 @@ class PagesController < ApplicationController
   	
 
   	c_messages = account.messages.where(from: "cheapoair@cheapoair.com", subject: '/CheapOair.com/i')
-	c_messages = c_messages.map {|message| message.body_parts.first.content}
+	c_messages = c_messages.map {|message| message.body_parts.last.content}
 	
 	c_messages.each do |message|
 		dom = Nokogiri::HTML(message)
@@ -757,29 +757,54 @@ class PagesController < ApplicationController
   	va_messages = va_messages.map {|message| message.body_parts.first.content}
   	va_messages.each do |message|
   		#trip = Trip.create(user_id: current_user.id, name: "Priceline test")
-  		
-  		dom = Nokogiri::HTML(message)	
-	  	matches = dom.xpath('/html/body/table[2]/tr/td/table').map(&:to_s)
-	  	raise "#{matches}"
-	  	matches.shift
-	  	matches.each do |match|
-	  		#raise "#{match}"
-	  		new_match = match.gsub("<br>"," ")
-	  		match_strip = ActionView::Base.full_sanitizer.sanitize(new_match)
-	  		flight_array = match_strip.gsub(",", "")
-	  		match_split = flight_array.split
-	  		date = match_split[0]
-	  		match_split.shift(3)
-	  		match_join = match_split.join(" ")
-	  		both_times = match_join.scan(/\)(.*?)M/)
-	  		both_airports = match_join.scan(/\((.*?)\)/)
-	  		d_time = Time.parse("#{date} #{both_times[0].first}")
-	  		a_time = Time.parse("#{date} #{both_times[1].first}")
-	  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 23, depart_airport: Airport.find_by_faa(both_airports[0].first).id, depart_time: d_time, arrival_airport: Airport.find_by_faa(both_airports[1].first).id, arrival_time: a_time, seat_type: "COACH" )
-	  	end
+  		#matches = dom.xpath('/html/body/table[2]/tr/td/table/tr[2]/td/table[1]/tr/td/table[1]/tr[1]').map(&:to_s)
+		#/html/body/table[2]/tr/td/table/tr[2]/td/table[1]/tr/td/table[1]/tr[1]
+		#/html/body/table[2]/tr/td/table/tr[2]
+
+  		@dom = Nokogiri::HTML(message)
+  		#binding.pry
+	  	#matches = dom.xpath('/html/body/table[2]/tr/td/table/tr[2]').map(&:to_s)
+	  	#raise "#{matches}"
+	  	#matches.shift
+	  	#matches.each do |match|
+	  		#Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 23, depart_airport: Airport.find_by_faa(both_airports[0].first).id, depart_time: d_time, arrival_airport: Airport.find_by_faa(both_airports[1].first).id, arrival_time: a_time, seat_type: "COACH" )
+	  	#end
   		
   	end
+  end
   	
+  def flighthub
+  	#auth into contextio
+  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
+  	#get the correct account
+  	account = contextio.accounts.where(email: "blgruber@gmail.com").first
+  	
+
+  	#get messages from Virgin and pick the html
+  	flighthub_messages = account.messages.where(from: "noreply@flighthub.com", subject: "/Your Electronic Ticket/")
+  	flighthub_messages = flighthub_messages.map {|message| 
+  		message.body_parts.where(type: 'text/html').first.content
+  	}
+  	flighthub_messages.each do |message|
+  		trip = Trip.create(user_id: 18, name: "Flight_Hub test")
+
+  		dom = Nokogiri::HTML(message)
+  		matches = dom.xpath('/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr').map(&:to_s)
+  		flights = matches.each_slice(2).map(&:last)
+  		flights.each_with_index do |flight, index|
+  			x = (index+1)*2
+  			airports = dom.xpath("/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr[#{x}]/td/table/tr[1]/td[1]/text()").to_s.split
+  			times = dom.xpath("/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr[#{x}]/td/table/tr[1]/td[3]/text()").to_s.split
+  			d_time = DateTime.new(times[2].to_i,month_to_number(times[1]),times[0].to_i,times[3].split(":")[0].to_i,times[3].split(":")[1].to_i, 0, 0)
+  			a_time = DateTime.new(times[6].to_i,month_to_number(times[5]),times[4].to_i,times[7].split(":")[0].to_i,times[7].split(":")[1].to_i, 0, 0)
+  			airline = dom.xpath("/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr[#{x}]/td/table/tr[2]/td/text()").to_s.split.first
+  			
+
+  			Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 23, depart_airport: Airport.find_by_faa(airports[0]).id, depart_time: d_time, arrival_airport: Airport.find_by_faa(airports[1]).id, arrival_time: a_time, seat_type: airline )
+
+  		end 
+	end
+  		
 
   end
 
@@ -844,7 +869,7 @@ class PagesController < ApplicationController
   def flight_date_time(day, monthy, year, hour, min)
 	month = month_to_number(monthy)
 	year_new = year.gsub(/\W+/, '')
-	flight_date = DateTime.new(year_new.to_i,month.to_i,day.to_i,hour.to_i,min.to_i, 0, 0)
+	flight_date = DateTime.new(year_new.to_i,month_to_number.to_i,day.to_i,hour.to_i,min.to_i, 0, 0)
 	
 	return flight_date
   end
