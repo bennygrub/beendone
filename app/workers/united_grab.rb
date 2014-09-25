@@ -18,11 +18,11 @@ class UnitedGrab
   	u_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/', date_before: email_change_date)
 	
 	if u_messages.count > 0
-		u_messages = u_messages.map {|message| message.body_parts.first.content}
+		#u_messages = u_messages.map {|message| message.body_parts.first.content}
 
 		u_messages.each do |message|
-			trip = Trip.create(user_id: user.id)
-			dom = Nokogiri::HTML(message)
+			trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
+			dom = Nokogiri::HTML(message.body_parts.first.content)
 			matches = dom.xpath('//*[@id="i"]/table[@style="width:511px;font:11px/15px Arial, sans-serif;"]').map(&:to_s)
 			matches.each do |flight|
 					flight_data = flight.gsub("\t","").gsub("\n","").gsub("\r","")
@@ -52,10 +52,10 @@ class UnitedGrab
   	##OLD UNITED
   	u_oldest_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/', date_after: email_change_date)
   	if u_oldest_messages.count > 0 
-	  	u_oldest_messages = u_oldest_messages.map {|message| message.body_parts.first.content}
+	  	#u_oldest_messages = u_oldest_messages.map {|message| message.body_parts.first.content}
 	  	u_oldest_messages.each do |message|
-	  		trip = Trip.create(user_id: user.id)
-	  		dom = Nokogiri::HTML(message)
+	  		trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
+	  		dom = Nokogiri::HTML(message.body_parts.first.content)
 	  		matches = dom.xpath('//*[@id="flightTable"]/tr[@style="vertical-align: top;"]').map(&:to_s)
 	  		matches.each do |flight|
 	  			if flight.scan(/<p>(.*?)<\/p>/).count < 1 

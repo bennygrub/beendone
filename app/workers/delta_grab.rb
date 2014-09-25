@@ -17,11 +17,11 @@ class DeltaGrab
 	##DELTA
 	delta_messages = account.messages.where(from: "deltaelectronicticketreceipt@delta.com")
   	if delta_messages.count > 0
-	  	delta_messages = delta_messages.map {|message| message.body_parts.first.content}
+	  	#delta_messages = delta_messages.map {|message| message.body_parts.first.content}
 
 	  	delta_messages.each do |message_string|
-	  		trip = Trip.create(user_id: user.id)
-		  	dom = Nokogiri::HTML(message_string)
+	  		trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message_string.message_id)
+		  	dom = Nokogiri::HTML(message_string.body_parts.first.content)
 		  	matches = dom.xpath('/html/body//pre/text()').map(&:to_s)
 		  	
 			#get overall data

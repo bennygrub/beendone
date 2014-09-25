@@ -18,13 +18,11 @@ class FlighthubGrab
 
   	flighthub_messages = account.messages.where(from: "noreply@flighthub.com", subject: "/Your Electronic Ticket/")
   	if flighthub_messages.count > 0 
-	  	flighthub_messages = flighthub_messages.map {|message| 
-	  		message.body_parts.where(type: 'text/html').first.content
-	  	}
+	  	#flighthub_messages = flighthub_messages.map {|message| message.body_parts.where(type: 'text/html').first.content}
 	  	flighthub_messages.each do |message|
-	  		trip = Trip.create(user_id: 18, name: "Flight_Hub test")
+	  		trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
 
-	  		dom = Nokogiri::HTML(message)
+	  		dom = Nokogiri::HTML(message.body_parts.where(type: 'text/html').first.content)
 	  		matches = dom.xpath('/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr').map(&:to_s)
 	  		flights = matches.each_slice(2).map(&:last)
 	  		flights.each_with_index do |flight, index|

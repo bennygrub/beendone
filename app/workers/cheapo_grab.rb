@@ -16,11 +16,12 @@ class CheapoGrab
   	account = contextio.accounts.where(email: user.email).first
 	c_messages = account.messages.where(from: "cheapoair@cheapoair.com", subject: '/AIR TICKET/i')
 	if c_messages.count > 0
-		c_messages = c_messages.map {|message| message.body_parts.first.content}
+		#c_messages = c_messages.map {|message| message.body_parts.first.content}
 		
 		c_messages.each do |message|
-			trip = Trip.create(user_id: user.id)
-			dom = Nokogiri::HTML(message)
+			
+			trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
+			dom = Nokogiri::HTML(message.body_parts.first.content)
 			year_data = dom.xpath('//*[@id="FlightBookingDetails"]/td/table[4]/tr/td/table/tr[1]').map(&:to_s).first
 			year_data = year_data.gsub("\t","")
 	  		year_data = year_data.gsub("\n","")

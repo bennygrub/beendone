@@ -18,14 +18,15 @@ class AaGrab
 	##AMERICAN AIRLINES
   	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com")
   	if aa_messages.count > 0
-	  	aa_messages = aa_messages.map {|message| message.body_parts.first.content}
+	  	#aa_messages = aa_messages.map {|message| message.body_parts.first.content}
 	  	aa_messages.each do |message|
-	  		trip = Trip.create(user_id: user.id)
+	  		email_message = message.body_parts.first.content
+	  		trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
 			#trip info
-			message.scan(/TICKET TOTAL (.*)/).each do |trip|
+			email_message.scan(/TICKET TOTAL (.*)/).each do |trip|
 				fare = trip.first
 			end
-			message.scan(/DATE OF ISSUE - (.*)/).each do |trip|
+			email_message.scan(/DATE OF ISSUE - (.*)/).each do |trip|
 				issue = trip.first
 				issue_numbers = issue.scan(/\d/)
 				@issue_year = "#{issue_numbers[2]}#{issue_numbers[3]}"
@@ -34,7 +35,7 @@ class AaGrab
 			#departure info 1
 			departure_array = Array.new
 			departure_time_array = Array.new
-			message.scan(/LV (.*)/).each do |departure|
+			email_message.scan(/LV (.*)/).each do |departure|
 		  		departure_data = departure.first.split
 		  		word_count = departure_data.count
 		  		if word_count > 7
@@ -60,7 +61,7 @@ class AaGrab
 	  		departure_day_of_month_array = Array.new
 	  		departure_month_array = Array.new
 	  		departure_total = Array.new
-	  		new_message = message.split("LV")
+	  		new_message = email_message.split("LV")
 	  		new_message.pop
 			new_message.each do |departure_split|
 				departure_total << departure_split.split.last(3)
@@ -74,7 +75,7 @@ class AaGrab
 			arrival_airport_array = Array.new
 			arrival_time_array = Array.new
 			seat_array = Array.new
-			message.scan(/AR (.*)/).each do |arrival|
+			email_message.scan(/AR (.*)/).each do |arrival|
 				arrival_data = arrival.first.split
 				word_count = arrival_data.count
 				if word_count > 5
