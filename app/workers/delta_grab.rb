@@ -1,7 +1,11 @@
 require 'res_helper'
+require 'resque-retry'
 class DeltaGrab
   extend ResHelper
+  extend Resque::Plugins::Retry
   @queue = :delta_queue
+  @retry_limit = 5
+  @retry_delay = 30
 
   def self.perform(user_id)
   	user = User.find(user_id)
@@ -114,7 +118,7 @@ class DeltaGrab
 		  			arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
 		  		end
 
-		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 12, depart_airport: depart_airport, depart_time: flight[:departure_time], arrival_airport: arrival_airport, arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
+		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 12, depart_airport: depart_airport, depart_time: flight[:departure_time], arrival_airport: arrival_airport, arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
 		  	end
 		end
 	end

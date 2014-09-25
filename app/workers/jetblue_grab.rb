@@ -1,7 +1,11 @@
 require 'res_helper'
+require 'resque-retry'
 class JetblueGrab
   extend ResHelper
+  extend Resque::Plugins::Retry
   @queue = :jetblue_queue
+  @retry_limit = 5
+  @retry_delay = 30
 
   def self.perform(user_id)
   	user = User.find(user_id)
@@ -27,16 +31,17 @@ class JetblueGrab
 		  		both_airports = match.scan(/<strong>(.*?)<\/strong>/)	  		
 		  		depart_city = both_airports.first.first.split(",").first.titleize
 		  		if depart_city == "New York Jfk" || depart_city == "New York Lga"
-		  			depart_nyc = depart_city.split(" ").last
-		  			depart_airport = Airport.find_by_faa("depart_nyc")
+		  			depart_nyc = depart_city.split(" ").last.upcase
+		  			depart_airport = Airport.find_by_faa(depart_nyc)
 		  		else
 		  			depart_airport = Airport.where("city = ?", depart_city).first.id
 		  		end
 		  		
 		  		arrival_city = both_airports.second.first.split(",").first.titleize
 		  		if arrival_city == "New York Jfk" || arrival_city == "New York Lga"
-		  			arrival_city_nyc = arrival_city.split(" ").last
-		  			arrival_airport = Airport.find_by_faa("arrival_city_nyc").id
+		  			arrival_city_nyc = arrival_city.split(" ").last.upcase
+
+		  			arrival_airport = Airport.find_by_faa(arrival_city_nyc).id
 		  		else
 		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
 		  		end
@@ -82,7 +87,7 @@ class JetblueGrab
 			  		arrival_time = create_saveable_date(flight_date[2], flight_date[1], 2012, both_times[1])
 			  	end
 
-		  		Flight.find_or_create_by_depart_time(trip_id: 6, airline_id: 1, depart_airport: depart_airport, depart_time: departure_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Jetblue" )
+		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip_id, airline_id: 1, depart_airport: depart_airport, depart_time: departure_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Jetblue" )
 		  	end
 	  	end
 	end
@@ -125,7 +130,7 @@ class JetblueGrab
 		  		#arrival_airport = a_split.join(" ")
 		  		arrival_time = old_jb_time(date,arrival_time)
 		  		depart_time = old_jb_time(date,depart_time)
-		  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 1, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
+		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 1, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
 		  	end
 		end
 	end

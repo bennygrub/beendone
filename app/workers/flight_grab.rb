@@ -196,7 +196,7 @@ class FlightGrab
 			  		#seat_split = flight_data.scan(/Booking class: (.*?)<a/).first.first
 			  		#seat_type = seat_split.scan(/<br>(.*?)<br>/).first.first
 			  		seat_type = "Economy"
-			  		Flight.find_or_create_by_depart_time(trip_id: 48, airline_id: 83, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+			  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: 48, airline_id: 83, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
 				
 			end
 		end
@@ -234,7 +234,7 @@ class FlightGrab
 		  			arrival_year = arrival_time_data[3]
 		  			arrival_time = create_saveable_date(arrival_day, arrival_month, arrival_year, arrival_hour)
 
-		  			Flight.find_or_create_by_depart_time(trip_id: 48, airline_id: 83, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
+		  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: 48, airline_id: 83, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: seat_type )
 	  			end
 	  		end
 	  	end
@@ -328,7 +328,7 @@ class FlightGrab
 		  		arrival_airport = arrival_airport.join(" ")
 		  		arrival_time = create_saveable_date(day, month, year, arrival_time)
 
-		  		Flight.find_or_create_by_depart_time(trip_id: 28, airline_id: 43, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
+		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: 28, airline_id: 43, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
 		  	end	
 		end
 	end

@@ -1,7 +1,11 @@
 require 'res_helper'
+require 'resque-retry'
 class FlighthubGrab
   extend ResHelper
+  extend Resque::Plugins::Retry
   @queue = :flighthub_queue
+  @retry_limit = 5
+  @retry_delay = 30
 
   def self.perform(user_id)
   	user = User.find(user_id)
@@ -31,7 +35,7 @@ class FlighthubGrab
 	  			airline = dom.xpath("/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr[#{x}]/td/table/tr[2]/td/text()").to_s.split.first
 	  			
 
-	  			Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 23, depart_airport: Airport.find_by_faa(airports[0]).id, depart_time: d_time, arrival_airport: Airport.find_by_faa(airports[1]).id, arrival_time: a_time, seat_type: airline )
+	  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 23, depart_airport: Airport.find_by_faa(airports[0]).id, depart_time: d_time, arrival_airport: Airport.find_by_faa(airports[1]).id, arrival_time: a_time, seat_type: airline )
 
 	  		end 
 		end

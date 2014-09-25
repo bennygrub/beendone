@@ -1,7 +1,11 @@
 require 'res_helper'
+require 'resque-retry'
 class AaGrab
+  extend Resque::Plugins::Retry
   extend ResHelper
   @queue = :aa_queue
+  @retry_limit = 5
+  @retry_delay = 30
 
   def self.perform(user_id)
   	user = User.find(user_id)
@@ -104,7 +108,7 @@ class AaGrab
 		  		}
 	  		}
 	  		flight_array.each do |flight|
-	  			Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 2, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
+	  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 2, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
 	  		end
 	  	end
 	end

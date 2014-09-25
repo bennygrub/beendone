@@ -1,7 +1,11 @@
 require 'res_helper'
+require 'resque-retry'
 class UnitedGrab
   extend ResHelper
+  extend Resque::Plugins::Retry
   @queue = :united_queue
+  @retry_limit = 5
+  @retry_delay = 30
 
   def self.perform(user_id)
   	user = User.find(user_id)
@@ -77,7 +81,7 @@ class UnitedGrab
 		  			arrival_year = arrival_time_data[3]
 		  			arrival_time = create_saveable_date(arrival_day, arrival_month, arrival_year, arrival_hour)
 
-		  			Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 83, depart_airport: Airport.find_by_faa(depart_airport).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_airport).id, arrival_time: arrival_time, seat_type: seat_type )
+		  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 83, depart_airport: Airport.find_by_faa(depart_airport).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_airport).id, arrival_time: arrival_time, seat_type: seat_type )
 	  			end
 	  		end
 	  	end
