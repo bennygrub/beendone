@@ -64,15 +64,6 @@ class PagesController < ApplicationController
 
   def all
   	Resque.enqueue(SearchAll, 18)
-  	#FlightGrab.perform_async('bob', 5)
-  	#Resque.enqueue(VirginGrab, 5)
-  	#Resque.enqueue(JetblueGrab, 5)
-  	#Resque.enqueue(CheapoGrab, 5)
-  	#Resque.enqueue(DeltaGrab, 5)
-  	#Resque.enqueue(UnitedGrab, 5)
-  	#Resque.enqueue(OrbitzGrab, 5)
-  	#Resque.enqueue(AaGrab, 5)
-  	#Resque.enqueue(FlightGrab, 5)
   end
 
   def about
@@ -367,7 +358,6 @@ class PagesController < ApplicationController
 		  		arrival_city = both_airports.second.first.split(",").first.titleize
 		  		if arrival_city == "New York Jfk" || arrival_city == "New York Lga"
 		  			arrival_city_nyc = arrival_city.split(" ").last.upcase
-		  			binding.pry
 		  			arrival_airport = Airport.find_by_faa(arrival_city_nyc).id
 		  		else
 		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
@@ -445,7 +435,6 @@ class PagesController < ApplicationController
 		  			arrival_code = flight_array[3].first.split(",").second.split(" ").first
 		  			arrival_airport = Airport.find_by_faa(arrival_code).id
 		  		else
-		  			binding.pry
 		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
 		  		end
 		  		#d_split = departure_data.split

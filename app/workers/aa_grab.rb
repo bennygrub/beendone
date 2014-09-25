@@ -2,6 +2,7 @@ require 'res_helper'
 require 'resque-retry'
 class AaGrab
   extend Resque::Plugins::Retry
+  include Resque::Plugins::Status
   extend ResHelper
   @queue = :aa_queue
   @retry_limit = 5

@@ -89,4 +89,15 @@ module ResHelper
   	string_date = "#{date} #{time}"
   	return Chronic.parse(string_date)
   end
+
+  def job_finished(id)
+    status = Resque::Plugins::Status::Hash.get(id)
+    if status.status == "completed"
+      return true
+    else
+      return false
+    end
+  end
+
+
 end

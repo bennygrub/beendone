@@ -3,6 +3,7 @@ require 'resque-retry'
 class FlighthubGrab
   extend ResHelper
   extend Resque::Plugins::Retry
+  include Resque::Plugins::Status
   @queue = :flighthub_queue
   @retry_limit = 5
   @retry_delay = 30

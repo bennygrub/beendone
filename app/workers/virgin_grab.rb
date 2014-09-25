@@ -3,11 +3,13 @@ require 'resque-retry'
 class VirginGrab
   extend ResHelper
   extend Resque::Plugins::Retry
+  include Resque::Plugins::Status
+
   @queue = :virgin_queue
   @retry_limit = 5
   @retry_delay = 30
 
-  def self.perform(user_id)
+  def self.perform(job_id, user_id)
   	user = User.find(user_id)
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')

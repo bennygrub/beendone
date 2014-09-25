@@ -3,6 +3,7 @@ require 'resque-retry'
 class JetblueGrab
   extend ResHelper
   extend Resque::Plugins::Retry
+  include Resque::Plugins::Status
   @queue = :jetblue_queue
   @retry_limit = 5
   @retry_delay = 30
@@ -87,7 +88,7 @@ class JetblueGrab
 			  		arrival_time = create_saveable_date(flight_date[2], flight_date[1], 2012, both_times[1])
 			  	end
 
-		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip_id, airline_id: 1, depart_airport: depart_airport, depart_time: departure_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Jetblue" )
+		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 1, depart_airport: depart_airport, depart_time: departure_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Jetblue" )
 		  	end
 	  	end
 	end

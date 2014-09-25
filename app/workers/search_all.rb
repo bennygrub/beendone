@@ -1,15 +1,19 @@
 require 'res_helper'
 class SearchAll
   extend ResHelper
+  extend Resque::Plugins::Retry
+  include Resque::Plugins::Status
   @queue = :search_queue
 
   def self.perform(user_id)
-  	Resque.enqueue(VirginGrab, user_id)
-  	Resque.enqueue(JetblueGrab, user_id)
-  	Resque.enqueue(CheapoGrab, user_id)
-  	Resque.enqueue(DeltaGrab, user_id)
-  	Resque.enqueue(UnitedGrab, user_id)
-  	Resque.enqueue(OrbitzGrab, user_id)
-    Resque.enqueue(FlighthubGrab, user_id)
+  	job_ids = Array.new
+    job_ids << VirginGrab.create(user_id)
+    job_ids << CheapoGrab.create(user_id)
+    job_ids << JetblueGrab.create(user_id)
+    job_ids << DeltaGrab.create(user_id)
+    job_ids << UnitedGrab.create(user_id)
+    job_ids << OrbitzGrab.create(user_id)
+    job_ids << FlighthubGrab.create(user_id)
+    #Resque.enqueue(StatusCheck, job_ids)
   end
 end

@@ -3,6 +3,7 @@ require 'resque-retry'
 class DeltaGrab
   extend ResHelper
   extend Resque::Plugins::Retry
+  include Resque::Plugins::Status
   @queue = :delta_queue
   @retry_limit = 5
   @retry_delay = 30
