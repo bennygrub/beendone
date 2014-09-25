@@ -5,7 +5,7 @@ class AuthController < ApplicationController
     if Rails.env.production?
       callback_url = "http://ancient-citadel-8002.herokuapp.com/auth/receive" #set call back url
     else
-      callback_url = "http://localhost:3000/auth/receive" #set call back url
+      callback_url = "http://ancient-citadel-8002.herokuapp.com/auth/receive" #set call back url
     end
   	response = api.connect_tokens.create(callback_url, options = {'email' => current_user.email})
 	 #redirect for user to verify
