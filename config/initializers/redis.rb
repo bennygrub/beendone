@@ -4,3 +4,4 @@ else
 	uri = URI.parse("redis://localhost:6379/")
 end
 REDIS = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
+Resque.redis = REDIS
