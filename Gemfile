@@ -67,8 +67,10 @@ gem 'resque', :require => "resque/server"
 gem 'gmaps4rails'
 gem 'underscore-rails'
 gem 'smarter_csv'
+gem 'foreman'
 gem 'resque-retry'
 gem 'resque-scheduler'
 gem 'resque-status'
 gem 'redis'
+
 #gem "sidekiq"
