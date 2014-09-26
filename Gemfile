@@ -72,5 +72,6 @@ gem 'resque-retry'
 gem 'resque-scheduler'
 gem 'resque-status'
 gem 'redis'
+gem "hirefire-resource"
 
 #gem "sidekiq"
