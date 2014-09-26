@@ -63,7 +63,7 @@ class PagesController < ApplicationController
   end
 
   def all
-  	Resque.enqueue(SearchAll, 18)
+  	Resque.enqueue(SearchAll, current_user.id)
   end
 
   def about
