@@ -70,4 +70,5 @@ gem 'smarter_csv'
 gem 'resque-retry'
 gem 'resque-scheduler'
 gem 'resque-status'
+gem 'redis'
 #gem "sidekiq"

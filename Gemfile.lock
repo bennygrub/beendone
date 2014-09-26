@@ -233,6 +233,7 @@ DEPENDENCIES
   pry
   rails (= 4.0.3)
   rails_12factor
+  redis
   resque
   resque-retry
   resque-scheduler
