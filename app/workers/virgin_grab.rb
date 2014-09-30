@@ -21,7 +21,7 @@ class VirginGrab
 	if va_messages.count > 0 
 		#va_messages = va_messages.map {|message| message.body_parts.first.content}
 	  	va_messages.each do |message|
-	  		trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
+	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
 		  	matches = dom.xpath('/html/body/table/tr[14]/td/table/tr[2]/td/table/tr').map(&:to_s)
 		  	matches.shift
@@ -37,7 +37,7 @@ class VirginGrab
 		  		both_airports = match_join.scan(/\((.*?)\)/)
 		  		d_time = Time.parse("#{date} #{both_times[0].first}")
 		  		a_time = Time.parse("#{date} #{both_times[1].first}")
-		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 23, depart_airport: Airport.find_by_faa(both_airports[0].first).id, depart_time: d_time, arrival_airport: Airport.find_by_faa(both_airports[1].first).id, arrival_time: a_time, seat_type: "COACH" )
+		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 81, depart_airport: Airport.find_by_faa(both_airports[0].first).id, depart_time: d_time, arrival_airport: Airport.find_by_faa(both_airports[1].first).id, arrival_time: a_time, seat_type: "COACH" )
 		  	end	
 	  	end
 	end

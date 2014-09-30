@@ -1,0 +1,10 @@
+%h1 Playground
+%h3=@trips.count
+-current_user.flights.each do |flight|
+	%p
+		=Airport.find(flight.depart_airport).name
+		to
+		=Airport.find(flight.arrival_airport).name
+		(
+		=(flight.arrival_time - flight.depart_time)/60/60
+		)

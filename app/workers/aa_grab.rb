@@ -21,7 +21,7 @@ class AaGrab
 	  	#aa_messages = aa_messages.map {|message| message.body_parts.first.content}
 	  	aa_messages.each do |message|
 	  		email_message = message.body_parts.first.content
-	  		trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
+	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
 			#trip info
 			email_message.scan(/TICKET TOTAL (.*)/).each do |trip|
 				fare = trip.first
@@ -110,7 +110,7 @@ class AaGrab
 		  		}
 	  		}
 	  		flight_array.each do |flight|
-	  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 2, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
+	  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 30, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
 	  		end
 	  	end
 	end

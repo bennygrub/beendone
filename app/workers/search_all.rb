@@ -14,6 +14,7 @@ class SearchAll
     job_ids << UnitedGrab.create(user_id)
     job_ids << OrbitzGrab.create(user_id)
     job_ids << FlighthubGrab.create(user_id)
-    #Resque.enqueue(StatusCheck, job_ids)
+
+    Resque.enqueue(StatusCheck, job_ids) if Rails.env.production?
   end
 end

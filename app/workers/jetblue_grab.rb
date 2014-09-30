@@ -20,7 +20,7 @@ class JetblueGrab
   	if jb_messages.count > 0
 	  	#jb_messages = jb_messages.map {|message| message.body_parts.first.content}
 	  	jb_messages.each do |message|
-	  		trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
+	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
 		  	matches = dom.xpath('//*[@id="ticket"]/div/table/tr/td/table[4]/tr').map(&:to_s)
 		  	matches.pop(5)
@@ -87,7 +87,7 @@ class JetblueGrab
 			  		arrival_time = create_saveable_date(flight_date[2], flight_date[1], 2012, both_times[1])
 			  	end
 
-		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 1, depart_airport: depart_airport, depart_time: departure_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Jetblue" )
+		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 38, depart_airport: depart_airport, depart_time: departure_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Jetblue" )
 		  	end
 	  	end
 	end
@@ -97,7 +97,7 @@ class JetblueGrab
   	if jb_messages_old.count > 0
 	  	#jb_messages_old = jb_messages_old.map {|message| message.body_parts.first.content}
 	  	jb_messages_old.each do |message|
-	  		trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
+	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
 		  	matches = dom.xpath('/html/body/div/table/tr[11]/td/table/tr').map(&:to_s)
 		  	matches.shift(2)
@@ -130,7 +130,7 @@ class JetblueGrab
 		  		#arrival_airport = a_split.join(" ")
 		  		arrival_time = old_jb_time(date,arrival_time)
 		  		depart_time = old_jb_time(date,depart_time)
-		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 1, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
+		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 38, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "COACH" )
 		  	end
 		end
 	end

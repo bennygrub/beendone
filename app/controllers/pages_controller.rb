@@ -4,9 +4,22 @@ class PagesController < ApplicationController
   require 'chronic'
   require 'ostruct'
 
+  def playground
+	@trips = current_user.trips
+	@trips = @trips.map{|trip| trip unless trip.flights.count < 1}.compact
+	@trips = @trips.sort_by{|trip| trip.flights.last.depart_time}.reverse
+
+	@flight_times = current_user.flights.map{|flight| flight.arrival_time-flight.depart_time}
+	#raise "#{@flight_times}"
+	#@trip_flights = @trips.map{|trip| trip.flights}
+  end
+
   def home
   	if current_user
   		@trips = current_user.trips
+  		@trips = @trips.map{|trip| trip unless trip.flights.count < 1}.compact
+  		@trips = @trips.sort_by{|trip| trip.flights.last.depart_time}.reverse
+  		
   		@flights = current_user.flights
   		@departs = @flights.map{|flight|
   			d_port = Airport.find(flight.depart_airport)
@@ -764,8 +777,8 @@ class PagesController < ApplicationController
   		
   	end
   end
-  	
-  def flighthub
+
+  def taca
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
@@ -773,28 +786,48 @@ class PagesController < ApplicationController
   	
 
   	#get messages from Virgin and pick the html
+  	taca_messages = account.messages.where(from: "edesk@taca.com", subject: "/TACA.COM/")
+  	taca_messages.each do |message|
+  		#trip = Trip.create(user_id: current_user.id, name: "taca", message_id: message.message_id)
+  		email = message.body_parts.first.content
+		dom = Nokogiri::HTML(email)
+		raise "#{dom}"
+		matches = dom.xpath('/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr').map(&:to_s)
+		matches.each do |match|
+
+		end
+	end  		
+  end
+  	
+  def flighthub
+  	#auth into contextio
+  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
+  	#get the correct account
+  	account = contextio.accounts.where(email: "blgruber@gmail.com").first
+
+
   	flighthub_messages = account.messages.where(from: "noreply@flighthub.com", subject: "/Your Electronic Ticket/")
-  	flighthub_messages = flighthub_messages.map {|message| 
-  		message.body_parts.where(type: 'text/html').first.content
-  	}
-  	flighthub_messages.each do |message|
-  		trip = Trip.create(user_id: 18, name: "Flight_Hub test")
+  	if flighthub_messages.count > 0 
+	  	#flighthub_messages = flighthub_messages.map {|message| message.body_parts.where(type: 'text/html').first.content}
+	  	flighthub_messages.each do |message|
+	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
 
-  		dom = Nokogiri::HTML(message)
-  		matches = dom.xpath('/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr').map(&:to_s)
-  		flights = matches.each_slice(2).map(&:last)
-  		flights.each_with_index do |flight, index|
-  			x = (index+1)*2
-  			airports = dom.xpath("/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr[#{x}]/td/table/tr[1]/td[1]/text()").to_s.split
-  			times = dom.xpath("/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr[#{x}]/td/table/tr[1]/td[3]/text()").to_s.split
-  			d_time = DateTime.new(times[2].to_i,month_to_number(times[1]),times[0].to_i,times[3].split(":")[0].to_i,times[3].split(":")[1].to_i, 0, 0)
-  			a_time = DateTime.new(times[6].to_i,month_to_number(times[5]),times[4].to_i,times[7].split(":")[0].to_i,times[7].split(":")[1].to_i, 0, 0)
-  			airline = dom.xpath("/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr[#{x}]/td/table/tr[2]/td/text()").to_s.split.first
-  			
+	  		dom = Nokogiri::HTML(message.body_parts.where(type: 'text/html').first.content)
+	  		matches = dom.xpath('/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr').map(&:to_s)
+	  		flights = matches.each_slice(2).map(&:last)
+	  		flights.each_with_index do |flight, index|
+	  			x = (index+1)*2
+	  			airports = dom.xpath("/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr[#{x}]/td/table/tr[1]/td[1]/text()").to_s.split
+	  			times = dom.xpath("/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr[#{x}]/td/table/tr[1]/td[3]/text()").to_s.split
+	  			d_time = DateTime.new(times[2].to_i,month_to_number(times[1]),times[0].to_i,times[3].split(":")[0].to_i,times[3].split(":")[1].to_i, 0, 0)
+	  			a_time = DateTime.new(times[6].to_i,month_to_number(times[5]),times[4].to_i,times[7].split(":")[0].to_i,times[7].split(":")[1].to_i, 0, 0)
+	  			airline = dom.xpath("/html/body/table/tr/td/table[3]/tr/td/table[3]/tr[2]/td[2]/table/tr[#{x}]/td/table/tr[2]/td/text()").to_s.split.first
+	  			
 
-  			Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 23, depart_airport: Airport.find_by_faa(airports[0]).id, depart_time: d_time, arrival_airport: Airport.find_by_faa(airports[1]).id, arrival_time: a_time, seat_type: airline )
+	  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 23, depart_airport: Airport.find_by_faa(airports[0]).id, depart_time: d_time, arrival_airport: Airport.find_by_faa(airports[1]).id, arrival_time: a_time, seat_type: airline )
 
-  		end 
+	  		end 
+		end
 	end
   		
 

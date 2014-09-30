@@ -20,7 +20,7 @@ class OrbitzGrab
   	if o_messages.count > 0
 	  	#o_messages = o_messages.map {|message| message.body_parts.first.content}
 		o_messages.each do |message|
-			trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
+			trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
 			dom = Nokogiri::HTML(message.body_parts.first.content)
 	  		matches = dom.xpath('//*[@id="emailFrame"]/tr/td/table/tr[2]/td[2]/table/tr[2]/td').map(&:to_s)
 	  		matches.each do |match|
@@ -49,7 +49,7 @@ class OrbitzGrab
   	if o_messages.count > 0
 	  	#o_messages = o_messages.map {|message| message.body_parts.first.content}
 	  	o_messages.each do |message|
-	  		trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
+	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
 		  	matches = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[1]/div[1]/table[2]/tr[2]/td/table/tr/td/table/tr').map(&:to_s)
 		  	year_array = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[2]/div[1]/table[1]/tr[3]/td/div[3]/text()')

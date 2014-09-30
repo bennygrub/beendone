@@ -20,7 +20,7 @@ class CheapoGrab
 		
 		c_messages.each do |message|
 			
-			trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
+			trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
 			dom = Nokogiri::HTML(message.body_parts.first.content)
 			year_data = dom.xpath('//*[@id="FlightBookingDetails"]/td/table[4]/tr/td/table/tr[1]').map(&:to_s).first
 			year_data = year_data.gsub("\t","")

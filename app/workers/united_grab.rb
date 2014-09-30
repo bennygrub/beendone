@@ -23,7 +23,7 @@ class UnitedGrab
 		#u_messages = u_messages.map {|message| message.body_parts.first.content}
 
 		u_messages.each do |message|
-			trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
+			trip = Trip.find_or_create_by_name_and_message_id(user_id: user.id, message_id: message.message_id)
 			dom = Nokogiri::HTML(message.body_parts.first.content)
 			matches = dom.xpath('//*[@id="i"]/table[@style="width:511px;font:11px/15px Arial, sans-serif;"]').map(&:to_s)
 			matches.each do |flight|
@@ -44,7 +44,7 @@ class UnitedGrab
 			  		#seat_split = flight_data.scan(/Booking class: (.*?)<a/).first.first
 			  		#seat_type = seat_split.scan(/<br>(.*?)<br>/).first.first
 			  		seat_type = "Economy"
-			  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 83, depart_airport: Airport.find_by_faa(depart_airport).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_airport).id, arrival_time: arrival_time, seat_type: seat_type )
+			  		Flight.find_or_create_by_depart_time(trip_id: trip.id, airline_id: 41, depart_airport: Airport.find_by_faa(depart_airport).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_airport).id, arrival_time: arrival_time, seat_type: seat_type )
 				
 			end
 		end
@@ -56,7 +56,7 @@ class UnitedGrab
   	if u_oldest_messages.count > 0 
 	  	#u_oldest_messages = u_oldest_messages.map {|message| message.body_parts.first.content}
 	  	u_oldest_messages.each do |message|
-	  		trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message.message_id)
+	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
 	  		matches = dom.xpath('//*[@id="flightTable"]/tr[@style="vertical-align: top;"]').map(&:to_s)
 	  		matches.each do |flight|
@@ -83,7 +83,7 @@ class UnitedGrab
 		  			arrival_year = arrival_time_data[3]
 		  			arrival_time = create_saveable_date(arrival_day, arrival_month, arrival_year, arrival_hour)
 
-		  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 83, depart_airport: Airport.find_by_faa(depart_airport).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_airport).id, arrival_time: arrival_time, seat_type: seat_type )
+		  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 41, depart_airport: Airport.find_by_faa(depart_airport).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_airport).id, arrival_time: arrival_time, seat_type: seat_type )
 	  			end
 	  		end
 	  	end

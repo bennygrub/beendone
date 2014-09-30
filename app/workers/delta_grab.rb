@@ -20,7 +20,7 @@ class DeltaGrab
 	  	#delta_messages = delta_messages.map {|message| message.body_parts.first.content}
 
 	  	delta_messages.each do |message_string|
-	  		trip = Trip.find_or_create_by_name_and_user_id(user_id: user.id, message_id: message_string.message_id)
+	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message_string.message_id)
 		  	dom = Nokogiri::HTML(message_string.body_parts.first.content)
 		  	matches = dom.xpath('/html/body//pre/text()').map(&:to_s)
 		  	
@@ -119,7 +119,7 @@ class DeltaGrab
 		  			arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
 		  		end
 
-		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 12, depart_airport: depart_airport, depart_time: flight[:departure_time], arrival_airport: arrival_airport, arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
+		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 33, depart_airport: depart_airport, depart_time: flight[:departure_time], arrival_airport: arrival_airport, arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
 		  	end
 		end
 	end
