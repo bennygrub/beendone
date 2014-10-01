@@ -6,8 +6,18 @@ class PagesController < ApplicationController
 
   def playground
 	@trips = current_user.trips
-	@trips = @trips.map{|trip| trip unless trip.flights.count < 1}.compact
-	@trips = @trips.sort_by{|trip| trip.flights.last.depart_time}.reverse
+  	@trips = @trips.map{|trip| trip unless trip.flights.count < 1}.compact
+  	@trips = @trips.sort_by{|trip| trip.flights.last.depart_time}.reverse
+  	@destinations_cities = @trips.map{|trip|find_destination(trip).city}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }
+  	@origins = @trips.map{|trip| Airport.find(trip.flights.first.depart_airport).name}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }
+	@destination_countries = @trips.map{|trip|find_destination(trip).country}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }
+	
+	@by_month = @trips.map{|trip| trip.flights.first.depart_time.strftime("%B")}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }
+	@by_year = @trips.map{|trip| trip.flights.first.depart_time.year}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }
+	@by_day_of_week_leave = @trips.map{|trip| trip.flights.first.depart_time.strftime("%A")}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }
+	@by_day_of_week_return = @trips.map{|trip| trip.flights.last.depart_time.strftime("%A")}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }
+	
+	@airlines = current_user.flights.map{|flight| Airline.find(flight.airline_id).name}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }
 
 	@flight_times = current_user.flights.map{|flight| flight.arrival_time-flight.depart_time}
 	#raise "#{@flight_times}"
@@ -942,4 +952,17 @@ class PagesController < ApplicationController
   	return Chronic.parse(string_date)
   end
 
+  def find_destination(trip)
+    if trip.flights.count < 3
+    	return Airport.find(trip.flights.first.arrival_airport)
+    elsif trip.flights.count.even?
+    	x = (trip.flights.count/2)-1
+    	middle = trip.flights[x]
+    	return Airport.find(middle.arrival_airport)
+    else
+    	x = (trip.flights.count/2)-0.5
+    	middle = trip.flights[x]
+    	return Airport.find(middle.arrival_airport)
+    end
+  end
 end

@@ -1,11 +1,11 @@
-%h1 Map your entire travel history with just one click.
-%p Map, track,  sort your past  future travel without inputting anything.
-
 -if current_user
 
-  %div{:style => "width: 800px;"}
-    #map{:style => "width: 800px; height: 400px;"}
+  %div{:style => "width: 100%;"}
+    #map{:style => "width: 100%; height: 600px;"}
 
+  %h1=current_user.name.titlecase
+  %h5="Total Trips: #{@trips.count}" 
+  %h5="Total Flights: #{@flights.count}"
   -@trips.each do |trip|
     %h3
       %span{style: "color:red;"}
@@ -156,10 +156,12 @@
 
     });
 -else
-  = form_for(:user, :as => :user, :url => registration_path(:user)) do |f|
-    = f.text_field :name, placeholder: "Name"
-    = f.email_field :email, placeholder: "Email" 
-    = f.password_field :password, placeholder: "Password"
-    = button_tag :type => :submit do
-      Sign up
+%h1 Map your entire travel history with just one click.
+%p Map, track,  sort your past  future travel without inputting anything.
+= form_for(:user, :as => :user, :url => registration_path(:user)) do |f|
+  = f.text_field :name, placeholder: "Name"
+  = f.email_field :email, placeholder: "Email" 
+  = f.password_field :password, placeholder: "Password"
+  = button_tag :type => :submit do
+    Sign up
 
