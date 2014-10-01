@@ -11,7 +11,12 @@ class DeltaGrab
   def self.perform(job_id, user_id)
   	user = User.find(user_id)
   	#auth into contextio
-  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
+  	if Rails.env.production?
+  		contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
+  	else
+  		contextio = ContextIO.new('h00j8lpl', 'ueWLBkDRE6xlg2am')
+  	end
+
   	#get the correct account
   	account = contextio.accounts.where(email: user.email).first
 	##DELTA
@@ -108,6 +113,10 @@ class DeltaGrab
 		  			depart_nyc = flight[:departure_airport].split("-").second
 		  			depart_code = depart_nyc == "KENNEDY" ? "JFK" : "LGA"
 		  			depart_airport = Airport.find_by_faa(depart_code).id 
+		  		elsif flight[:departure_airport] == "CHICAGO-OHARE"
+					depart_airport = Airport.find_by_faa("ORD").id
+		  		elsif flight[:departure_airport] == "ST LOUIS" || flight[:departure_airport] == "ST"
+					depart_airport = Airport.find_by_faa("STL").id
 		  		else
 		  			depart_airport = Airport.find_by_city(flight[:departure_airport].titleize).id
 		  		end
@@ -115,7 +124,11 @@ class DeltaGrab
 		  			arrival_nyc = flight[:arrival_airport].split("-").second
 		  			arrival_code = arrival_nyc == "KENNEDY" ? "JFK" : "LGA"
 		  			arrival_airport = Airport.find_by_faa(arrival_code).id 
-		  		else
+		  		elsif flight[:arrival_airport] == "CHICAGO-OHARE"
+		  			arrival_airport = Airport.find_by_faa("ORD").id
+		  		elsif flight[:arrival_airport] == "ST LOUIS" || flight[:arrival_airport] == "ST"
+		  			arrival_airport = Airport.find_by_faa("STL").id
+		  		else	
 		  			arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
 		  		end
 
