@@ -19,6 +19,9 @@ class PagesController < ApplicationController
 	
 	@airlines = current_user.flights.map{|flight| Airline.find(flight.airline_id).name}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }
 
+
+	@trips_by_month = @trips.group_by { |trip| trip.flights.first.depart_time.strftime("%Y") }
+
 	@flight_times = current_user.flights.map{|flight| flight.arrival_time-flight.depart_time}
 	#raise "#{@flight_times}"
 	#@trip_flights = @trips.map{|trip| trip.flights}
@@ -321,18 +324,52 @@ class PagesController < ApplicationController
 
   end
   def usairways
+  	user = current_user
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: current_user.email).first
-  	
+  	account = contextio.accounts.where(email: "blgruber@gmail.com").first
+  	a_id = Airline.where("name = ?", "USAir").first.id
   	#get messages from delta and pick the html
   	usa_messages = account.messages.where(from: "reservations@email-usairways.com")
-  	usa_messages = usa_messages.map {|message| message.body_parts.first.content}
   	usa_messages.each do |message|
-  		dom = Nokogiri::HTML(message)
-	  	raise "#{dom}"
-	  	matches = dom.xpath('//*[@id="ticket"]/div/table/tr/td/table[4]/tr').map(&:to_s)
+	  	trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
+  		dom = Nokogiri::HTML(message.body_parts.first.content)
+	  	matches = dom.xpath('/html/body/div/table/tr[2]/td/table/tr[1]/td/table[5]/tr')
+	  	important = matches.map{|match| match unless match.attributes["style"].blank?}.compact
+	  	split_points = important.map{|match| match if match.attributes["style"].value == "padding-top:17px;"}.each_with_index.map{|a, index| index  unless a.nil?}.compact.map{|a| a unless a == 0}.compact
+	  	day_array = []
+	  	split_points.each_with_index do |split, index|
+	  		if split_points.count == 1
+	  			day_array << important[0...split]
+	  			day_array << important[split...important.count]
+	  		elsif index == 0#first iteration if there is more than 1 split point
+	  			day_array << important[0...split]
+	  		elsif index < split_points.count-1#2nd, 3rd, 4th iterations
+	  			day_array << important[split_points[index-1]...split]
+	  		else#last split going to end of array
+	  			day_array << important.each_slice(split).to_a.last
+	  		end
+	  	end
+	  	#day_array is array of the flights by day of travel
+	  	day_array.each do |day|
+	  		flight_count = (day.count-2)/2 #counts the number of flights that day
+	  		date_month_day_year = day[1].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").scan(/font:normal 12px Arial, Helvetica, sans-serif;(.*?)<\/span>/).first.first.gsub('">','').split
+	  		flight_count_array = [*1..flight_count]
+	  		flight_count_array.each_with_index do |value, index|
+		  		y = (3)+(index*2)
+		  		depart_airport = Airport.find_by_faa(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").scan(/padding-left:3px;(.*?)<\/span>/)[0].first.gsub('">','').gsub(" ", "")).id
+		  		arrival_airport = Airport.find_by_faa(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").scan(/padding-left:3px;(.*?)<\/span>/)[1].first.gsub('">','').gsub(" ", "")).id
+		  		depart_time = am_pm_split(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<td width=95 align=left style=font:normal 12px Arial, Helvetica, sans-serif;>(.*?)<span/).first.first.gsub(" ", ""))
+		  		arrival_time = am_pm_split(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<td width=95 align=left style=font:normal 12px Arial, Helvetica, sans-serif;>(.*?)<span/).last.first.gsub(" ", ""))
+		  		#binding.pry
+		  		d_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, depart_time[:hour].to_i, depart_time[:min].to_i, 0, 0)
+		  		a_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, arrival_time[:hour].to_i, arrival_time[:min].to_i, 0, 0)
+
+		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: a_id, depart_airport: depart_airport, depart_time: d_time, arrival_airport: arrival_airport, arrival_time: a_time, seat_type: "US Airways 2014" )
+		  	end
+
+	  	end
   		
 
   		#:bold;color:#277DB2;">(.*?)<\/span>
@@ -388,6 +425,8 @@ class PagesController < ApplicationController
 		  		if depart_city == "New York Jfk" || depart_city == "New York Lga"
 		  			depart_nyc = depart_city.split(" ").last.upcase
 		  			depart_airport = Airport.find_by_faa(depart_nyc)
+		  		elsif depart_city == "Portland Or"
+		  			depart_airport = Airport.where("city = ?", "Portland").first.id
 		  		else
 		  			depart_airport = Airport.where("city = ?", depart_city).first.id
 		  		end
@@ -397,8 +436,9 @@ class PagesController < ApplicationController
 		  			arrival_city_nyc = arrival_city.split(" ").last.upcase
 
 		  			arrival_airport = Airport.find_by_faa(arrival_city_nyc).id
+		  		elsif arrival_city == "Portland Or"
+		  			arrival_airport = Airport.where("city = ?", "Portland").first.id
 		  		else
-		  			binding.pry
 		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
 		  		end
 		  		match_strip = ActionView::Base.full_sanitizer.sanitize(match)
@@ -900,11 +940,13 @@ class PagesController < ApplicationController
   	elsif full_time.scan(/p.m./i).count > 0
   		reg_time = full_time.split(/p.m./i).first
   		hour_min = reg_time.split(":")
-  		hour = hour_min[0].to_i + 12
+  		hour = hour_min[0].to_i
+  		hour = hour + 12 unless hour == 12
   	elsif full_time.scan(/pm/i).count > 0
   		reg_time = full_time.split(/pm/i).first
   		hour_min = reg_time.split(":")
-  		hour = hour_min[0].to_i  + 12
+  		hour = hour_min[0].to_i
+  		hour = hour + 12 unless hour == 12
 
   	elsif full_time.scan(/am/i).count > 0
   		reg_time = full_time.split(/am/i).first
@@ -929,7 +971,7 @@ class PagesController < ApplicationController
 	else
 		num_month = month
 	end
-	
+	binding.pry
   	new_date = Time.parse("#{year}-#{num_month}-#{day} #{hour}")
   	#string_date = "#{day}/#{num_month}/#{year} #{hour}"
   	#real_date = Chronic.parse(string_date)

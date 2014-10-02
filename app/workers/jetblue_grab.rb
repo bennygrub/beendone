@@ -37,6 +37,8 @@ class JetblueGrab
 		  		if depart_city == "New York Jfk" || depart_city == "New York Lga"
 		  			depart_nyc = depart_city.split(" ").last.upcase
 		  			depart_airport = Airport.find_by_faa(depart_nyc)
+		  		elsif depart_city == "Portland Or"
+		  			depart_airport = Airport.where("city = ?", "Portland").first.id
 		  		else
 		  			depart_airport = Airport.where("city = ?", depart_city).first.id
 		  		end
@@ -46,6 +48,8 @@ class JetblueGrab
 		  			arrival_city_nyc = arrival_city.split(" ").last.upcase
 
 		  			arrival_airport = Airport.find_by_faa(arrival_city_nyc).id
+		  		elsif arrival_city == "Portland Or"
+		  			arrival_airport = Airport.where("city = ?", "Portland").first.id
 		  		else
 		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
 		  		end

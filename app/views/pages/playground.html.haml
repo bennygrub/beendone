@@ -1,4 +1,12 @@
 %h1 Playground
+-@trips_by_month.each do |monthname, trips|
+	%h5=monthname
+	-trips.each do |trip|
+		=trip.flights.first.arrival_airport
+		-trip.flights.each do |flight|
+			=flight.arrival_airport
+
+
 %h3 Airlines
 -@airlines.each do |origin|
 	%p=origin

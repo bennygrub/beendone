@@ -12,7 +12,7 @@ class VirginGrab
   def self.perform(job_id, user_id)
   	user = User.find(user_id)
   	#auth into contextio
-  	  	if Rails.env.production?
+  	if Rails.env.production?
   		contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	else
   		contextio = ContextIO.new('h00j8lpl', 'ueWLBkDRE6xlg2am')
