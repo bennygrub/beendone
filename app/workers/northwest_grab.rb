@@ -1,0 +1,55 @@
+require 'res_helper'
+require 'resque-retry'
+class NorthwestGrab
+  extend ResHelper
+  extend Resque::Plugins::Retry
+  include Resque::Plugins::Status
+
+  @queue = :northwest_queue
+  @retry_limit = 5
+  @retry_delay = 30
+
+  def self.perform(job_id, user_id)
+  	user = User.find(user_id)
+  	#auth into contextio
+  	if Rails.env.production?
+  		contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
+  	else
+  		contextio = ContextIO.new('h00j8lpl', 'ueWLBkDRE6xlg2am')
+  	end
+  	#get the correct account
+  	account = contextio.accounts.where(email: user.email).first
+
+
+  	airline_id = Airline.find_by_name("Northwest Airlines").id
+  	#get messages from Virgin and pick the html
+  	nw_messages = account.messages.where(from: "Northwest.Airlines@nwa.com", subject: "/nwa.com Reservations Air Purchase Confirmation/")
+  	if nw_messages.count > 0
+	  	nw_messages.each do |message|
+	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id, name: "NorthWest")
+	  		year = message.received_at.strftime("%Y")
+	  		dom = Nokogiri::HTML(message.body_parts.first.content)
+	  		legdata = dom.xpath('/html/body/div[@class="legdata"]')
+	  		flights_array = legdata.each_slice(5).to_a
+	  		flights_array.each do |flight|
+	  			depart_airport = Airport.find_by_faa(flight[1].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/\((.*?)\)/).first.first).id
+	  			depart_time_array = flight[1].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/\)(.*?)</).first.first.gsub(".","").gsub(",","").split
+	  			d_month = month_to_number(depart_time_array[1])
+	  			d_day = depart_time_array[2]
+	  			d_time = am_pm_split(depart_time_array[3] + depart_time_array[4])
+	  			depart_time = DateTime.new(year.to_i, d_month.to_i, d_day.to_i, d_time[:hour].to_i, d_time[:min].to_i, 0, 0)
+
+	  			arrival_airport = Airport.find_by_faa(flight[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/\((.*?)\)/).first.first).id
+	  			arrival_time_array = flight[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/\)(.*?)</).first.first.gsub(".","").gsub(",","").split
+	  			a_month = month_to_number(arrival_time_array[1])
+	  			a_day = arrival_time_array[2]
+	  			a_time = am_pm_split(arrival_time_array[3] + arrival_time_array[4])
+	  			arrival_time = DateTime.new(year.to_i, a_month.to_i, a_day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
+
+	  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: airline_id, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Northwest" )
+	  		end
+
+	  	end
+	end
+  end
+end

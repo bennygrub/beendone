@@ -40,9 +40,9 @@ class CheapoGrab
 				depart_code = departure_data.scan(/\(([^\)]+)\)/).last.first
 				depart_hour_min = am_pm_split(depart_data[1].first)
 			  	depart_month_day = departure_data.scan(/- (.*?)<\/span>/).first.first.split
-			  	depart_day = depart_month_day[1]
+			  	depart_day = depart_month_day[1].split(",").first
 			  	depart_month = month_to_number(depart_month_day[0])
-			  	depart_time = flight_date_time(depart_day, depart_month, year, depart_hour_min[:hour], depart_hour_min[:min])
+			  	depart_time = DateTime.new(year.to_i, depart_month.to_i, depart_day.to_i, depart_hour_min[:hour].to_i, depart_hour_min[:min].to_i, 0, 0)
 			  	
 			  	arrival_data = flight[1].gsub("\t","").gsub("\n","").gsub("\r","")
 		  		arrival_data_port = arrival_data.scan(/<b>(.*?)<\/b>/)
@@ -50,9 +50,11 @@ class CheapoGrab
 		  		arrival_code = arrival_data.scan(/\(([^\)]+)\)/).last.first
 				arrival_hour_min = am_pm_split(arrival_data_port[1].first)
 			  	arrival_month_day = arrival_data.scan(/- (.*?)<\/span>/).first.first.split
-			  	arrival_day = arrival_month_day[1]
+			  	arrival_day = arrival_month_day[1].split(",").first
 			  	arrival_month = month_to_number(arrival_month_day[0])
-			  	arrival_time = flight_date_time(arrival_day, arrival_month, year, arrival_hour_min[:hour], arrival_hour_min[:min])
+			  	
+			  	arrival_time = DateTime.new(year.to_i, arrival_month.to_i, arrival_day.to_i, arrival_hour_min[:hour].to_i, arrival_hour_min[:min].to_i, 0, 0)
+			  	
 			  	seat_type = "CHEAPO"
 			  	Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 103, depart_airport: Airport.find_by_faa(depart_code).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_code).id, arrival_time: arrival_time, seat_type: seat_type )
 			end
