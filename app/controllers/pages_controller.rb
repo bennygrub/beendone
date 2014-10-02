@@ -326,9 +326,14 @@ class PagesController < ApplicationController
   def usairways
   	user = current_user
   	#auth into contextio
-  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
+  	if Rails.env.production?
+  		contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
+  	else
+  		contextio = ContextIO.new('h00j8lpl', 'ueWLBkDRE6xlg2am')
+  	end
   	#get the correct account
-  	account = contextio.accounts.where(email: "blgruber@gmail.com").first
+  	account = contextio.accounts.where(email: "nwcooper@gmail.com").first
+  	
   	email_change_date = Date.new(2014,1,1).to_time.to_i
   	a_id = Airline.where("name = ?", "USAir").first.id
 
@@ -360,7 +365,6 @@ class PagesController < ApplicationController
 	  		flight_count_array = [*1..flight_count]
 	  		flight_count_array.each_with_index do |value, index|
 		  		y = (3)+(index*1)
-		  		binding.pry
 		  		depart_airport = Airport.find_by_faa(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<span style=color: #227db2;>(.*?)<\/span>/).first.first.split.first).id
 		  		arrival_airport = Airport.find_by_faa(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<span style=color: #227db2;>(.*?)<\/span>/).last.first.split.first).id
 		  		depart_time = am_pm_split(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/td style=vertical-align: middle; margin: 0px; width: 80px; white-space: nowrap; text-align: center>(.*?)<span/).first.first.gsub(" ", ""))
@@ -376,7 +380,7 @@ class PagesController < ApplicationController
   	end
   	#US AIRWAYS NEW EMAIL STARTING 2014
   	#get messages from delta and pick the html
-  	usa_messages = account.messages.where(from: "reservations@email-usairways.com")
+  	usa_messages = account.messages.where(from: "reservations@email-usairways.com", date_after: email_change_date)
   	usa_messages.each do |message|
 	  	trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
   		dom = Nokogiri::HTML(message.body_parts.first.content)
