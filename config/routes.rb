@@ -22,6 +22,7 @@ Beendone::Application.routes.draw do
   get "pages/taca"
   get "pages/playground"
   get "pages/northwest"
+  get "pages/southwest"
   devise_for :users, :controllers => { omniauth_callbacks: 'omniauth_callbacks', :registrations => "registrations"  }
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
