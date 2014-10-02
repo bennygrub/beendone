@@ -959,6 +959,8 @@ class PagesController < ApplicationController
 	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id, name: "NorthWest")
 	  		year = message.received_at.strftime("%Y")
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
+	  		binding.pry
+	  		cost = dom.xpath('//*[@id="totalCost"]').to_s.scan(/Price:(.*?)</).first.first.gsub(" ", "")
 	  		legdata = dom.xpath('/html/body/div[@class="legdata"]')
 	  		flights_array = legdata.each_slice(5).to_a
 	  		flights_array.each do |flight|
