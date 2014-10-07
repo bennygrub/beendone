@@ -62,4 +62,5 @@ class PricelineGrab
 
   		end
   	end
+  end
 end
