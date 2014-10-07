@@ -18,6 +18,7 @@ class SearchAll
     job_ids << UsairwaysGrab.create(user_id)
     job_ids << NorthwestGrab.create(user_id)
     job_ids << SouthwestGrab.create(user_id)
+    job_ids << PricelineGrab.create(user_id)
 
     Resque.enqueue(StatusCheck, job_ids) if Rails.env.production?
   end
