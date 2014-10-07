@@ -21,84 +21,39 @@ class JetblueGrab
 	
 	##JETBLUE NEW
   	jb_messages = account.messages.where(from: "reservations@jetblue.com", subject: "Itinerary for your upcoming trip")
-  	if jb_messages.count > 0
-	  	#jb_messages = jb_messages.map {|message| message.body_parts.first.content}
-	  	jb_messages.each do |message|
-	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
-	  		dom = Nokogiri::HTML(message.body_parts.first.content)
-		  	matches = dom.xpath('//*[@id="ticket"]/div/table/tr/td/table[4]/tr').map(&:to_s)
-		  	matches.pop(5)
-		  	matches.shift
-		  	matches = matches.select.each_with_index { |str, i| i.even? }
-		  	#match = matches[1]
-		  	matches.each do |match|
-		  		both_airports = match.scan(/<strong>(.*?)<\/strong>/)	  		
-		  		depart_city = both_airports.first.first.split(",").first.titleize
-		  		if depart_city == "New York Jfk" || depart_city == "New York Lga"
-		  			depart_nyc = depart_city.split(" ").last.upcase
-		  			depart_airport = Airport.find_by_faa(depart_nyc)
-		  		elsif depart_city == "Portland Or"
-		  			depart_airport = Airport.where("city = ?", "Portland").first.id
-		  		else
-		  			depart_airport = Airport.where("city = ?", depart_city).first.id
-		  		end
-		  		
-		  		arrival_city = both_airports.second.first.split(",").first.titleize
-		  		if arrival_city == "New York Jfk" || arrival_city == "New York Lga"
-		  			arrival_city_nyc = arrival_city.split(" ").last.upcase
+  	jb_messages.each do |message|
+  		year = message.received_at.strftime("%Y")
+  		dom = Nokogiri::HTML(message.body_parts.first.content)
+  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
+  		number_of_flights = (dom.xpath('//*[@id="ticket"]/div/table/tr/td/table[4]/tr').count-5)/2
+  		flight_loop = (1..number_of_flights).to_a
+  		flight_loop.each_with_index do |flight, index|
+  			flight_index = (index + 1)*2
+  			flight_data = dom.xpath("//*[@id='ticket']/div/table/tr/td/table[4]/tr[#{flight_index}]/td")
+  			day_count = flight_data[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split.count
+  			day = flight_data[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split[day_count-1].to_i
+  			month = month_to_number(flight_data[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split[day_count-2])
+  			d_time = am_pm_split(flight_data[1].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split.first)
+  			a_time = am_pm_split(flight_data[1].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split.last)
+  			#d_city = flight_data[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<strong>(.*?)<\/strong>/).first.first
+			#a_city = flight_data[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<strong>(.*?)<\/strong>/).last.first
+	  		message_year_check(month, year)
+	  		depart_time = DateTime.new(year.to_i, month.to_i, day.to_i, d_time[:hour].to_i, d_time[:min].to_i, 0, 0)
+  			arrival_time = DateTime.new(year.to_i, month.to_i, day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
 
-		  			arrival_airport = Airport.find_by_faa(arrival_city_nyc).id
-		  		elsif arrival_city == "Portland Or"
-		  			arrival_airport = Airport.where("city = ?", "Portland").first.id
-		  		else
-		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
-		  		end
-		  		match_strip = ActionView::Base.full_sanitizer.sanitize(match)
-		  		match_split = match_strip.split
-
-		  		if match_split[3] == "-"
-			  		departure_month = match_split[1]
-			  		departure_date = match_split[2]
-			  		departure_time = match_split[7]
-			  		
-			  		arrival_month = match_split[5]
-			  		arrival_date = match_split[6]
-			  		arrival_time = match_split[8]
-					departure_time = create_saveable_date(departure_date, departure_month, 2012, departure_time)
-			  		arrival_time = create_saveable_date(arrival_date, arrival_month, 2012, arrival_time)
-
-		  		elsif match_split[1].to_i !=0
-		  			if match_split[2] == "-"
-				  		departure_month = match_split[0]
-				  		departure_date = match_split[1]
-				  		departure_time = match_split[6]
-				  		
-				  		arrival_month = match_split[4]
-				  		arrival_date = match_split[5]
-				  		arrival_time = match_split[7]
-						
-						departure_time = create_saveable_date(departure_date, departure_month, 2012, departure_time)
-				  		arrival_time = create_saveable_date(arrival_date, arrival_month, 2012, arrival_time)
-		  			else 
-			  			departure_month = match_split[0]
-				  		departure_date = match_split[1]
-				  		departure_time = match_split[2]
-				  		arrival_time = match_split[3]
-						departure_time = create_saveable_date(departure_date, departure_month, 2011, departure_time)
-				  		arrival_time = create_saveable_date(departure_date, departure_month, 2011, arrival_time)
-				  	end
-		  		else
-			  		date_shift = match_split.shift(5)
-			  		flight_date = date_shift.shift(3)
-			  		both_times = date_shift.pop(2)
-			  		departure_time = create_saveable_date(flight_date[2], flight_date[1], 2012, both_times.first)
-			  		arrival_time = create_saveable_date(flight_date[2], flight_date[1], 2012, both_times[1])
-			  	end
-
-		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 38, depart_airport: depart_airport, depart_time: departure_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Jetblue" )
-		  	end
-	  	end
-	end
+	  		airport_cities = flight_data[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<strong>(.*?)<\/strong>/)
+	  			  		
+	  		d_airport = jb_city_airport(airport_cities.first.first.split(",").first.titleize)
+	  		a_airport = jb_city_airport(airport_cities.last.first.split(",").first.titleize)
+	  		if Flight.where("depart_time = ?", depart_time.to_time).count > 0
+	  			user_ids = Flight.where("depart_time = ?", depart_time).map{|flight| Trip.find(flight.trip_id).user_id}
+	  			Flight.create(trip_id: trip.id, airline_id: airline_id, depart_airport: d_airport, depart_time: depart_time, arrival_airport: a_airport, arrival_time: arrival_time, seat_type: "Jetblue" ) unless user_ids.include? user.id
+	  		else
+	  			Flight.create(trip_id: trip.id, airline_id: airline_id, depart_airport: d_airport, depart_time: depart_time, arrival_airport: a_airport, arrival_time: arrival_time, seat_type: "Jetblue" )
+	  		end
+	  		
+  		end
+  	end
 
   	#JetBlue OLDER
   	jb_messages_old = account.messages.where(from: "mail@jetblueconnect.com", subject: "Your JetBlue E-tinerary")

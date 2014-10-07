@@ -27,8 +27,9 @@ class NorthwestGrab
   	if nw_messages.count > 0
 	  	nw_messages.each do |message|
 	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id, name: "NorthWest")
-	  		year = message.received_at.strftime("%Y")
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
+	  		year = message.received_at.strftime("%Y")
+	  		cost = dom.xpath('//*[@id="totalCost"]').to_s.scan(/Price:(.*?)</).first.first.gsub(" ", "")
 	  		legdata = dom.xpath('/html/body/div[@class="legdata"]')
 	  		flights_array = legdata.each_slice(5).to_a
 	  		flights_array.each do |flight|
@@ -44,6 +45,8 @@ class NorthwestGrab
 	  			a_month = month_to_number(arrival_time_array[1])
 	  			a_day = arrival_time_array[2]
 	  			a_time = am_pm_split(arrival_time_array[3] + arrival_time_array[4])
+	  			year = message_year_check(a_month, year)
+
 	  			arrival_time = DateTime.new(year.to_i, a_month.to_i, a_day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
 
 	  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: airline_id, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Northwest" )

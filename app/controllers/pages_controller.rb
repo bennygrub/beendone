@@ -95,11 +95,11 @@ class PagesController < ApplicationController
   def about
   	#contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	contextio = ContextIO.new('h00j8lpl', 'ueWLBkDRE6xlg2am')
-  	
+  	user = current_user
 
   	#get the correct account
   	#account = contextio.accounts.where(email: "blgruber@gmail.com").first
-  	account = contextio.accounts.where(email: "nwcooper@gmail.com").first
+  	account = contextio.accounts.where(email: current_user.email).first
   	
 
 	delta_messages = account.messages.where(from: "deltaelectronicticketreceipt@delta.com")
@@ -423,90 +423,51 @@ class PagesController < ApplicationController
   	user = current_user
   	#auth into contextio
   	#contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
-  	contextio = ContextIO.new('h00j8lpl', 'ueWLBkDRE6xlg2am')
+  	if Rails.env.production?
+  		contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
+  	else
+  		contextio = ContextIO.new('h00j8lpl', 'ueWLBkDRE6xlg2am')
+  	end
   	
   	#get the correct account
   	account = contextio.accounts.where(email: current_user.email).first
+	
+	airline_id = Airline.find_by_name("JetBlue").id
 	##JETBLUE NEW
   	jb_messages = account.messages.where(from: "reservations@jetblue.com", subject: "Itinerary for your upcoming trip")
-  	if jb_messages.count > 0
-	  	#jb_messages = jb_messages.map {|message| message.body_parts.first.content}
-	  	jb_messages.each do |message|
-	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
-	  		dom = Nokogiri::HTML(message.body_parts.first.content)
-		  	matches = dom.xpath('//*[@id="ticket"]/div/table/tr/td/table[4]/tr').map(&:to_s)
-		  	matches.pop(5)
-		  	matches.shift
-		  	matches = matches.select.each_with_index { |str, i| i.even? }
-		  	#match = matches[1]
-		  	matches.each do |match|
-		  		both_airports = match.scan(/<strong>(.*?)<\/strong>/)	  		
-		  		depart_city = both_airports.first.first.split(",").first.titleize
-		  		if depart_city == "New York Jfk" || depart_city == "New York Lga"
-		  			depart_nyc = depart_city.split(" ").last.upcase
-		  			depart_airport = Airport.find_by_faa(depart_nyc)
-		  		elsif depart_city == "Portland Or"
-		  			depart_airport = Airport.where("city = ?", "Portland").first.id
-		  		else
-		  			depart_airport = Airport.where("city = ?", depart_city).first.id
-		  		end
-		  		
-		  		arrival_city = both_airports.second.first.split(",").first.titleize
-		  		if arrival_city == "New York Jfk" || arrival_city == "New York Lga"
-		  			arrival_city_nyc = arrival_city.split(" ").last.upcase
+  	jb_messages.each do |message|
+  		year = message.received_at.strftime("%Y")
+  		dom = Nokogiri::HTML(message.body_parts.first.content)
+  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
+  		number_of_flights = (dom.xpath('//*[@id="ticket"]/div/table/tr/td/table[4]/tr').count-5)/2
+  		flight_loop = (1..number_of_flights).to_a
+  		flight_loop.each_with_index do |flight, index|
+  			flight_index = (index + 1)*2
+  			flight_data = dom.xpath("//*[@id='ticket']/div/table/tr/td/table[4]/tr[#{flight_index}]/td")
+  			day_count = flight_data[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split.count
+  			day = flight_data[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split[day_count-1].to_i
+  			month = month_to_number(flight_data[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split[day_count-2])
+  			d_time = am_pm_split(flight_data[1].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split.first)
+  			a_time = am_pm_split(flight_data[1].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split.last)
+  			#d_city = flight_data[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<strong>(.*?)<\/strong>/).first.first
+			#a_city = flight_data[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<strong>(.*?)<\/strong>/).last.first
+	  		message_year_check(month, year)
+	  		depart_time = DateTime.new(year.to_i, month.to_i, day.to_i, d_time[:hour].to_i, d_time[:min].to_i, 0, 0)
+  			arrival_time = DateTime.new(year.to_i, month.to_i, day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
 
-		  			arrival_airport = Airport.find_by_faa(arrival_city_nyc).id
-		  		elsif arrival_city == "Portland Or"
-		  			arrival_airport = Airport.where("city = ?", "Portland").first.id
-		  		else
-		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
-		  		end
-		  		match_strip = ActionView::Base.full_sanitizer.sanitize(match)
-		  		match_split = match_strip.split
+	  		airport_cities = flight_data[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<strong>(.*?)<\/strong>/)
+	  			  		
+	  		d_airport = jb_city_airport(airport_cities.first.first.split(",").first.titleize)
+	  		a_airport = jb_city_airport(airport_cities.last.first.split(",").first.titleize)
 
-		  		if match_split[3] == "-"
-			  		departure_month = match_split[1]
-			  		departure_date = match_split[2]
-			  		departure_time = match_split[7]
-			  		
-			  		arrival_month = match_split[5]
-			  		arrival_date = match_split[6]
-			  		arrival_time = match_split[8]
-					departure_time = create_saveable_date(departure_date, departure_month, 2012, departure_time)
-			  		arrival_time = create_saveable_date(arrival_date, arrival_month, 2012, arrival_time)
-
-		  		elsif match_split[1].to_i !=0
-		  			if match_split[2] == "-"
-				  		departure_month = match_split[0]
-				  		departure_date = match_split[1]
-				  		departure_time = match_split[6]
-				  		
-				  		arrival_month = match_split[4]
-				  		arrival_date = match_split[5]
-				  		arrival_time = match_split[7]
-						
-						departure_time = create_saveable_date(departure_date, departure_month, 2012, departure_time)
-				  		arrival_time = create_saveable_date(arrival_date, arrival_month, 2012, arrival_time)
-		  			else 
-			  			departure_month = match_split[0]
-				  		departure_date = match_split[1]
-				  		departure_time = match_split[2]
-				  		arrival_time = match_split[3]
-						departure_time = create_saveable_date(departure_date, departure_month, 2011, departure_time)
-				  		arrival_time = create_saveable_date(departure_date, departure_month, 2011, arrival_time)
-				  	end
-		  		else
-			  		date_shift = match_split.shift(5)
-			  		flight_date = date_shift.shift(3)
-			  		both_times = date_shift.pop(2)
-			  		departure_time = create_saveable_date(flight_date[2], flight_date[1], 2012, both_times.first)
-			  		arrival_time = create_saveable_date(flight_date[2], flight_date[1], 2012, both_times[1])
-			  	end
-
-		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 38, depart_airport: depart_airport, depart_time: departure_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Jetblue" )
-		  	end
-	  	end
-	end
+  			if Flight.where("depart_time = ?", depart_time.to_time).count > 0
+	  			user_ids = Flight.where("depart_time = ?", depart_time).map{|flight| Trip.find(flight.trip_id).user_id}
+	  			Flight.create(trip_id: trip.id, airline_id: airline_id, depart_airport: d_airport, depart_time: depart_time, arrival_airport: a_airport, arrival_time: arrival_time, seat_type: "Jetblue" ) unless user_ids.include? user.id
+	  		else
+	  			Flight.create(trip_id: trip.id, airline_id: airline_id, depart_airport: d_airport, depart_time: depart_time, arrival_airport: a_airport, arrival_time: arrival_time, seat_type: "Jetblue" )
+	  		end
+  		end
+  	end
 
   	#JetBlue OLDER
   	jb_messages_old = account.messages.where(from: "mail@jetblueconnect.com", subject: "Your JetBlue E-tinerary")
@@ -897,11 +858,11 @@ class PagesController < ApplicationController
   	#auth into contextio
   	#contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	contextio = ContextIO.new('h00j8lpl', 'ueWLBkDRE6xlg2am')
-  	
+  	user = current_user
 
   	#get the correct account
   	#account = contextio.accounts.where(email: "blgruber@gmail.com").first
-  	account = contextio.accounts.where(email: "nwcooper@gmail.com").first
+  	account = contextio.accounts.where(email: current_user.email).first
   	
 
   	#get messages from Virgin and pick the html
@@ -909,7 +870,7 @@ class PagesController < ApplicationController
   	if taca_messages.count > 0
 	  	taca_messages.each do |message|
 	  		#trip = Trip.create(user_id: current_user.id, name: "taca", message_id: message.message_id)
-	  		trip = Trip.find_or_create_by_message_id(user_id: current_user.id, message_id: message.message_id, name: "Taca")
+	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id, name: "Taca")
 	  		
 	  		email = message.body_parts.first.content.gsub("\r","").gsub("\n","")
 	  		
@@ -975,7 +936,7 @@ class PagesController < ApplicationController
 
   	#get the correct account
   	#account = contextio.accounts.where(email: "blgruber@gmail.com").first
-  	account = contextio.accounts.where(email: "nwcooper@gmail.com").first
+  	account = contextio.accounts.where(email: current_user.email).first
   	
   	airline_id = Airline.find_by_name("Northwest Airlines").id
   	#get messages from Virgin and pick the html
@@ -983,8 +944,8 @@ class PagesController < ApplicationController
   	if nw_messages.count > 0
 	  	nw_messages.each do |message|
 	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id, name: "NorthWest")
-	  		year = message.received_at.strftime("%Y")
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
+	  		year = message.received_at.strftime("%Y")
 	  		cost = dom.xpath('//*[@id="totalCost"]').to_s.scan(/Price:(.*?)</).first.first.gsub(" ", "")
 	  		legdata = dom.xpath('/html/body/div[@class="legdata"]')
 	  		flights_array = legdata.each_slice(5).to_a
@@ -1001,6 +962,8 @@ class PagesController < ApplicationController
 	  			a_month = month_to_number(arrival_time_array[1])
 	  			a_day = arrival_time_array[2]
 	  			a_time = am_pm_split(arrival_time_array[3] + arrival_time_array[4])
+	  			year = message_year_check(a_month, year)
+
 	  			arrival_time = DateTime.new(year.to_i, a_month.to_i, a_day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
 
 	  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: airline_id, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Northwest" )
@@ -1018,7 +981,7 @@ class PagesController < ApplicationController
 
   	#get the correct account
   	#account = contextio.accounts.where(email: "blgruber@gmail.com").first
-  	account = contextio.accounts.where(email: "nwcooper@gmail.com").first
+  	account = contextio.accounts.where(email: current_user.email).first
   	
   	airline_id = Airline.find_by_name("Southwest Airlines").id
   	#get messages from Virgin and pick the html
@@ -1031,17 +994,20 @@ class PagesController < ApplicationController
 	  		#cost = dom.xpath('//div[@style="line-height: 14px; font-family: arial,verdana; color: #666666; font-size: 11px; margin-right: 18px"]')#need to check further
 	  		flights_array = dom.xpath('//div[@style="line-height: 14px; font-family: arial,verdana; color: #000000; font-size: 11px"]').map(&:to_s).each_slice(3).to_a
 	  		flights_array.each do |flight|
-	  			flight_date = flight[0].gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/>(.*?)</).first.first.split
-	  			month = month_to_number(flight_date[1])
-	  			day = flight_date[2]
-	  			depart_airport = Airport.find_by_faa(flight[2].gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/\((.*?)\)/).first.first).id
-	  			arrival_airport = Airport.find_by_faa(flight[2].gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/\((.*?)\)/).last.first).id
-	  			d_time = am_pm_split(flight[2].gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/b>(.*?)<\/b/)[1].first)
-	  			a_time = am_pm_split(flight[2].gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/b>(.*?)<\/b/)[3].first)
-	  			depart_time = DateTime.new(year.to_i, month.to_i, day.to_i, d_time[:hour].to_i, d_time[:min].to_i, 0, 0)
-	  			arrival_time = DateTime.new(year.to_i, month.to_i, day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
+	  			unless flight.count < 3
+		  			flight_date = flight[0].gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/>(.*?)</).first.first.split
+		  			month = month_to_number(flight_date[1])
+		  			day = flight_date[2]
+		  			depart_airport = Airport.find_by_faa(flight[2].gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/\((.*?)\)/).first.first).id
+		  			arrival_airport = Airport.find_by_faa(flight[2].gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/\((.*?)\)/).last.first).id
+		  			d_time = am_pm_split(flight[2].gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/b>(.*?)<\/b/)[1].first)
+		  			a_time = am_pm_split(flight[2].gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/b>(.*?)<\/b/)[3].first)
+		  			year = message_year_check(month, year)
+		  			depart_time = DateTime.new(year.to_i, month.to_i, day.to_i, d_time[:hour].to_i, d_time[:min].to_i, 0, 0)
+		  			arrival_time = DateTime.new(year.to_i, month.to_i, day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
 
-	  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: airline_id, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Southwest" )
+		  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: airline_id, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Southwest" )
+		  		end
 	  		end
 	  	end
 	end
@@ -1152,6 +1118,24 @@ class PagesController < ApplicationController
     	x = (trip.flights.count/2)-0.5
     	middle = trip.flights[x]
     	return Airport.find(middle.arrival_airport)
+    end
+  end
+  def jb_city_airport(jb_city)
+  	if jb_city == "New York Jfk" || jb_city == "New York Lga"
+		airport_nyc = jb_city.split(" ").last.upcase
+		return  Airport.find_by_faa(airport_nyc)
+	elsif jb_city == "Portland Or"
+		return Airport.where("city = ?", "Portland").first.id
+	else
+		return Airport.where("city = ?", jb_city).first.id
+	end
+  end
+
+  def message_year_check(month, year)
+    if month == "12"
+      return year.to_i
+    else
+      return year.to_i + 1
     end
   end
 end

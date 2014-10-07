@@ -98,6 +98,22 @@ module ResHelper
       return false
     end
   end
-
-
+  
+  def jb_city_airport(jb_city)
+    if jb_city == "New York Jfk" || jb_city == "New York Lga"
+      airport_nyc = jb_city.split(" ").last.upcase
+      return  Airport.find_by_faa(airport_nyc)
+    elsif jb_city == "Portland Or"
+      return Airport.where("city = ?", "Portland").first.id
+    else
+      return Airport.where("city = ?", jb_city).first.id
+    end
+  end
+  def message_year_check(month, year)
+    if month == "12"
+      return year.to_i
+    else
+      return year.to_i + 1
+    end
+  end
 end
