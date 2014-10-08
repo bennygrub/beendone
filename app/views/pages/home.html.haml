@@ -1,7 +1,7 @@
 -if current_user
 
   %div{:style => "width: 100%;"}
-    #map{:style => "width: 100%; height: 600px;"}
+    #map{:style => "width: 100%; height: 300px;"}
 
   %h1=current_user.name.titlecase
   %h5="Total Trips: #{@trips.count}" 
@@ -11,18 +11,11 @@
     -trips.each do |trip|
       %div{style: "border-top:1px solid lightgrey;border-bottom:1px solid lightgrey;"}
         %span{style: "color:red;font-weight:bold;font-size:18px;"}
-          -if trip.flights.count < 3
-            =Airport.find(trip.flights.first.arrival_airport).city
-          -elsif trip.flights.count.even?
-            - x = (trip.flights.count/2)-1
-            - middle = trip.flights[x]
-            =Airport.find(middle.arrival_airport).city
-          -else
-            - x = (trip.flights.count/2)-0.5
-            - middle = trip.flights[x]
-            =Airport.find(middle.arrival_airport).city
+          =destination_city(trip)
         in
         %b=trip.flights.first.depart_time.strftime("%B")
+        for 
+        %b="#{days_visited(trip)} days"
         -trip.flights.each do |flight|
           %div{style: "border-top:1px dotted lightgrey;border-bottom:1px solid lightgrey;"}
             =flight.depart_time

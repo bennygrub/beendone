@@ -1,0 +1,56 @@
+-flight = Flight.find(object.flight_id)
+-trip = Trip.find(object.trip_id)
+-user = User.find(trip.user_id)
+-port = Airport.find(object.a_id)
+
+-@number_of_arrivals = user.flights.where("arrival_airport = ?", object.a_id).count
+-@destination_arrivals = user.flights.where("arrival_airport = ?", object.a_id).select{|flight| is_destination(flight) }
+-all_trips = current_user.flights.where("arrival_airport = ? OR depart_airport = ?", port.id, port.id).map{|flight| Trip.find(flight.trip_id)}.uniq
+
+%h3=port.city
+%p
+	Times Visited:
+	=@destination_arrivals.count
+-all_trips.each do |trip|
+	-destination = destination_flight_number(trip)
+	
+	-if trip.flights.first.depart_airport.to_i == port.id #trip started here
+		-if @destination_arrivals.count < 1
+			-trip.flights.where("depart_airport = ?", port.id).each do |lay|
+				%b 
+					="Flew Out (to #{Airport.find(lay.arrival_airport).city}):"
+				%p
+					=lay.depart_time.strftime("%D")
+	-elsif trip.flights[destination].arrival_airport.to_i == port.id#this is the trips destination
+		=#Destination:
+		=#port.city
+		=#{}"(#{trip.id})"
+		-arrive = in_out_flights(trip).first
+		-depart = in_out_flights(trip).last
+		%b=trip.flights.first.arrival_time.strftime("%B %Y")
+		-if days_visited(trip) == 0
+			Length of time unknown (no return flight)
+			%br
+			Arrived On:
+			%br
+			%p
+				=arrive.arrival_time.strftime("%D")
+		-else
+			="(#{days_visited(trip)} days)"
+			%br
+			%p
+				=arrive.arrival_time.strftime("%D")
+				="-"
+				=depart.depart_time.strftime("%D")
+	-elsif trip.flights.last.arrival_airport.to_i == port.id #last leg of trip - trip ends here
+		-if @destination_arrivals.count < 1
+			%p
+				Ended:
+				=port.city
+				="(#{trip.id})"
+	-else #layover
+		%b Layover(s) On:
+		-trip.flights.where("depart_airport = ?", port.id).each do |lay|
+			%p
+				=lay.depart_time.strftime("%D")
+				=#{}"(#{trip.id})"

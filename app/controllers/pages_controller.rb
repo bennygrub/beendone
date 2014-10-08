@@ -23,16 +23,22 @@ class PagesController < ApplicationController
 	@trips_by_month = @trips.group_by { |trip| trip.flights.first.depart_time.strftime("%Y") }
 
 	@flight_times = current_user.flights.map{|flight| flight.arrival_time-flight.depart_time}
-	#raise "#{@flight_times}"
+	#airport = Airport.find_by_city("Oakland")
+	airport = Airport.find(3484)
+	all_trips = current_user.flights.where("arrival_airport = ? OR depart_airport = ?", airport.id, airport.id).map{|flight| Trip.find(flight.trip_id)}.uniq
+	trip = Trip.find(638)
+	destination = destination_flight_number(trip)
+	
+	raise "#{trip.flights[destination].arrival_airport.to_i == airport.id}"
 	#@trip_flights = @trips.map{|trip| trip.flights}
   end
 
   def home
   	if current_user
-  		@trips = current_user.trips
-  		@trips = @trips.map{|trip| trip unless trip.flights.count < 1}.compact
-  		@trips = @trips.sort_by{|trip| trip.flights.last.depart_time}.reverse
-  		@trips_by_month = @trips.group_by { |trip| trip.flights.first.depart_time.strftime("%Y") }
+  		@trips = current_user.trips#all trips from current_user
+  		@trips = @trips.map{|trip| trip unless trip.flights.count < 1}.compact #get rid of trips with zero flights
+  		@trips = @trips.sort_by{|trip| trip.flights.last.depart_time}.reverse #reverse cron from depart_time
+  		@trips_by_month = @trips.group_by { |trip| trip.flights.first.depart_time.strftime("%Y") } #organize trips by month
   		
   		@flights = current_user.flights
   		@departs = @flights.map{|flight|
@@ -41,8 +47,12 @@ class PagesController < ApplicationController
   				{
   					latitude: d_port.latitude, 
   					longitude: d_port.longitude, 
+  					a_id: d_port.id,
   					name: d_port.name,
-  					city: d_port.city
+  					city: d_port.city,
+  					flight_id: flight.id,
+  					trip_id: flight.trip_id,
+  					type: "depart"
   				}
   			)
   		}
@@ -52,8 +62,11 @@ class PagesController < ApplicationController
   				{
   					latitude: port.latitude, 
   					longitude: port.longitude, 
+  					a_id: port.id,
   					name: port.name,
-  					city: port.city
+  					flight_id: flight.id,
+  					trip_id: flight.trip_id,
+  					type: "arrive"
   				}
   			)
   		}
@@ -62,8 +75,10 @@ class PagesController < ApplicationController
   		@hash = Gmaps4rails.build_markers(@all_flights) do |flight, marker|
   			marker.lat flight.latitude
   			marker.lng flight.longitude
-  			marker.title flight.name
-  			marker.infowindow "#{flight.name}(#{flight.city})"
+  			#marker.title flight.name
+  			marker.json({flight_id:flight.id})
+  			#marker.infowindow "#{flight.name}(#{flight.city})"
+  			marker.infowindow render_to_string(:partial => "maker_template", :locals => { :object => flight})
 		end
 
 		
@@ -1014,7 +1029,9 @@ class PagesController < ApplicationController
   end
 
   private
-
+  def gmaps4rails_infowindow
+	  # add here whatever html content you desire, it will be displayed when users clicks on the marker
+  end
   def get_first_number(full_string)
   	return full_string.match(/\d+/).to_s
   end
@@ -1138,4 +1155,13 @@ class PagesController < ApplicationController
       return year.to_i + 1
     end
   end
+  	def destination_flight_number(trip)
+    	if trip.flights.count < 3 #if the trip has 1 or 2 flights
+        	return 0
+        elsif trip.flights.count.even? #if the trip has 3 or more flights and is even its probably the middle one
+        	return (trip.flights.count/2)-1
+        else#if the trip has 3 or more flights and is odd its probably the first of the middle ones
+        	return (trip.flights.count/2)-0.5
+        end
+	end
 end
