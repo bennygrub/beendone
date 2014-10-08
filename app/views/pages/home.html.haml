@@ -6,39 +6,38 @@
   %h1=current_user.name.titlecase
   %h5="Total Trips: #{@trips.count}" 
   %h5="Total Flights: #{@flights.count}"
-  -@trips.each do |trip|
-    %h3
-      %span{style: "color:red;"}
-        -if trip.flights.count < 3
-          =Airport.find(trip.flights.first.arrival_airport).city
-        -elsif trip.flights.count.even?
-          - x = (trip.flights.count/2)-1
-          - middle = trip.flights[x]
-          =Airport.find(middle.arrival_airport).city
-        -else
-          - x = (trip.flights.count/2)-0.5
-          - middle = trip.flights[x]
-          =Airport.find(middle.arrival_airport).city
-      in
-      =trip.flights.first.depart_time.strftime("%B %Y")
-      (
-      =trip.flights.count
-      )
-    -trip.flights.each do |flight|
-      %p{style: "border-top:1px solid lightgrey;border-bottom:1px solid lightgrey;"}
-        =flight.depart_time
-        %br
-        =Airport.find(flight.depart_airport).name
-        ="-"
-        =Airport.find(flight.depart_airport).city
-        ="(#{flight.depart_airport})"
-        %br
-        to
-        %br
-        =Airport.find(flight.arrival_airport).name
-        ="-"
-        =Airport.find(flight.arrival_airport).city
-        ="(#{flight.arrival_airport})"
+  -@trips_by_month.each do |monthname, trips|
+    %h2=monthname
+    -trips.each do |trip|
+      %div{style: "border-top:1px solid lightgrey;border-bottom:1px solid lightgrey;"}
+        %span{style: "color:red;font-weight:bold;font-size:18px;"}
+          -if trip.flights.count < 3
+            =Airport.find(trip.flights.first.arrival_airport).city
+          -elsif trip.flights.count.even?
+            - x = (trip.flights.count/2)-1
+            - middle = trip.flights[x]
+            =Airport.find(middle.arrival_airport).city
+          -else
+            - x = (trip.flights.count/2)-0.5
+            - middle = trip.flights[x]
+            =Airport.find(middle.arrival_airport).city
+        in
+        %b=trip.flights.first.depart_time.strftime("%B")
+        -trip.flights.each do |flight|
+          %div{style: "border-top:1px dotted lightgrey;border-bottom:1px solid lightgrey;"}
+            =flight.depart_time
+            %br
+            =Airport.find(flight.depart_airport).name
+            ="-"
+            =Airport.find(flight.depart_airport).city
+            ="(#{flight.depart_airport})"
+            %br
+            to
+            %br
+            =Airport.find(flight.arrival_airport).name
+            ="-"
+            =Airport.find(flight.arrival_airport).city
+            ="(#{flight.arrival_airport})"
   
   :javascript
     $(window).bind("load", function() {

@@ -32,6 +32,7 @@ class PagesController < ApplicationController
   		@trips = current_user.trips
   		@trips = @trips.map{|trip| trip unless trip.flights.count < 1}.compact
   		@trips = @trips.sort_by{|trip| trip.flights.last.depart_time}.reverse
+  		@trips_by_month = @trips.group_by { |trip| trip.flights.first.depart_time.strftime("%Y") }
   		
   		@flights = current_user.flights
   		@departs = @flights.map{|flight|
@@ -456,7 +457,6 @@ class PagesController < ApplicationController
   			arrival_time = DateTime.new(year.to_i, month.to_i, day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
 
 	  		airport_cities = flight_data[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<strong>(.*?)<\/strong>/)
-	  			  		
 	  		d_airport = jb_city_airport(airport_cities.first.first.split(",").first.titleize)
 	  		a_airport = jb_city_airport(airport_cities.last.first.split(",").first.titleize)
 
@@ -1123,7 +1123,7 @@ class PagesController < ApplicationController
   def jb_city_airport(jb_city)
   	if jb_city == "New York Jfk" || jb_city == "New York Lga"
 		airport_nyc = jb_city.split(" ").last.upcase
-		return  Airport.find_by_faa(airport_nyc)
+		return  Airport.find_by_faa(airport_nyc).id
 	elsif jb_city == "Portland Or"
 		return Airport.where("city = ?", "Portland").first.id
 	else
