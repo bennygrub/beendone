@@ -24,9 +24,9 @@ class DeltaGrab
   	if delta_messages.count > 0
 	  	#delta_messages = delta_messages.map {|message| message.body_parts.first.content}
 
-	  	delta_messages.each do |message_string|
-	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message_string.message_id)
-		  	dom = Nokogiri::HTML(message_string.body_parts.first.content)
+	  	delta_messages.each do |message|
+	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
+		  	dom = Nokogiri::HTML(message.body_parts.first.content)
 		  	matches = dom.xpath('/html/body//pre/text()').map(&:to_s)
 		  	
 			#get overall data
@@ -118,7 +118,13 @@ class DeltaGrab
 		  		elsif flight[:departure_airport] == "ST LOUIS" || flight[:departure_airport] == "ST"
 					depart_airport = Airport.find_by_faa("STL").id
 		  		else
-		  			depart_airport = Airport.find_by_city(flight[:departure_airport].titleize).id
+		  			begin
+		  				depart_airport = Airport.find_by_city(flight[:departure_airport].titleize).id
+		  			rescue Exception => e
+		  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+		  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :city => flight[:departure_airport])
+		  				depart_airport = 2#Random airport
+		  			end
 		  		end
 		  		if flight[:arrival_airport] == "NYC-LAGUARDIA" || flight[:arrival_airport] == "NYC-KENNEDY"
 		  			arrival_nyc = flight[:arrival_airport].split("-").second
@@ -129,7 +135,13 @@ class DeltaGrab
 		  		elsif flight[:arrival_airport] == "ST LOUIS" || flight[:arrival_airport] == "ST"
 		  			arrival_airport = Airport.find_by_faa("STL").id
 		  		else	
-		  			arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
+		  			begin
+		  				arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
+		  			rescue Exception => e
+		  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+		  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :city => flight[:arrival_airport])
+		  				arrival_airport = 2#Random airport
+		  			end
 		  		end
 
 		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 33, depart_airport: depart_airport, depart_time: flight[:departure_time], arrival_airport: arrival_airport, arrival_time: flight[:arrival_time], seat_type: flight[:seat] )

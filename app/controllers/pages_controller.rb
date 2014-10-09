@@ -5,6 +5,16 @@ class PagesController < ApplicationController
   require 'ostruct'
 
   def playground
+	begin
+		city = "Dallaas"
+		arrival_airport = Airport.find_by_city(city).id
+	rescue Exception => e
+		Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+		Rollbar.report_message("Bad City", "error", :message_id => 12323)
+		arrival_airport = 2#Random airport
+	end
+
+
 	@trips = current_user.trips
   	@trips = @trips.map{|trip| trip unless trip.flights.count < 1}.compact
   	@trips = @trips.sort_by{|trip| trip.flights.last.depart_time}.reverse
@@ -23,14 +33,7 @@ class PagesController < ApplicationController
 	@trips_by_month = @trips.group_by { |trip| trip.flights.first.depart_time.strftime("%Y") }
 
 	@flight_times = current_user.flights.map{|flight| flight.arrival_time-flight.depart_time}
-	#airport = Airport.find_by_city("Oakland")
-	airport = Airport.find(3484)
-	all_trips = current_user.flights.where("arrival_airport = ? OR depart_airport = ?", airport.id, airport.id).map{|flight| Trip.find(flight.trip_id)}.uniq
-	trip = Trip.find(638)
-	destination = destination_flight_number(trip)
-	
-	raise "#{trip.flights[destination].arrival_airport.to_i == airport.id}"
-	#@trip_flights = @trips.map{|trip| trip.flights}
+
   end
 
   def home
@@ -120,9 +123,9 @@ class PagesController < ApplicationController
 
 	delta_messages = account.messages.where(from: "deltaelectronicticketreceipt@delta.com")
   	if delta_messages.count > 0
-	  	delta_messages.each do |message_string|
-	  		trip = Trip.find_or_create_by_message_id(user_id: current_user.id, message_id: message_string.message_id)
-		  	dom = Nokogiri::HTML(message_string.body_parts.first.content)
+	  	delta_messages.each do |message|
+	  		trip = Trip.find_or_create_by_message_id(user_id: current_user.id, message_id: message.message_id)
+		  	dom = Nokogiri::HTML(message.body_parts.first.content)
 		  	matches = dom.xpath('/html/body//pre/text()').map(&:to_s)
 		  	
 			#get overall data
@@ -214,7 +217,13 @@ class PagesController < ApplicationController
 		  		elsif flight[:departure_airport] == "ST LOUIS" || flight[:departure_airport] == "ST"
 					depart_airport = Airport.find_by_faa("STL").id
 		  		else
-		  			depart_airport = Airport.find_by_city(flight[:departure_airport].titleize).id
+		  			begin
+		  				depart_airport = Airport.find_by_city(flight[:departure_airport].titleize).id
+		  			rescue Exception => e
+		  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+		  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :city => flight[:departure_airport])
+		  				depart_airport = 2#Random airport
+		  			end
 		  		end
 		  		if flight[:arrival_airport] == "NYC-LAGUARDIA" || flight[:arrival_airport] == "NYC-KENNEDY"
 		  			arrival_nyc = flight[:arrival_airport].split("-").second
@@ -225,8 +234,13 @@ class PagesController < ApplicationController
 		  		elsif flight[:arrival_airport] == "ST LOUIS" || flight[:arrival_airport] == "ST"
 		  			arrival_airport = Airport.find_by_faa("STL").id
 		  		else	
-		  			binding.pry
-		  			arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
+		  			begin
+		  				arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
+		  			rescue Exception => e
+		  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+		  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :city => flight[:arrival_airport])
+		  				arrival_airport = 2#Random airport
+		  			end
 		  		end
 
 		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 33, depart_airport: depart_airport, depart_time: flight[:departure_time], arrival_airport: arrival_airport, arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
@@ -386,7 +400,6 @@ class PagesController < ApplicationController
 		  		arrival_airport = Airport.find_by_faa(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<span style=color: #227db2;>(.*?)<\/span>/).last.first.split.first).id
 		  		depart_time = am_pm_split(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/td style=vertical-align: middle; margin: 0px; width: 80px; white-space: nowrap; text-align: center>(.*?)<span/).first.first.gsub(" ", ""))
 		  		arrival_time = am_pm_split(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/td style=vertical-align: middle; margin: 0px; width: 80px; white-space: nowrap; text-align: center>(.*?)<span/).last.first.gsub(" ", ""))
-		  		#binding.pry
 		  		d_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, depart_time[:hour].to_i, depart_time[:min].to_i, 0, 0)
 		  		a_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, arrival_time[:hour].to_i, arrival_time[:min].to_i, 0, 0)
 
@@ -474,8 +487,20 @@ class PagesController < ApplicationController
   			arrival_time = DateTime.new(year.to_i, month.to_i, day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
 
 	  		airport_cities = flight_data[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<strong>(.*?)<\/strong>/)
-	  		d_airport = jb_city_airport(airport_cities.first.first.split(",").first.titleize)
-	  		a_airport = jb_city_airport(airport_cities.last.first.split(",").first.titleize)
+	  		begin
+	  			d_airport = jb_city_airport(airport_cities.first.first.split(",").first.titleize)
+  			rescue Exception => e
+  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :d_city => airport_cities.first.first.split(",").first.titleize)
+  				d_airport = 1#Random airport
+  			end
+	  		begin
+	  			a_airport = jb_city_airport(airport_cities.last.first.split(",").first.titleize)
+  			rescue Exception => e
+  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :a_city => airport_cities.last.first.split(",").first.titleize)
+  				a_airport = 1#Random airport
+  			end
 
   			if Flight.where("depart_time = ?", depart_time.to_time).count > 0
 	  			user_ids = Flight.where("depart_time = ?", depart_time).map{|flight| Trip.find(flight.trip_id).user_id}
@@ -507,7 +532,13 @@ class PagesController < ApplicationController
 		  		elsif depart_city == "Ft Lauderdale"
 		  			depart_airport = Airport.find_by_city("Fort Lauderdale").id
 		  		else
-		  			depart_airport = Airport.where("city = ?", depart_city).first.id
+		  			begin
+		  				depart_airport = Airport.where("city = ?", depart_city).first.id
+		  			rescue Exception => e
+		  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+		  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :city => depart_city)
+		  				depart_airport = 1#Random airport
+		  			end
 		  		end
 		  		arrival_city = flight_array[3].first.split(",").first
 		  		if arrival_city == "New York"
@@ -516,7 +547,13 @@ class PagesController < ApplicationController
 		  		elsif arrival_city == "Ft Lauderdale"
 		  			arrival_airport = Airport.find_by_city("Fort Lauderdale").id
 		  		else
-		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
+		  			begin
+		  				arrival_airport = Airport.where("city = ?", arrival_city).first.id
+		  			rescue Exception => e
+		  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+		  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :city => arrival_city)
+		  				arrival_airport = 1#Random airport
+		  			end
 		  		end
 		  		#d_split = departure_data.split
 		  		#d_split.pop

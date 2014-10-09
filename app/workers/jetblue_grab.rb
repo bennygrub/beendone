@@ -42,9 +42,20 @@ class JetblueGrab
   			arrival_time = DateTime.new(year.to_i, month.to_i, day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
 
 	  		airport_cities = flight_data[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<strong>(.*?)<\/strong>/)
-	  		binding.pry
-	  		d_airport = jb_city_airport(airport_cities.first.first.split(",").first.titleize)
-	  		a_airport = jb_city_airport(airport_cities.last.first.split(",").first.titleize)
+	  		begin
+	  			d_airport = jb_city_airport(airport_cities.first.first.split(",").first.titleize)
+  			rescue Exception => e
+  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :d_city => airport_cities.first.first.split(",").first.titleize)
+  				d_airport = 1#Random airport
+  			end
+	  		begin
+	  			a_airport = jb_city_airport(airport_cities.last.first.split(",").first.titleize)
+  			rescue Exception => e
+  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :a_city => airport_cities.last.first.split(",").first.titleize)
+  				a_airport = 1#Random airport
+  			end
 
   			if Flight.where("depart_time = ?", depart_time.to_time).count > 0
 	  			user_ids = Flight.where("depart_time = ?", depart_time).map{|flight| Trip.find(flight.trip_id).user_id}
@@ -76,7 +87,13 @@ class JetblueGrab
 		  		elsif depart_city == "Ft Lauderdale"
 		  			depart_airport = Airport.find_by_city("Fort Lauderdale").id
 		  		else
-		  			depart_airport = Airport.where("city = ?", depart_city).first.id
+		  			begin
+		  				depart_airport = Airport.where("city = ?", depart_city).first.id
+		  			rescue Exception => e
+		  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+		  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :city => depart_city)
+		  				depart_airport = 1#Random airport
+		  			end
 		  		end
 		  		arrival_city = flight_array[3].first.split(",").first
 		  		if arrival_city == "New York"
@@ -85,7 +102,13 @@ class JetblueGrab
 		  		elsif arrival_city == "Ft Lauderdale"
 		  			arrival_airport = Airport.find_by_city("Fort Lauderdale").id
 		  		else
-		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
+		  			begin
+		  				arrival_airport = Airport.where("city = ?", arrival_city).first.id
+		  			rescue Exception => e
+		  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+		  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :city => arrival_city)
+		  				arrival_airport = 1#Random airport
+		  			end
 		  		end
 		  		#d_split = departure_data.split
 		  		#d_split.pop

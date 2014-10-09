@@ -5,7 +5,9 @@ Rollbar.configure do |config|
   
   config.access_token = 'ffaaf10d395b4a03aacc520cfc738779'
   config.person_username_method = "name"  # default is "username"
+  config.person_email_method = "email"  # default is "email"
   config.use_resque
+
   # Here we'll disable in 'test':
   if Rails.env.test?
     config.enabled = false
