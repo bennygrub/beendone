@@ -225,6 +225,7 @@ class PagesController < ApplicationController
 		  		elsif flight[:arrival_airport] == "ST LOUIS" || flight[:arrival_airport] == "ST"
 		  			arrival_airport = Airport.find_by_faa("STL").id
 		  		else	
+		  			binding.pry
 		  			arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
 		  		end
 
@@ -348,11 +349,11 @@ class PagesController < ApplicationController
   		contextio = ContextIO.new('h00j8lpl', 'ueWLBkDRE6xlg2am')
   	end
   	#get the correct account
-  	account = contextio.accounts.where(email: "nwcooper@gmail.com").first
+  	account = contextio.accounts.where(email: current_user.email).first
   	
   	email_change_date = Date.new(2014,1,1).to_time.to_i
-  	a_id = Airline.where("name = ?", "USAir").first.id
 
+  	a_id = Airline.where("name = ?", "USAir").first.id
 
   	usa_messages = account.messages.where(from: "reservations@email-usairways.com", date_before: email_change_date)
   	usa_messages.each do |message|
@@ -385,6 +386,7 @@ class PagesController < ApplicationController
 		  		arrival_airport = Airport.find_by_faa(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<span style=color: #227db2;>(.*?)<\/span>/).last.first.split.first).id
 		  		depart_time = am_pm_split(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/td style=vertical-align: middle; margin: 0px; width: 80px; white-space: nowrap; text-align: center>(.*?)<span/).first.first.gsub(" ", ""))
 		  		arrival_time = am_pm_split(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/td style=vertical-align: middle; margin: 0px; width: 80px; white-space: nowrap; text-align: center>(.*?)<span/).last.first.gsub(" ", ""))
+		  		#binding.pry
 		  		d_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, depart_time[:hour].to_i, depart_time[:min].to_i, 0, 0)
 		  		a_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, arrival_time[:hour].to_i, arrival_time[:min].to_i, 0, 0)
 
@@ -502,6 +504,8 @@ class PagesController < ApplicationController
 		  		if depart_city == "New York"
 		  			depart_code = flight_array[2].first.split(",").second.split(" ").first
 		  			depart_airport = Airport.find_by_faa(depart_code).id
+		  		elsif depart_city == "Ft Lauderdale"
+		  			depart_airport = Airport.find_by_city("Fort Lauderdale").id
 		  		else
 		  			depart_airport = Airport.where("city = ?", depart_city).first.id
 		  		end
@@ -509,6 +513,8 @@ class PagesController < ApplicationController
 		  		if arrival_city == "New York"
 		  			arrival_code = flight_array[3].first.split(",").second.split(" ").first
 		  			arrival_airport = Airport.find_by_faa(arrival_code).id
+		  		elsif arrival_city == "Ft Lauderdale"
+		  			arrival_airport = Airport.find_by_city("Fort Lauderdale").id
 		  		else
 		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
 		  		end
@@ -1138,14 +1144,20 @@ class PagesController < ApplicationController
     end
   end
   def jb_city_airport(jb_city)
-  	if jb_city == "New York Jfk" || jb_city == "New York Lga"
-		airport_nyc = jb_city.split(" ").last.upcase
-		return  Airport.find_by_faa(airport_nyc).id
-	elsif jb_city == "Portland Or"
-		return Airport.where("city = ?", "Portland").first.id
-	else
-		return Airport.where("city = ?", jb_city).first.id
-	end
+    if jb_city == "New York Jfk" || jb_city == "New York Lga"
+      airport_nyc = jb_city.split(" ").last.upcase
+      return  Airport.find_by_faa(airport_nyc).id
+    elsif jb_city == "Portland Or"
+      return Airport.where("city = ?", "Portland").first.id
+    elsif jb_city == "Ft Lauderdale"
+      return Airport.find_by_city("Fort Lauderdale").id
+    else
+      if Airport.where("city = ?", jb_city).count > 0
+        return Airport.where("city = ?", jb_city).first.id
+      else 
+        return 1
+      end
+    end
   end
 
   def message_year_check(month, year)

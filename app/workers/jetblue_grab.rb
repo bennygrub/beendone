@@ -18,7 +18,7 @@ class JetblueGrab
   	end
   	#get the correct account
   	account = contextio.accounts.where(email: user.email).first
-	
+	airline_id = Airline.find_by_name("JetBlue").id
 	##JETBLUE NEW
   	jb_messages = account.messages.where(from: "reservations@jetblue.com", subject: "Itinerary for your upcoming trip")
   	jb_messages.each do |message|
@@ -42,16 +42,16 @@ class JetblueGrab
   			arrival_time = DateTime.new(year.to_i, month.to_i, day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
 
 	  		airport_cities = flight_data[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<strong>(.*?)<\/strong>/)
-	  			  		
+	  		binding.pry
 	  		d_airport = jb_city_airport(airport_cities.first.first.split(",").first.titleize)
 	  		a_airport = jb_city_airport(airport_cities.last.first.split(",").first.titleize)
-	  		if Flight.where("depart_time = ?", depart_time.to_time).count > 0
+
+  			if Flight.where("depart_time = ?", depart_time.to_time).count > 0
 	  			user_ids = Flight.where("depart_time = ?", depart_time).map{|flight| Trip.find(flight.trip_id).user_id}
 	  			Flight.create(trip_id: trip.id, airline_id: airline_id, depart_airport: d_airport, depart_time: depart_time, arrival_airport: a_airport, arrival_time: arrival_time, seat_type: "Jetblue" ) unless user_ids.include? user.id
 	  		else
 	  			Flight.create(trip_id: trip.id, airline_id: airline_id, depart_airport: d_airport, depart_time: depart_time, arrival_airport: a_airport, arrival_time: arrival_time, seat_type: "Jetblue" )
 	  		end
-	  		
   		end
   	end
 
@@ -73,6 +73,8 @@ class JetblueGrab
 		  		if depart_city == "New York"
 		  			depart_code = flight_array[2].first.split(",").second.split(" ").first
 		  			depart_airport = Airport.find_by_faa(depart_code).id
+		  		elsif depart_city == "Ft Lauderdale"
+		  			depart_airport = Airport.find_by_city("Fort Lauderdale").id
 		  		else
 		  			depart_airport = Airport.where("city = ?", depart_city).first.id
 		  		end
@@ -80,6 +82,8 @@ class JetblueGrab
 		  		if arrival_city == "New York"
 		  			arrival_code = flight_array[3].first.split(",").second.split(" ").first
 		  			arrival_airport = Airport.find_by_faa(arrival_code).id
+		  		elsif arrival_city == "Ft Lauderdale"
+		  			arrival_airport = Airport.find_by_city("Fort Lauderdale").id
 		  		else
 		  			arrival_airport = Airport.where("city = ?", arrival_city).first.id
 		  		end

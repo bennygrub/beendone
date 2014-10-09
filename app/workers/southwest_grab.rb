@@ -23,6 +23,7 @@ class SouthwestGrab
 
   	airline_id = Airline.find_by_name("Southwest Airlines").id
   	#get messages from Virgin and pick the html
+    sw_messages = account.messages.where(from: "SouthwestAirlines@luv.southwest.com", subject: "/Southwest Airlines Confirmation-/")
     if sw_messages.count > 0
       sw_messages.each do |message|
         trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id, name: "SouthWest")

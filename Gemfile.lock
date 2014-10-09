@@ -167,6 +167,8 @@ GEM
       rufus-scheduler (~> 2.0)
     resque-status (0.4.3)
       resque (~> 1.19)
+    rollbar (1.1.0)
+      multi_json (~> 1.3)
     rufus-scheduler (2.0.24)
       tzinfo (>= 0.3.22)
     sass (3.2.19)
@@ -247,6 +249,7 @@ DEPENDENCIES
   resque-retry
   resque-scheduler
   resque-status
+  rollbar (~> 1.1.0)
   sass-rails (~> 4.0.0)
   sdoc
   smarter_csv
