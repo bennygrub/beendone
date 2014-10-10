@@ -1,3 +1,11 @@
 // Place all the styles related to the User controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+.info-window{
+	min-width: 300px;
+	text-align: center;
+}
+
+#map label { width: auto; display:inline; }
+#map img { max-width: none; }

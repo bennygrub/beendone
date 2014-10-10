@@ -7,30 +7,33 @@
   %h5="Total Trips: #{@trips.count}" 
   %h5="Total Flights: #{@flights.count}"
   -@trips_by_month.each do |monthname, trips|
-    %h2=monthname
-    -trips.each do |trip|
-      %div{style: "border-top:1px solid lightgrey;border-bottom:1px solid lightgrey;"}
-        %span{style: "color:red;font-weight:bold;font-size:18px;"}
-          =destination_city(trip)
-        in
-        %b=trip.flights.first.depart_time.strftime("%B")
-        for 
-        %b="#{days_visited(trip)} days"
-        -trip.flights.each do |flight|
-          %div{style: "border-top:1px dotted lightgrey;border-bottom:1px solid lightgrey;"}
-            =flight.depart_time
-            %br
-            =Airport.find(flight.depart_airport).name
-            ="-"
-            =Airport.find(flight.depart_airport).city
-            ="(#{flight.depart_airport})"
-            %br
-            to
-            %br
-            =Airport.find(flight.arrival_airport).name
-            ="-"
-            =Airport.find(flight.arrival_airport).city
-            ="(#{flight.arrival_airport})"
+    %h2.text-center=monthname
+    .container
+      .row
+        -trips.each do |trip|
+          .span4
+            .trip-box
+              %span{style: "color:red;font-weight:bold;font-size:18px;"}
+                =destination_city(trip)
+              in
+              %b=trip.flights.first.depart_time.strftime("%B")
+              for 
+              %b="#{days_visited(trip)} days"
+              -trip.flights.each do |flight|
+                %div{style: "border-top:1px dotted lightgrey;border-bottom:1px solid lightgrey;"}
+                  =flight.depart_time
+                  %br
+                  =Airport.find(flight.depart_airport).name
+                  ="-"
+                  =Airport.find(flight.depart_airport).city
+                  ="(#{flight.depart_airport})"
+                  %br
+                  to
+                  %br
+                  =Airport.find(flight.arrival_airport).name
+                  ="-"
+                  =Airport.find(flight.arrival_airport).city
+                  ="(#{flight.arrival_airport})"
   
   :javascript
     $(window).bind("load", function() {
@@ -120,9 +123,6 @@
       ] 
 
 
-
-
-
       handler = Gmaps.build('Google');
       //gmaps({"polylines"=> { "data" => Poly }})
       handler.buildMap({
@@ -147,6 +147,7 @@
     
 
     });
+
 -else
   %h1 Map your entire travel history with just one click.
   %p Map, track,  sort your past  future travel without inputting anything.

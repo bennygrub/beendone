@@ -78,6 +78,12 @@ class PagesController < ApplicationController
   		@hash = Gmaps4rails.build_markers(@all_flights) do |flight, marker|
   			marker.lat flight.latitude
   			marker.lng flight.longitude
+  			marker.picture({
+              url: ActionController::Base.helpers.asset_path('map_pin.png'),
+              width: 22,
+              height: 42
+            })
+
   			#marker.title flight.name
   			marker.json({flight_id:flight.id})
   			#marker.infowindow "#{flight.name}(#{flight.city})"
