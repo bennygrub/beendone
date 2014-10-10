@@ -1,0 +1,28 @@
+= form_for @airport_mapping do |f|
+  - if @airport_mapping.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@airport_mapping.errors.count, "error")} prohibited this airport_mapping from being saved:"
+      %ul
+        - @airport_mapping.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :name
+    = f.text_field :name
+  .field
+    = f.label :city
+    = f.text_field :city
+  .field
+    = f.label :airport_id
+    = f.number_field :airport_id
+  .field
+    = f.label :airline_id
+    = f.number_field :airline_id
+  .field
+    = f.label :message_id
+    = f.text_field :message_id
+  .field
+    = f.label :note
+    = f.text_field :note
+  .actions
+    = f.submit 'Save'

@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  city: 
+  airport_id: 1
+  airline_id: 1
+  message_id: MyString
+  note: MyString
+
+two:
+  name: MyString
+  city: 
+  airport_id: 1
+  airline_id: 1
+  message_id: MyString
+  note: MyString

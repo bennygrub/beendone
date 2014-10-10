@@ -1,4 +1,8 @@
 Beendone::Application.routes.draw do
+  resources :flight_fixes
+
+  resources :airport_mappings
+
   resources :airlines
 
   resources :airports

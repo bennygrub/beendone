@@ -1,0 +1,21 @@
+%p#notice= notice
+
+%p
+  %b Airline mapping:
+  = @flight_fix.airline_mapping_id
+%p
+  %b Flight:
+  = @flight_fix.flight_id
+%p
+  %b Direction:
+  = @flight_fix.direction
+%p
+  %b Status:
+  = @flight_fix.status
+%p
+  %b Trip:
+  = @flight_fix.trip_id
+
+= link_to 'Edit', edit_flight_fix_path(@flight_fix)
+\|
+= link_to 'Back', flight_fixes_path

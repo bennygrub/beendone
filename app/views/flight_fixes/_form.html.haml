@@ -1,0 +1,25 @@
+= form_for @flight_fix do |f|
+  - if @flight_fix.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@flight_fix.errors.count, "error")} prohibited this flight_fix from being saved:"
+      %ul
+        - @flight_fix.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :airline_mapping_id
+    = f.number_field :airline_mapping_id
+  .field
+    = f.label :flight_id
+    = f.number_field :flight_id
+  .field
+    = f.label :direction
+    = f.number_field :direction
+  .field
+    = f.label :status
+    = f.check_box :status
+  .field
+    = f.label :trip_id
+    = f.number_field :trip_id
+  .actions
+    = f.submit 'Save'

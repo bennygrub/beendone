@@ -121,9 +121,9 @@ class DeltaGrab
 		  			begin
 		  				depart_airport = Airport.find_by_city(flight[:departure_airport].titleize).id
 		  			rescue Exception => e
-		  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
-		  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :city => flight[:departure_airport])
-		  				depart_airport = 2#Random airport
+		  				de = city_error_check(flight[:depart], 1, airline_id, message.message_id, trip.id)
+		  				rollbar_error(message_id, city, airline_id, user_id) if de.blank.airport_id?
+		  				depart_airport = de.airport_id.blank? ? 2 : de.airport_id#Random airport
 		  			end
 		  		end
 		  		if flight[:arrival_airport] == "NYC-LAGUARDIA" || flight[:arrival_airport] == "NYC-KENNEDY"
@@ -138,13 +138,15 @@ class DeltaGrab
 		  			begin
 		  				arrival_airport = Airport.find_by_city(flight[:arrival_airport].titleize).id
 		  			rescue Exception => e
-		  				Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
-		  				Rollbar.report_message("Bad City", "error", :message_id => message.message_id, :city => flight[:arrival_airport])
-		  				arrival_airport = 2#Random airport
+		  				ae = city_error_check(flight[:arrival_airport], 2, airline_id, message.message_id, trip.id)
+		  				rollbar_error(message_id, city, airline_id, user_id) if ae.airport_id.blank?
+		  				arrival_airport = ae.airport_id.blank? ? 2 : ae.airport_id.id#Random airport
 		  			end
 		  		end
 
-		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 33, depart_airport: depart_airport, depart_time: flight[:departure_time], arrival_airport: arrival_airport, arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
+		  		flight = Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 33, depart_airport: depart_airport, depart_time: flight[:departure_time], arrival_airport: arrival_airport, arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
+		  		FlightFix.create(airline_mapping_id: de.id, flight_id: flight.id, trip_id: trip.id, direction: 1) if de.airport_id.blank?
+		  		FlightFix.create(airline_mapping_id: ae.id, flight_id: flight.id, trip_id: trip.id, direction: 2) if ae.airport_id.blank?
 		  	end
 		end
 	end

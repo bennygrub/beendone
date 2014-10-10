@@ -123,4 +123,18 @@ module ResHelper
       return year.to_i + 1
     end
   end
+
+  def city_error_check(city, direction, airline_id, message_id, trip)
+    return AirportMapping.where(city: city).first_or_create do |am| 
+      am.airline_id = airline_id
+      am.note = direction
+      am.message_id = message_id
+      am.trip = trip
+  end
+  
+  def rollbar_error(message_id, city, airline_id, user_id)
+    Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+    Rollbar.report_message("Bad City", "error", :message_id => message_id, :city => city)
+    ErrorMailer.uca(user_id, city, message_id, airline_id ).deliver
+  end
 end

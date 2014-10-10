@@ -1,0 +1,24 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @airport_mapping.name
+%p
+  %b City:
+  = @airport_mapping.city
+%p
+  %b Airport:
+  = @airport_mapping.airport_id
+%p
+  %b Airline:
+  = @airport_mapping.airline_id
+%p
+  %b Message:
+  = @airport_mapping.message_id
+%p
+  %b Note:
+  = @airport_mapping.note
+
+= link_to 'Edit', edit_airport_mapping_path(@airport_mapping)
+\|
+= link_to 'Back', airport_mappings_path

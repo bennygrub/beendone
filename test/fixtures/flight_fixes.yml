@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  airline_mapping_id: 1
+  flight_id: 1
+  direction: 1
+  status: false
+  trip_id: 1
+
+two:
+  airline_mapping_id: 1
+  flight_id: 1
+  direction: 1
+  status: false
+  trip_id: 1

@@ -1,0 +1,15 @@
+%p
+	User:
+	="#{@user.name} - #{@user.email}"
+
+%p
+	City:
+	=@city
+
+%p
+	Airline:
+	=Airline.find(@airline_id).name
+
+%p
+	Message ID:
+	=@message_id

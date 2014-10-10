@@ -1,0 +1,27 @@
+%h1 Listing flight_fixes
+
+%table
+  %tr
+    %th Airline mapping
+    %th Flight
+    %th Direction
+    %th Status
+    %th Trip
+    %th
+    %th
+    %th
+
+  - @flight_fixes.each do |flight_fix|
+    %tr
+      %td= flight_fix.airline_mapping_id
+      %td= flight_fix.flight_id
+      %td= flight_fix.direction
+      %td= flight_fix.status
+      %td= flight_fix.trip_id
+      %td= link_to 'Show', flight_fix
+      %td= link_to 'Edit', edit_flight_fix_path(flight_fix)
+      %td= link_to 'Destroy', flight_fix, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Flight fix', new_flight_fix_path
