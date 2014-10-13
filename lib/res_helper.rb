@@ -130,6 +130,7 @@ module ResHelper
       am.note = direction
       am.message_id = message_id
       am.trip = trip
+    end
   end
   
   def rollbar_error(message_id, city, airline_id, user_id)
