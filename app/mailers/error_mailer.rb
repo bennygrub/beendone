@@ -6,6 +6,6 @@ class ErrorMailer < ActionMailer::Base
     @city = city
     @message_id = message_id
     @airline_id = airline_id
-    mail(to: "#{Ben Gruber} <#{blgruber@gmail.com}>", subject: 'Unidentified City or Airport')
+    mail(to: "blgruber@gmail.com", subject: 'Unidentified City or Airport')
   end
 end

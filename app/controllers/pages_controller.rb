@@ -12,6 +12,7 @@ class PagesController < ApplicationController
 		Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
 		Rollbar.report_message("Bad City", "error", :message_id => 12323)
 		arrival_airport = 2#Random airport
+		ben = "Ben Gruber"
 	end
 
 
@@ -260,104 +261,83 @@ class PagesController < ApplicationController
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
   	account = contextio.accounts.where(email: current_user.email).first
+  	user = current_user
+  	user_id = current_user.id
   	
+  	airline_id = Airline.find_by_name("American Airlines").id
+
   	#get messages from American and pick the html
-  	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com")
-  	aa_messages = aa_messages.map {|message| message.body_parts.first.content}
+	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com")
+  	if aa_messages.count > 0
+	  	#aa_messages = aa_messages.map {|message| message.body_parts.first.content}
+	  	aa_messages.each do |message|
+	  		#email_message = message.body_parts.first.content
+	  		dom = Nokogiri::HTML(message.body_parts.where(type: 'text/html').first.content)
+	  		flight_arrays = dom.xpath('//td[@valign="center" and @style="FONT-WEIGHT: normal; FONT-SIZE: 12px; COLOR: #607982; font-family:Arial;"]').each_slice(5).to_a
+	  		if flight_arrays.count > 0
+		  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
+		  		flight_arrays.each do |flight|
+		  			depart_city = flight[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/>(.*?)<br>/).first.first.strip
+		  			depart_day_month = flight[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<br>(.*?)<br>/).first.first.strip.split().last
+		  			depart_day = depart_day_month.match(/\d+/).to_s
+		  			depart_month = month_to_number(depart_day_month.split(depart_day).last)
+		  			depart_time = am_pm_split(flight[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<br>(.*?)<\/td>/).first.first.split.pop(2).join(""))
 
-  	
-  	aa_messages.each do |message|
-		#trip info
-		message.scan(/TICKET TOTAL (.*)/).each do |trip|
-			fare = trip.first
-		end
-		message.scan(/DATE OF ISSUE - (.*)/).each do |trip|
-			issue = trip.first
-			issue_numbers = issue.scan(/\d/)
-			@issue_year = "#{issue_numbers[2]}#{issue_numbers[3]}"
-		end
+		  			arrival_time = am_pm_split(flight[3].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<br>(.*?)<\/td>/).first.first.split.pop(2).join(""))
+		  			arrival_city = flight[3].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/Arial;>(.*?)<br>/).first.first.strip
 
-		#departure info 1
-		departure_array = Array.new
-		departure_time_array = Array.new
-		message.scan(/LV (.*)/).each do |departure|
-	  		departure_data = departure.first.split
-	  		word_count = departure_data.count
-	  		if word_count > 7
-	  			if word_count == 8
-	  				departure_array << "#{departure_data[0]} #{departure_data[1]} #{departure_data[2]}"
-	  				departure_time_array << "#{departure_data[3]} #{departure_data[4]}"
-	  			else
-	  				departure_array << "#{departure[0]} #{departure_data[1]} #{departure_data[2]} #{departure_data[3]}"
-	  				departure_time_array << "#{departure_data[4]} #{departure_data[5]}"
-	  			end
-	  		else
-	  			if word_count == 6
-	  				departure_array << "#{departure_data[0]}"
-					departure_time_array << "#{departure_data[1]} #{departure_data[2]}"
-	  			else
-					departure_array << "#{departure_data[0]} #{departure_data[1]}"
-					departure_time_array << "#{departure_data[2]} #{departure_data[3]}"
-				end
-	  		end
-		end
+		  			if flight[3].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<br>(.*?)<br>/).first.first.strip.split().last.nil?
+		  				arrival_day = depart_day
+		  				arrival_month = depart_month
+		  			else
+		  				arrival_day_month = flight[3].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<br>(.*?)<br>/).first.first.strip.split().last
+		  				arrival_day = arrival_day_month.match(/\d+/).to_s
+		  				arrival_month = month_to_number(depart_day_month.split(depart_day).last)
+		  			end
+		  			
+		  			year = message.received_at.strftime("%Y").to_i
+		  			year = year + 1 if message.received_at.strftime("%M").to_i == 12
 
-		#departure info 2
-  		departure_day_of_month_array = Array.new
-  		departure_month_array = Array.new
-  		departure_total = Array.new
-  		new_message = message.split("LV")
-  		new_message.pop
-		new_message.each do |departure_split|
-			departure_total << departure_split.split.last(3)
-			departure_day_of_month_array << get_first_number(departure_split.split.last(3)[0])
-			temp_num = get_first_number(departure_split.split.last(3)[0])
-			departure_month_array << get_string_from_number_split(departure_split.split.last(3)[0], temp_num)
-		end
-		departure_day_of_month_array = departure_day_of_month_array.reject(&:empty?)
+		  			d_time = DateTime.new(year, depart_month.to_i, depart_day.to_i, depart_time[:hour].to_i,depart_time[:min].to_i, 0, 0)
+		  			a_time = DateTime.new(year, arrival_month.to_i, arrival_day.to_i, arrival_time[:hour].to_i,arrival_time[:min].to_i, 0, 0)
 
-		#Arrival Data
-		arrival_airport_array = Array.new
-		arrival_time_array = Array.new
-		seat_array = Array.new
-		message.scan(/AR (.*)/).each do |arrival|
-			arrival_data = arrival.first.split
-			word_count = arrival_data.count
-			if word_count > 5
-				if word_count == 6
-					arrival_airport_array << "#{arrival_data[0]} #{arrival_data[1]} #{arrival_data[2]}"
-					arrival_time_array << "#{arrival_data[3]} #{arrival_data[4]}"
-					seat_array << "#{arrival_data[5]}"
-				else
-					arrival_airport_array << "#{arrival_data[0]} #{arrival_data[1]} #{arrival_data[2]} #{arrival_data[3]}"
-					arrival_time_array << "#{arrival_data[4]} #{arrival_data[5]}"
-					seat_array << "#{arrival_data[6]}"
-				end
-			else
-				if word_count == 4
-					arrival_airport_array << "#{arrival_data[0]}"
-					arrival_time_array << "#{arrival_data[1]} #{arrival_data[2]}"
-					seat_array << "#{arrival_data[3]}"
-				else
-					arrival_airport_array << "#{arrival_data[0]} #{arrival_data[1]}"
-					arrival_time_array << "#{arrival_data[2]} #{arrival_data[3]}"
-					seat_array << "#{arrival_data[4]}"
-				end
-			end
-		end
-		flight_array = (0...departure_day_of_month_array.length).map{|i| 
-	  		{
-	  			departure_time: create_saveable_date(departure_day_of_month_array[i].to_s,departure_month_array[i],@issue_year, departure_time_array[i] ),
-	  			departure_airport: departure_array[i],
-	  			arrival_airport: arrival_airport_array[i],
-	  			arrival_time: create_saveable_date(departure_day_of_month_array[i].to_s,departure_month_array[i],@issue_year, arrival_time_array[i] ),
-	  			seat: seat_array[i]
-	  		}
-  		}
-  		flight_array.each do |flight|
-  			Flight.find_or_create_by_depart_time(trip_id: 3, airline_id: 2, depart_airport: flight[:departure_airport], depart_time: flight[:departure_time], arrival_airport: flight[:arrival_airport], arrival_time: flight[:arrival_time], seat_type: flight[:seat] )
-  		end
-  	end
+	  				begin
+		  				depart_airport = Airport.find_by_city(depart_city.titleize).id
+		  				deflightfix = false
+		  			rescue Exception => e
+		  				de = city_error_check(depart_city, 1, airline_id, message.message_id, trip.id)
+		  				rollbar_error(message.message_id, depart_city, airline_id, user_id) if de.airport_id.blank?
+		  				depart_airport = de.airport_id.blank? ? 1 : de.airport_id#Random airport
+		  				deflightfix = true if de.airport_id.blank? #set flag
+			  		end
+
+	  				begin
+		  				arrival_airport = Airport.find_by_city(arrival_city.titleize).id
+		  				aeflightfix = false
+		  			rescue Exception => e
+		  				ae = city_error_check(arrival_city, 2, airline_id, message.message_id, trip.id)
+		  				rollbar_error(message.message_id, arrival_city, airline_id, user_id) if ae.airport_id.blank?
+		  				arrival_airport = ae.airport_id.blank? ? 2 : ae.airport_id#Random airport
+		  				aeflightfix = true if ae.airport_id.blank? #set flag
+			  		end
+
+					flight = Flight.where(trip_id: trip.id, depart_time: d_time).first_or_create do |f|
+		  				f.trip_id = trip.id
+		  				f.airline_id = airline_id
+		  				f.depart_airport = depart_airport
+		  				f.arrival_airport = arrival_airport
+		  				f.arrival_time = a_time
+		  				f.seat_type = "American"
+					end
+			  			
+			  		FlightFix.create(airline_mapping_id: de.id, flight_id: flight.id, trip_id: trip.id, direction: 1) if deflightfix
+			  		FlightFix.create(airline_mapping_id: ae.id, flight_id: flight.id, trip_id: trip.id, direction: 2) if aeflightfix
+		  		end
+		  	else
+		  		binding.pry
+		  	end
+	  	end
+	end
 
   end
   def usairways
@@ -473,7 +453,6 @@ class PagesController < ApplicationController
 	##JETBLUE NEW
   	jb_messages = account.messages.where(from: "reservations@jetblue.com", subject: "Itinerary for your upcoming trip")
   	jb_messages.each do |message|
-  		year = message.received_at.strftime("%Y")
   		dom = Nokogiri::HTML(message.body_parts.first.content)
   		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
   		number_of_flights = (dom.xpath('//*[@id="ticket"]/div/table/tr/td/table[4]/tr').count-5)/2
@@ -1219,4 +1198,26 @@ class PagesController < ApplicationController
         	return (trip.flights.count/2)-0.5
         end
 	end
+  def message_year_check(month, year)
+    if month == "12"
+      return year.to_i
+    else
+      return year.to_i + 1
+    end
+  end
+
+  def city_error_check(city, direction, airline_id, message_id, trip)
+    return AirportMapping.where(city: city).first_or_create do |am| 
+      am.airline_id = airline_id
+      am.note = direction
+      am.message_id = message_id
+      am.trip_id = trip
+    end
+  end
+  
+  def rollbar_error(message_id, city, airline_id, user_id)
+    #Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+    #Rollbar.report_message("Bad City", "error", :message_id => message_id, :city => city)
+    ErrorMailer.uca(user_id, city, message_id, airline_id ).deliver
+  end
 end

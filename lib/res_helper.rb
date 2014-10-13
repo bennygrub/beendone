@@ -129,13 +129,13 @@ module ResHelper
       am.airline_id = airline_id
       am.note = direction
       am.message_id = message_id
-      am.trip = trip
+      am.trip_id = trip
     end
   end
   
   def rollbar_error(message_id, city, airline_id, user_id)
-    Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
-    Rollbar.report_message("Bad City", "error", :message_id => message_id, :city => city)
+    #Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
+    #Rollbar.report_message("Bad City", "error", :message_id => message_id, :city => city)
     ErrorMailer.uca(user_id, city, message_id, airline_id ).deliver
   end
 end
