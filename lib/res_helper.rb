@@ -111,7 +111,7 @@ module ResHelper
       if Airport.where("city = ?", jb_city).count > 0
         return Airport.where("city = ?", jb_city).first.id
       else 
-        return 1
+        return jb_city
       end
     end
   end

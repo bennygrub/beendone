@@ -24,9 +24,9 @@ class OrbitzGrab
   	if o_messages.count > 0
 	  	#o_messages = o_messages.map {|message| message.body_parts.first.content}
 		o_messages.each do |message|
-			trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
 			dom = Nokogiri::HTML(message.body_parts.first.content)
 	  		matches = dom.xpath('//*[@id="emailFrame"]/tr/td/table/tr[2]/td[2]/table/tr[2]/td').map(&:to_s)
+	  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
 	  		matches.each do |match|
 			  	match = match.gsub("\t","").gsub("\n","").gsub("\r","")
 	  			@year = match.scan(/<b>(.*?)<\/b>/)[2].first.split.last
@@ -35,12 +35,20 @@ class OrbitzGrab
 	  				flight = flight.gsub("\t","").gsub("\n","").gsub("\r","").gsub("&nbsp;","")
 		  			departure_data = flight.scan(/Departure(.*?)Arrival/)
 		  			arrival_data = flight.scan(/Arrival(.*?)Seat/)
-		  			depart_airport = departure_data.first.first.scan(/\((.*?)\)/).first.first
+		  			depart_airport = Airport.find_by_faa(departure_data.first.first.scan(/\((.*?)\)/).first.first).id
 		  			depart_time = orbitz_time(departure_data.first.first.scan(/\:(.*?)\(/).first.first)
-		  			arrival_airport = arrival_data.first.first.scan(/\((.*?)\)/).first.first
+		  			arrival_airport = Airport.find(arrival_data.first.first.scan(/\((.*?)\)/).first.first).id
 		  			arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
 		  			seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
-		  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 43, depart_airport: Airport.find_by_faa(depart_airport).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_airport).id, arrival_time: arrival_time, seat_type: seat_type )
+
+					flight = Flight.where(trip_id: trip.id, depart_time: depart_time.to_time).first_or_create do |f|
+		  				f.trip_id = trip.id
+		  				f.airline_id = 43
+		  				f.depart_airport = depart_airport
+		  				f.arrival_airport = arrival_airport
+		  				f.arrival_time = arrival_time
+		  				f.seat_type = "Orbitz"
+					end
 	  			end
 
 	  		end
@@ -83,6 +91,7 @@ class OrbitzGrab
 		  		depart_array.shift(2)
 		  		depart_airport = depart_array
 		  		depart_airport = depart_airport.join(" ")
+		  		depart_airport = Airport.find_by_faa(depart_airport.scan(/\((.*?)\)/).first.first).id
 		  		airport_data = flight[1]
 		  		airport_data = airport_data.gsub("\t","").gsub("\n","").gsub("\r","").gsub("&nbsp;","")
 		  		airline_array = airport_data.scan(/<span class="flightNameAndNumber">(.*?)<\/span>/).first.first.split
@@ -100,9 +109,17 @@ class OrbitzGrab
 		  		arrival_array.shift(2)
 		  		arrival_airport = arrival_array
 		  		arrival_airport = arrival_airport.join(" ")
+		  		arrival_airport = Airport.find_by_faa(arrival_airport.scan(/\((.*?)\)/).first.first).id
 		  		arrival_time = create_saveable_date(day, month, year, arrival_time)
-
-		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 43, depart_airport: Airport.find_by_faa(depart_airport.scan(/\((.*?)\)/).first.first).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_airport.scan(/\((.*?)\)/).first.first).id, arrival_time: arrival_time, seat_type: "COACH" )
+				
+				flight = Flight.where(trip_id: trip.id, depart_time: depart_time.to_time).first_or_create do |f|
+	  				f.trip_id = trip.id
+	  				f.airline_id = 43
+	  				f.depart_airport = depart_airport
+	  				f.arrival_airport = arrival_airport
+	  				f.arrival_time = arrival_time
+	  				f.seat_type = "Orbitz"
+				end
 		  	end	
 		end
 	end

@@ -29,9 +29,9 @@ class UnitedGrab
 		#u_messages = u_messages.map {|message| message.body_parts.first.content}
 
 		u_messages.each do |message|
-			trip = Trip.find_or_create_by_name_and_message_id(user_id: user.id, message_id: message.message_id)
 			dom = Nokogiri::HTML(message.body_parts.first.content)
 			matches = dom.xpath('//*[@id="i"]/table[@style="width:511px;font:11px/15px Arial, sans-serif;"]').map(&:to_s)
+			trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
 			matches.each do |flight|
 					flight_data = flight.gsub("\t","").gsub("\n","").gsub("\r","")
 			  		date_split = flight_data.scan(/<span>(.*?)<\/span>/).first.first.split
@@ -90,9 +90,9 @@ class UnitedGrab
   	if u_oldest_messages.count > 0 
 	  	#u_oldest_messages = u_oldest_messages.map {|message| message.body_parts.first.content}
 	  	u_oldest_messages.each do |message|
-	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
 	  		matches = dom.xpath('//*[@id="flightTable"]/tr[@style="vertical-align: top;"]').map(&:to_s)
+	  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
 	  		matches.each do |flight|
 	  			if flight.scan(/<p>(.*?)<\/p>/).count < 1 
 					flight_data = flight.gsub("\t","").gsub("\n","").gsub("\r","")

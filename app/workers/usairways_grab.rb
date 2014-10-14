@@ -22,11 +22,11 @@ class UsairwaysGrab
 
   	email_change_date = Date.new(2014,1,1).to_time.to_i
 
-  	a_id = Airline.where("name = ?", "USAir").first.id
+  	airline_id = Airline.where("name = ?", "USAir").first.id
 
   	usa_messages = account.messages.where(from: "reservations@email-usairways.com", date_before: email_change_date)
   	usa_messages.each do |message|
-	  	trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
+	  	
   		dom = Nokogiri::HTML(message.body_parts.first.content)
 	  	matches = dom.xpath('/html/body/div/table/tr[2]/td/table/tr[1]/td/table[7]/tr')
 	  	important = matches.map{|match| match unless match.attributes["style"].blank?}.compact
@@ -44,6 +44,7 @@ class UsairwaysGrab
 	  			day_array << important.each_slice(split).to_a.last
 	  		end
 	  	end
+	  	trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
 	  	#day_array is array of the flights by day of travel
 	  	day_array.each do |day|
 	  		flight_count = (day.count-3) #counts the number of flights that day
@@ -56,10 +57,17 @@ class UsairwaysGrab
 		  		depart_time = am_pm_split(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/td style=vertical-align: middle; margin: 0px; width: 80px; white-space: nowrap; text-align: center>(.*?)<span/).first.first.gsub(" ", ""))
 		  		arrival_time = am_pm_split(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/td style=vertical-align: middle; margin: 0px; width: 80px; white-space: nowrap; text-align: center>(.*?)<span/).last.first.gsub(" ", ""))
 		  		#binding.pry
-		  		d_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, depart_time[:hour].to_i, depart_time[:min].to_i, 0, 0)
-		  		a_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, arrival_time[:hour].to_i, arrival_time[:min].to_i, 0, 0)
+		  		depart_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, depart_time[:hour].to_i, depart_time[:min].to_i, 0, 0)
+		  		arrival_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, arrival_time[:hour].to_i, arrival_time[:min].to_i, 0, 0)
 
-		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: a_id, depart_airport: depart_airport, depart_time: d_time, arrival_airport: arrival_airport, arrival_time: a_time, seat_type: "US Airways Before 2014" )
+	            flight = Flight.where(trip_id: trip.id, depart_time: depart_time.to_time).first_or_create do |f|
+	              f.trip_id = trip.id
+	              f.airline_id = airline_id
+	              f.depart_airport = depart_airport
+	              f.arrival_airport = arrival_airport
+	              f.arrival_time = arrival_time
+	              f.seat_type = "US Airways"
+	            end
 		  	end
 
 	  	end
@@ -68,7 +76,6 @@ class UsairwaysGrab
   	#get messages from delta and pick the html
   	usa_messages = account.messages.where(from: "reservations@email-usairways.com", date_after: email_change_date)
   	usa_messages.each do |message|
-	  	trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
   		dom = Nokogiri::HTML(message.body_parts.first.content)
 	  	matches = dom.xpath('/html/body/div/table/tr[2]/td/table/tr[1]/td/table[5]/tr')
 	  	important = matches.map{|match| match unless match.attributes["style"].blank?}.compact
@@ -86,6 +93,7 @@ class UsairwaysGrab
 	  			day_array << important.each_slice(split).to_a.last
 	  		end
 	  	end
+	  	trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
 	  	#day_array is array of the flights by day of travel
 	  	day_array.each do |day|
 	  		flight_count = (day.count-2)/2 #counts the number of flights that day
@@ -98,10 +106,17 @@ class UsairwaysGrab
 		  		depart_time = am_pm_split(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<td width=95 align=left style=font:normal 12px Arial, Helvetica, sans-serif;>(.*?)<span/).first.first.gsub(" ", ""))
 		  		arrival_time = am_pm_split(day[y].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<td width=95 align=left style=font:normal 12px Arial, Helvetica, sans-serif;>(.*?)<span/).last.first.gsub(" ", ""))
 		  		#binding.pry
-		  		d_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, depart_time[:hour].to_i, depart_time[:min].to_i, 0, 0)
-		  		a_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, arrival_time[:hour].to_i, arrival_time[:min].to_i, 0, 0)
-
-		  		Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: a_id, depart_airport: depart_airport, depart_time: d_time, arrival_airport: arrival_airport, arrival_time: a_time, seat_type: "US Airways 2014" )
+		  		depart_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, depart_time[:hour].to_i, depart_time[:min].to_i, 0, 0)
+		  		arrival_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, arrival_time[:hour].to_i, arrival_time[:min].to_i, 0, 0)
+	            
+	            flight = Flight.where(trip_id: trip.id, depart_time: depart_time.to_time).first_or_create do |f|
+	              f.trip_id = trip.id
+	              f.airline_id = airline_id
+	              f.depart_airport = depart_airport
+	              f.arrival_airport = arrival_airport
+	              f.arrival_time = arrival_time
+	              f.seat_type = "US Airways"
+	            end
 		  	end
 
 	  	end

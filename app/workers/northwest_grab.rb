@@ -25,13 +25,13 @@ class NorthwestGrab
   	#get messages from Virgin and pick the html
   	nw_messages = account.messages.where(from: "Northwest.Airlines@nwa.com", subject: "/nwa.com Reservations Air Purchase Confirmation/")
   	if nw_messages.count > 0
-	  	nw_messages.each do |message|
-	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id, name: "NorthWest")
+	  	nw_messages.each do |message|	  		
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
 	  		year = message.received_at.strftime("%Y")
 	  		cost = dom.xpath('//*[@id="totalCost"]').to_s.scan(/Price:(.*?)</).first.first.gsub(" ", "")
 	  		legdata = dom.xpath('/html/body/div[@class="legdata"]')
 	  		flights_array = legdata.each_slice(5).to_a
+	  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
 	  		flights_array.each do |flight|
 	  			depart_airport = Airport.find_by_faa(flight[1].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/\((.*?)\)/).first.first).id
 	  			depart_time_array = flight[1].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/\)(.*?)</).first.first.gsub(".","").gsub(",","").split
@@ -49,7 +49,14 @@ class NorthwestGrab
 
 	  			arrival_time = DateTime.new(year.to_i, a_month.to_i, a_day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
 
-	  			Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: airline_id, depart_airport: depart_airport, depart_time: depart_time, arrival_airport: arrival_airport, arrival_time: arrival_time, seat_type: "Northwest" )
+  				flight = Flight.where(trip_id: trip.id, depart_time: depart_time.to_time).first_or_create do |f|
+	  				f.trip_id = trip.id
+	  				f.airline_id = airline_id
+	  				f.depart_airport = depart_airport
+	  				f.arrival_airport = arrival_airport
+	  				f.arrival_time = arrival_time
+	  				f.seat_type = "Northwest"
+				end
 	  		end
 
 	  	end

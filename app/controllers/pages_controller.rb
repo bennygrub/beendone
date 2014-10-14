@@ -5,16 +5,8 @@ class PagesController < ApplicationController
   require 'ostruct'
 
   def playground
-	begin
-		city = "Dallaas"
-		arrival_airport = Airport.find_by_city(city).id
-	rescue Exception => e
-		Rollbar.report_exception(e, rollbar_request_data, rollbar_person_data)
-		Rollbar.report_message("Bad City", "error", :message_id => 12323)
-		arrival_airport = 2#Random airport
-		ben = "Ben Gruber"
-	end
-
+	raise "#{testing_solution("Nashville", 33, 21312312312, 123, 1)}"
+	raise "#{depart_airport}"
 
 	@trips = current_user.trips
   	@trips = @trips.map{|trip| trip unless trip.flights.count < 1}.compact
@@ -1280,4 +1272,5 @@ class PagesController < ApplicationController
     #Rollbar.report_message("Bad City", "error", :message_id => message_id, :city => city)
     ErrorMailer.uca(user_id, city, message_id, airline_id ).deliver
   end
+
 end
