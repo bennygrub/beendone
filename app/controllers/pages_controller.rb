@@ -336,6 +336,7 @@ class PagesController < ApplicationController
 		  	else
 		  		flight_trs = dom.xpath('//table[@width="100%" and @cellspacing="0" and @cellpadding = "0" and @style="font-family:Arial,Verdana,Helvetica;font-size:8pt"]/tr')
 		  		flight_rows = flight_trs.select{|tr| tr.attributes["bgcolor"].nil?}
+		  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
 		  		flight_rows.each do |row|
 		  			cells = row.xpath('td')
 		  			depart_city = cells[2].text().strip
@@ -345,7 +346,7 @@ class PagesController < ApplicationController
 		  			depart_month = month_to_number(depart_day_month.split(depart_day).last)
 
 		  			arrival_city = cells[4].text().strip
-		  			if cells[5].text().strip.split.count = 2
+		  			if cells[5].text().strip.split.count == 2
 		  				arrival_time = am_pm_split(cells[5].text().strip)
 		  				arrival_day = depart_day
 		  				arrival_month = depart_month
