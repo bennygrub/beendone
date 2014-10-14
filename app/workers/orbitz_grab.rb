@@ -37,7 +37,7 @@ class OrbitzGrab
 		  			arrival_data = flight.scan(/Arrival(.*?)Seat/)
 		  			depart_airport = Airport.find_by_faa(departure_data.first.first.scan(/\((.*?)\)/).first.first).id
 		  			depart_time = orbitz_time(departure_data.first.first.scan(/\:(.*?)\(/).first.first)
-		  			arrival_airport = Airport.find(arrival_data.first.first.scan(/\((.*?)\)/).first.first).id
+		  			arrival_airport = Airport.find_by_faa(arrival_data.first.first.scan(/\((.*?)\)/).first.first).id
 		  			arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
 		  			seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
 

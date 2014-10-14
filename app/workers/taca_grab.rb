@@ -30,8 +30,8 @@ class TacaGrab
 	  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
 	  		depart_times.each_with_index do |value, index|
 	  			depart_time = am_pm_split(email.scan(/Depart:(.*?)To:/)[index].first.gsub(" ",""))
-	  			depart_airport = email.scan(/From:(.*?)Depart:/)[index].first.scan(/\((.*?)\)/).first.first
-	  			arrival_airport = email.scan(/To:(.*?)Arrive:/)[index].first.scan(/\((.*?)\)/).first.first
+	  			depart_airport = Airline.find_by_faa(email.scan(/From:(.*?)Depart:/)[index].first.scan(/\((.*?)\)/).first.first)
+	  			arrival_airport = Airline.find_by_faa(email.scan(/To:(.*?)Arrive:/)[index].first.scan(/\((.*?)\)/).first.first).id
 	  			arrival_time = am_pm_split(email.scan(/Arrive:(.*?)Flight:/)[index].first.gsub(" ", ""))
 	  			day_month_year = email.scan(/Date:(.*?)From:/)[index].first.split
 

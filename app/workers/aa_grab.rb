@@ -18,7 +18,7 @@ class AaGrab
   	end
   	#get the correct account
   	account = contextio.accounts.where(email: user.email).first
-	
+	airline_id = Airline.find_by_name("American Airlines").id
 	##AMERICAN AIRLINES
   	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com")
   	if aa_messages.count > 0

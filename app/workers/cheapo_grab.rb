@@ -66,7 +66,6 @@ class CheapoGrab
 	  				f.arrival_time = arrival_time
 	  				f.seat_type = "Cheapo"
 				end
-			  	Flight.find_or_create_by_depart_time_and_trip_id(trip_id: trip.id, airline_id: 103, depart_airport: Airport.find_by_faa(depart_code).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_code).id, arrival_time: arrival_time, seat_type: seat_type )
 			end
 		end
 	end

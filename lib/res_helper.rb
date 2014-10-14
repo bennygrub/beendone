@@ -20,10 +20,12 @@ module ResHelper
   		reg_time = full_time.split(/p.m./i).first
   		hour_min = reg_time.split(":")
   		hour = hour_min[0].to_i + 12
+      hour = hour-12 if hour == 24
   	elsif full_time.scan(/pm/i).count > 0
   		reg_time = full_time.split(/pm/i).first
   		hour_min = reg_time.split(":")
   		hour = hour_min[0].to_i  + 12
+      hour = hour-12 if hour == 24
 
   	elsif full_time.scan(/am/i).count > 0
   		reg_time = full_time.split(/am/i).first
