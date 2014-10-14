@@ -61,6 +61,31 @@ class FlightFixesController < ApplicationController
     end
   end
 
+  def fixup
+    am_ids = AirportMapping.where("airport_id IS NOT NULL").map{|am| am.id}
+    ffs = FlightFix.where(airline_mapping_id: am_ids).select{|am| Flight.where("id = ?", am.flight_id).count > 0}
+    ffs.each do |flightfix|
+      flight = Flight.find(flightfix.flight_id)
+      aid = AirportMapping.find(flightfix.airline_mapping_id).airport_id
+      if flightfix.direction == 1
+        flight.depart_airport = aid
+      else
+        flight.arrival_airport = aid
+      end
+      flight.save
+      flightfix.destroy
+    end
+    redirect_to flight_fixes_path, notice: 'Flight fixes were updated'
+  end
+
+  def cleardead
+    #am_ids = AirportMapping.all.map{|am| am.id}
+    FlightFix.all.each do |ff|
+      ff.destroy if Flight.where("id = ?", ff.flight_id).count < 1
+    end
+    redirect_to flight_fixes_path, notice: 'Deleted All FlightFixes w/out a Flight'
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_flight_fix
@@ -71,4 +96,5 @@ class FlightFixesController < ApplicationController
     def flight_fix_params
       params.require(:flight_fix).permit(:airline_mapping_id, :flight_id, :direction, :status, :trip_id)
     end
+
 end

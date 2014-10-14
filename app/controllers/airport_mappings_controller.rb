@@ -4,7 +4,13 @@ class AirportMappingsController < ApplicationController
   # GET /airport_mappings
   # GET /airport_mappings.json
   def index
-    @airport_mappings = AirportMapping.all
+    if params[:fil] == "help"
+      @airport_mappings = AirportMapping.where("airport_id IS NULL")
+    elsif params[:fil] == "mapped"
+      @airport_mappings = AirportMapping.where("airport_id IS NOT NULL")
+    else
+      @airport_mappings = AirportMapping.all
+    end
   end
 
   # GET /airport_mappings/1

@@ -1,5 +1,10 @@
 Beendone::Application.routes.draw do
-  resources :flight_fixes
+  resources :flight_fixes do
+    collection do
+      get "fixup"
+      get "cleardead"
+    end
+  end
 
   resources :airport_mappings
 
