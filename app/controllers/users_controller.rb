@@ -66,6 +66,7 @@ class UsersController < ApplicationController
   		marker.infowindow render_to_string(:partial => "pages/maker_template", :locals => { :object => flight})
 	end
 
+	@cluster_image = ActionController::Base.helpers.asset_path("logo.png", type: :image)
 
 	#build polylines
 	@polylines = Array.new
@@ -77,8 +78,7 @@ class UsersController < ApplicationController
 			color = "##{hex}"
 			@polylines << 
 			[
-				{lng:d_airport.longitude, lat:d_airport.latitude, strokeColor: "#fff", strokeWeight: 1, strokeOpacity: 1},
-				{lng:a_airport.longitude, lat:a_airport.latitude}
+				{lng:d_airport.longitude, lat:d_airport.latitude},{lng:a_airport.longitude, lat:a_airport.latitude}
 			]
 		}
 	end

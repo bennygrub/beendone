@@ -3,7 +3,7 @@
 
 .user-image.pull-left
 	=image_tag("user.png")
-.pull-left
+.main-stats.pull-left
 	.pull-left
 		%h1=current_user.name.titlecase
 	.pull-left
@@ -28,8 +28,39 @@
 			%span=@destinations_cities.count
 	.clearfix
 .clearfix
-.more-stats
-
+.more-stats.hide
+	#cities.pull-left
+		%h5 Destination Cities
+		-@destinations_cities.each do |d|
+			.city="#{d[0]} (#{d[1]})"
+	#countries.pull-left
+		%h5 Countries
+		-@destination_countries.each do |d|
+			.country="#{d[0]} (#{d[1]})"
+	#origins.pull-left
+		%h5 Trip Origin
+		-@origins.each do |d|
+			.origin="#{d[0]} (#{d[1]})"
+	#trip-years.pull-left
+		%h5 Trips by Year
+		-@by_year.each do |d|
+			.trip-year="#{d[0]} (#{d[1]})"
+	#trip-months.pull-left
+		%h5 Trips by Month
+		-@by_month.each do |d|
+			.trip-month="#{d[0]} (#{d[1]})"
+	#trip-months.pull-left
+		%h5 Trip Starts On
+		-@by_day_of_week_leave.each do |d|
+			.trip-month="#{d[0]} (#{d[1]})"
+	#trip-months.pull-left
+		%h5 Trip Ends On
+		-@by_day_of_week_return.each do |d|
+			.trip-month="#{d[0]} (#{d[1]})"
+	.clearfix
+.more-or-less-stats.text-center
+	=link_to "more stats"
+				
 -@trips_by_month.each do |monthname, trips|
 	.year-header
 		%h2=monthname
@@ -37,31 +68,40 @@
 		.row
 			-trips.each do |trip|
 				.span4
-					.trip-box
-						%span{style: "color:red;font-weight:bold;font-size:18px;"}
-							=destination_city(trip)
-							in
-							%b=trip.flights.first.depart_time.strftime("%B")
-							for 
-							%b="#{days_visited(trip)} days"
-						-trip.flights.each do |flight|
-							%div{style: "border-top:1px dotted lightgrey;border-bottom:1px solid lightgrey;"}
-							=flight.depart_time
-							%br
-							=Airport.find(flight.depart_airport).name
-							="-"
-							=Airport.find(flight.depart_airport).city
-							="(#{flight.depart_airport})"
-							%br
-							to
-							%br
-							=Airport.find(flight.arrival_airport).name
-							="-"
-							=Airport.find(flight.arrival_airport).city
-							="(#{flight.arrival_airport})"
+					.text-center.trip-box{style: "background: url('#{image_path "sydney.jpg"}');background-size: cover;"}
+						- destination = destination_city(trip)
+						%h3
+							=destination
+						in
+						%b=trip.flights.first.depart_time.strftime("%B")
 
+						%p
+							%b="#{days_visited(trip)} days"
+
+						-trip.flights.each do |flight|
+							.hidden
+								%div{style: "border-top:1px dotted lightgrey;border-bottom:1px solid lightgrey;"}
+								=flight.depart_time
+								%br
+								=Airport.find(flight.depart_airport).name
+								="-"
+								=Airport.find(flight.depart_airport).city
+								="(#{flight.depart_airport})"
+								%br
+								to
+								%br
+								=Airport.find(flight.arrival_airport).name
+								="-"
+								=Airport.find(flight.arrival_airport).city
+								="(#{flight.arrival_airport})"
 :javascript
 	$(window).bind("load", function() {
+		var base_url = "#{@cluster_image}";
+		var lineSymbol = {
+			path: 'M 0,-1 0,1',
+			strokeOpacity: 1,
+			scale: 4
+		};
 		var Tab = #{raw @hash.to_json}
 		var Poly = #{@polylines}
 		var mapStyle =
@@ -85,107 +125,105 @@
 					{
 						"visibility": "on"
 					},
+					{
+						"color": "#1c1d1f"
+					},
+
+					{
+						"weight": 0.5
+					}
+				]
+			},
 			{
-				"color": "#F7F5F2"
+				"featureType": "water",
+				"elementType": "all",
+				"stylers": 
+				[
+					{
+						"color": "#2e2e31"
+					}
+				]
+
 			},
 
 			{
-				"weight": 0.8
-			}
-		]
-	},
-	{
-		"featureType": "water",
-		"elementType": "all",
-		"stylers": 
-		[
+				"featureType": "landscape",
+				"elementType": "all",
+				"stylers": 
+				[
+					{
+						"color": "#dddddd"
+					}
+				]
+			},
+
 			{
-				"color": "#F7F5F2"
-			}
-		]
-
-	},
-
-	{
-		"featureType": "landscape",
-		"elementType": "all",
-		"stylers": 
-		[
+				"featureType": "poi",
+				"elementType": "all",
+				"stylers": 
+				[
+					{
+						"color": "#dddddd"
+					}
+				]
+			},
 			{
-				"color": "#DDD4CB"
-			}
-		]
-	},
+				"featureType": "road",
+				"elementType": "all",
+				"stylers": 
+				[
+					{
+						"visibility": "off"
+					}
+				]
+			},
 
-	{
-		"featureType": "poi",
-		"elementType": "all",
-		"stylers": 
-		[
 			{
-				"color": "#DDD4CB"
-			}
-		]
-	},
-	{
-		"featureType": "road",
-		"elementType": "all",
-		"stylers": 
-		[
+				"featureType": "transit",
+				"elementType": "all",
+				"stylers": 
+				[
+					{
+						"visibility": "off"
+					}
+				]
+			},
+
 			{
-				"visibility": "off"
+				"featureType": "all",
+				"elementType": "labels",
+				"stylers": 
+				[
+					{
+						"visibility": "off"
+					}
+				]
 			}
-		]
-	},
+		] 
 
-	{
-		"featureType": "transit",
-		"elementType": "all",
-		"stylers": 
-		[
+
+		handler = Gmaps.build('Google', { markers: { clusterer: undefined  } });
+		//gmaps({"polylines"=> { "data" => Poly }})
+		handler.buildMap(
 			{
-				"visibility": "off"
-			}
-		]
-	},
-
-	{
-		"featureType": "all",
-		"elementType": "labels",
-		"stylers": 
-		[
-			{
-				"visibility": "off"
-			}
-		]
-	}
-	] 
-
-
-	handler = Gmaps.build('Google');
-	//gmaps({"polylines"=> { "data" => Poly }})
-	handler.buildMap(
-		{
-			provider: 
+				provider: 
+					{
+						//disableDefaultUI: true
+						// pass in other Google Maps API options here
+						styles: mapStyle,
+						//zoom: "default"
+					},
+				internal: 
+					{
+						id: 'map'
+					}
+			},
+			function()
 				{
-					//disableDefaultUI: true
-					// pass in other Google Maps API options here
-					styles: mapStyle,
-					zoom: -10
-				},
-			internal: 
-				{
-					id: 'map'
+					markers = handler.addMarkers(Tab);
+					handler.bounds.extendWith(markers);
+					handler.fitMapToBounds();
+					handler.addPolylines(Poly, {strokeColor: "#25ce98", strokeWeight: 0.7, strokeOpacity: 1 });
 				}
-		},
-	function()
-		{
-			markers = handler.addMarkers(Tab);
-			handler.bounds.extendWith(markers);
-			handler.fitMapToBounds();
-			handler.addPolylines(Poly);
-		}
-	);        
-    
-
+		);        
 	});
