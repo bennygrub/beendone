@@ -6,34 +6,36 @@
 			.span12
 				.user-image.pull-left
 					=image_tag("user.png")
-				.main-stats.pull-left
-					.stat-column.pull-left
-						%h1=current_user.name.titlecase
+				.main-stats
 					.pull-left
-						%h5.text-center
-							TRIPS
-							%br
-							%span=@trips.count
-					.pull-left
-						%h5.text-center
-							FLIGHTS
-							%br
-							%span=@flights.count
-					.pull-left
-						%h5.text-center
-							COUNTRIES
-							%br
-							%span=@destination_countries.count
-					.pull-left
-						%h5.text-center
-							CITIES
-							%br
-							%span=@destinations_cities.count
+						%h1{style:"margin-left: 185px;"}
+							=current_user.name.titlecase
+					.top-stats.pull-right
+						.top-stat.pull-left.top-stat-left
+							%h5.text-center
+								TRIPS
+								%br
+								%span=@trips.count
+						.top-stat.pull-left
+							%h5.text-center
+								FLIGHTS
+								%br
+								%span=@flights.count
+						.top-stat.pull-left
+							%h5.text-center
+								COUNTRIES
+								%br
+								%span=@destination_countries.count
+						.top-stat.pull-left
+							%h5.text-center
+								CITIES
+								%br
+								%span=@destinations_cities.count
 					.clearfix
 				.clearfix
 				.more-stats.hide
 					.stat-column-odd.pull-left
-						%h5 Destination Cities
+						%h5 Destinations
 						.hr
 						-@destinations_cities.each do |d|
 							.stat-row
@@ -74,10 +76,18 @@
 							.stat-row
 								="#{d[0]} (#{d[1]})"
 							.hr
-					.stat-column-odd.pull-left
+
 						%h5 Trip Ends On
 						.hr
 						-@by_day_of_week_return.each do |d|
+							.stat-row
+								="#{d[0]} (#{d[1]})"
+							.hr
+
+					.stat-column-odd.pull-left
+						%h5 Airlines
+						.hr
+						-@airlines.each do |d|
 							.stat-row
 								="#{d[0]} (#{d[1]})"
 							.hr
@@ -88,21 +98,25 @@
 				-@trips_by_month.each do |monthname, trips|
 					.year-header
 						%h2=monthname
-					.container
+					.container.year-spacer
 						.row
 							-trips.each do |trip|
 								.span4
 									.flip-container.text-center
 										.flipper
 											.front{style: "background: url('#{image_path "sydney.jpg"}');background-size: cover;"}
-												- destination = destination_city(trip)
-												%h3
-													=destination
-												in
-												%b=trip.flights.first.depart_time.strftime("%B")
+												.front-overlay
+													- destination = destination_city(trip)
+													%h3
+														=destination
+													%h4
+														in
+														=trip.flights.first.depart_time.strftime("%B")
 
-												%p
-													%b="#{days_visited(trip)} days"
+													%h5
+														&#9679;
+														="#{days_visited(trip)} days"
+														&#9679;
 
 											.back
 												%h3=destination
