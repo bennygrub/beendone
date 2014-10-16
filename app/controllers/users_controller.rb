@@ -5,6 +5,10 @@ class UsersController < ApplicationController
   def edit
   end
 
+  def index
+    @users = initialize_grid(User.all)
+  end
+
   def show
     @map_page = true
   	@trips = current_user.trips#all trips from current_user
@@ -85,10 +89,6 @@ class UsersController < ApplicationController
 	@polylines = @polylines.to_json
   end
 
-  def index
-
-  end
-  
 
   private
     # Use callbacks to share common setup or constraints between actions.

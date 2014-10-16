@@ -1,0 +1,12 @@
+%h1 Users
+= grid(@users) do |g|
+  - g.column name: 'ID', attribute: 'id'
+  - g.column name: 'Name', attribute: 'name'
+  - g.column name: 'Email', attribute: 'email'
+  
+  -g.column name: 'Edit' do |a|
+    - link_to 'Edit', edit_user_path(a)
+  -g.column name: 'View' do |a|
+    - link_to 'View', a
+  -g.column name: 'Delete' do |a|
+    - link_to 'Delete', a, :method => :delete, :data => { :confirm => 'Are you sure?' }
