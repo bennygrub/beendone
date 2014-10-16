@@ -59,7 +59,7 @@
 			.trip-month="#{d[0]} (#{d[1]})"
 	.clearfix
 .more-or-less-stats.text-center
-	=link_to "more stats"
+	=link_to "more stats", "Javascript:" 
 				
 -@trips_by_month.each do |monthname, trips|
 	.year-header
@@ -68,32 +68,38 @@
 		.row
 			-trips.each do |trip|
 				.span4
-					.text-center.trip-box{style: "background: url('#{image_path "sydney.jpg"}');background-size: cover;"}
-						- destination = destination_city(trip)
-						%h3
-							=destination
-						in
-						%b=trip.flights.first.depart_time.strftime("%B")
+					.flip-container.text-center
+						.flipper
+							.front{style: "background: url('#{image_path "sydney.jpg"}');background-size: cover;"}
+								- destination = destination_city(trip)
+								%h3
+									=destination
+								in
+								%b=trip.flights.first.depart_time.strftime("%B")
 
-						%p
-							%b="#{days_visited(trip)} days"
+								%p
+									%b="#{days_visited(trip)} days"
 
-						-trip.flights.each do |flight|
-							.hidden
-								%div{style: "border-top:1px dotted lightgrey;border-bottom:1px solid lightgrey;"}
-								=flight.depart_time
-								%br
-								=Airport.find(flight.depart_airport).name
-								="-"
-								=Airport.find(flight.depart_airport).city
-								="(#{flight.depart_airport})"
-								%br
-								to
-								%br
-								=Airport.find(flight.arrival_airport).name
-								="-"
-								=Airport.find(flight.arrival_airport).city
-								="(#{flight.arrival_airport})"
+							.back
+								%h3=destination
+								.trip-date-range
+									%b=trip.flights.first.depart_time.strftime("%B %e")
+									to 
+									%b=trip.flights.last.arrival_time.strftime("%B %e")
+								
+								.back-flights
+									-trip.flights.each do |flight|
+										.flight-row
+											.flight-date.pull-left
+												=image_tag "plane.png", style: "max-width:20px;margin-right:8px;"
+												=flight.depart_time.strftime("%b %e")
+											.flight-airports.pull-left
+												=Airport.find(flight.depart_airport).faa.upcase
+												to
+												=Airport.find(flight.arrival_airport).faa.upcase
+											.flight-meta.pull-left
+												9 hours
+											.clearfix
 :javascript
 	$(window).bind("load", function() {
 		var base_url = "#{@cluster_image}";
