@@ -2,9 +2,10 @@
 
 = grid(@airports) do |g|
   - g.column name: 'ID', attribute: 'id'
+  - g.column name: 'City', attribute: 'city'
   - g.column name: 'Name', attribute: 'name'
   - g.column name: 'FAA', attribute: 'faa'
-  - g.column name: 'City', attribute: 'city'
+  - g.column name: 'Country', attribute: 'country'
   
   -g.column name: 'Edit' do |a|
     - link_to 'Edit', edit_airport_path(a)
