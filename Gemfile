@@ -78,5 +78,6 @@ gem "hirefire-resource"
 gem 'rollbar', '~> 1.1.0'
 gem 'resque-failed-job-mailer', :require => 'resque_failed_job_mailer'
 gem "wice_grid", '3.4.2'
+gem 'aws-sdk'
 
 #gem "sidekiq"
