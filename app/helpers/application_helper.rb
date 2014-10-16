@@ -19,7 +19,7 @@ module ApplicationHelper
         	if trip.flights.count == 2
         		a_time = trip.flights.first.arrival_time #destination is the arrival of the first flight
         		d_time = trip.flights.last.depart_time
-        		return ((d_time - a_time)/1.day).round
+                return ((d_time - a_time)/1.day).round
         	else
         		return 0
         	end

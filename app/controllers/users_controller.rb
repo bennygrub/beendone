@@ -36,7 +36,7 @@ class UsersController < ApplicationController
   				longitude: d_port.longitude, 
   				a_id: d_port.id,
   				name: d_port.name,
- 				city: d_port.city,
+ 				  city: d_port.city,
   				flight_id: flight.id,
   				trip_id: flight.trip_id,
   				type: "depart"
@@ -47,7 +47,7 @@ class UsersController < ApplicationController
   		port = Airport.find(flight.arrival_airport)
   		OpenStruct.new(
   			{
- 				latitude: port.latitude, 
+ 				  latitude: port.latitude, 
   				longitude: port.longitude, 
   				a_id: port.id,
   				name: port.name,

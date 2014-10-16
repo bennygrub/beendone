@@ -4,9 +4,9 @@ class CreateFlights < ActiveRecord::Migration
       t.integer :trip_id
       t.integer :airline_id
       t.text :depart_airport
-      t.date :depart_time
+      t.datetime :depart_time
       t.text :arrival_airport
-      t.date :arrival_time
+      t.datetime :arrival_time
       t.text :seat_type
 
       t.timestamps
