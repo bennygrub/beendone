@@ -1,0 +1,133 @@
+:javascript
+	$(window).bind("load", function() {
+		var base_url = "#{@cluster_image}";
+		var lineSymbol = {
+			path: 'M 0,-1 0,1',
+			strokeOpacity: 1,
+			scale: 4
+		};
+		var Tab = #{raw @hash.to_json}
+		var Poly = #{@polylines}
+		var mapStyle =
+		[
+			{
+				"featureType": "administrative",
+				"elementType": "all",
+				"stylers": 
+				[
+					{
+						"visibility": "off"
+					}
+				]
+			},
+
+			{
+				"featureType": "administrative.country",
+				"elementType": "geometry.stroke",
+				"stylers": 
+				[
+					{
+						"visibility": "on"
+					},
+					{
+						"color": "#1c1d1f"
+					},
+
+					{
+						"weight": 0.5
+					}
+				]
+			},
+			{
+				"featureType": "water",
+				"elementType": "all",
+				"stylers": 
+				[
+					{
+						"color": "#2e2e31"
+					}
+				]
+
+			},
+
+			{
+				"featureType": "landscape",
+				"elementType": "all",
+				"stylers": 
+				[
+					{
+						"color": "#dddddd"
+					}
+				]
+			},
+
+			{
+				"featureType": "poi",
+				"elementType": "all",
+				"stylers": 
+				[
+					{
+						"color": "#dddddd"
+					}
+				]
+			},
+			{
+				"featureType": "road",
+				"elementType": "all",
+				"stylers": 
+				[
+					{
+						"visibility": "off"
+					}
+				]
+			},
+
+			{
+				"featureType": "transit",
+				"elementType": "all",
+				"stylers": 
+				[
+					{
+						"visibility": "off"
+					}
+				]
+			},
+
+			{
+				"featureType": "all",
+				"elementType": "labels",
+				"stylers": 
+				[
+					{
+						"visibility": "off"
+					}
+				]
+			}
+		] 
+
+
+		handler = Gmaps.build('Google', { markers: { clusterer: undefined  } });
+		//gmaps({"polylines"=> { "data" => Poly }})
+		handler.buildMap(
+			{
+				provider: 
+					{
+						//disableDefaultUI: true
+						// pass in other Google Maps API options here
+						styles: mapStyle,
+						//zoom: "default"
+					},
+				internal: 
+					{
+						id: 'map'
+					}
+			},
+			function()
+				{
+					markers = handler.addMarkers(Tab);
+					handler.bounds.extendWith(markers);
+					handler.fitMapToBounds();
+					handler.addPolylines(Poly, {strokeColor: "#25ce98", strokeWeight: 0.7, strokeOpacity: 1 });
+				}
+		);        
+	});

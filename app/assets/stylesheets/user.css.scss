@@ -17,6 +17,9 @@
 .more-or-less-stats{ 
 	padding: 15px 0px;
 }
+.more-stats{ 
+	padding: 35px 0 0px 35px;
+}
 
 
 .year-header{ 
@@ -123,15 +126,41 @@
 	margin-bottom: 0px;
 }
 .flight-row{
-	border-bottom:1px solid lightgrey;
 	padding: 10px 0px;
 }
 
+
 .trip-date-range{
-	border-bottom:1px solid lightgrey;
 	padding-bottom: 15px;
+}
+
+.hr {
+	opacity: 0.2;
+	border-top: 1px solid #737373;
+	border-bottom: 1px solid #fff;
 }
 
 .flight-date, .flight-airports, .flight-meta{
 	width:33%;
+}
+
+.flight-date{
+	text-transform: uppercase;
+}
+
+.stat-column-odd, .stat-column-even {
+	padding: 10px;
+	width: 12%;
+}
+
+.stat-column-odd {
+	background: rgb(221, 221, 221);
+}
+
+.stat-row{
+	padding: 7px 0 7px 3px;
+}
+
+.travel-map{
+	width:120%;
 }

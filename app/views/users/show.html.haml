@@ -1,235 +1,130 @@
-%div{:style => "width: 100%;"}
-	#map{:style => "width: 100%; height: 300px;"}
-
-.user-image.pull-left
-	=image_tag("user.png")
-.main-stats.pull-left
-	.pull-left
-		%h1=current_user.name.titlecase
-	.pull-left
-		%h5.text-center
-			TRIPS
-			%br
-			%span=@trips.count
-	.pull-left
-		%h5.text-center
-			FLIGHTS
-			%br
-			%span=@flights.count
-	.pull-left
-		%h5.text-center
-			COUNTRIES
-			%br
-			%span=@destination_countries.count
-	.pull-left
-		%h5.text-center
-			CITIES
-			%br
-			%span=@destinations_cities.count
-	.clearfix
-.clearfix
-.more-stats.hide
-	#cities.pull-left
-		%h5 Destination Cities
-		-@destinations_cities.each do |d|
-			.city="#{d[0]} (#{d[1]})"
-	#countries.pull-left
-		%h5 Countries
-		-@destination_countries.each do |d|
-			.country="#{d[0]} (#{d[1]})"
-	#origins.pull-left
-		%h5 Trip Origin
-		-@origins.each do |d|
-			.origin="#{d[0]} (#{d[1]})"
-	#trip-years.pull-left
-		%h5 Trips by Year
-		-@by_year.each do |d|
-			.trip-year="#{d[0]} (#{d[1]})"
-	#trip-months.pull-left
-		%h5 Trips by Month
-		-@by_month.each do |d|
-			.trip-month="#{d[0]} (#{d[1]})"
-	#trip-months.pull-left
-		%h5 Trip Starts On
-		-@by_day_of_week_leave.each do |d|
-			.trip-month="#{d[0]} (#{d[1]})"
-	#trip-months.pull-left
-		%h5 Trip Ends On
-		-@by_day_of_week_return.each do |d|
-			.trip-month="#{d[0]} (#{d[1]})"
-	.clearfix
-.more-or-less-stats.text-center
-	=link_to "more stats", "Javascript:" 
-				
--@trips_by_month.each do |monthname, trips|
-	.year-header
-		%h2=monthname
-	.container
+.travel-map{:style => "width: 100%;"}
+	#map{:style => "width: 100%; height: 400px;"}
+.container
+	.content
 		.row
-			-trips.each do |trip|
-				.span4
-					.flip-container.text-center
-						.flipper
-							.front{style: "background: url('#{image_path "sydney.jpg"}');background-size: cover;"}
-								- destination = destination_city(trip)
-								%h3
-									=destination
-								in
-								%b=trip.flights.first.depart_time.strftime("%B")
-
-								%p
-									%b="#{days_visited(trip)} days"
-
-							.back
-								%h3=destination
-								.trip-date-range
-									%b=trip.flights.first.depart_time.strftime("%B %e")
-									to 
-									%b=trip.flights.last.arrival_time.strftime("%B %e")
+			.span12
+				.user-image.pull-left
+					=image_tag("user.png")
+				.main-stats.pull-left
+					.stat-column.pull-left
+						%h1=current_user.name.titlecase
+					.pull-left
+						%h5.text-center
+							TRIPS
+							%br
+							%span=@trips.count
+					.pull-left
+						%h5.text-center
+							FLIGHTS
+							%br
+							%span=@flights.count
+					.pull-left
+						%h5.text-center
+							COUNTRIES
+							%br
+							%span=@destination_countries.count
+					.pull-left
+						%h5.text-center
+							CITIES
+							%br
+							%span=@destinations_cities.count
+					.clearfix
+				.clearfix
+				.more-stats.hide
+					.stat-column-odd.pull-left
+						%h5 Destination Cities
+						.hr
+						-@destinations_cities.each do |d|
+							.stat-row
+								="#{d[0]} (#{d[1]})"
+							.hr
+					.stat-column-even.pull-left
+						%h5 Countries
+						.hr
+						-@destination_countries.each do |d|
+							.stat-row
+								="#{d[0]} (#{d[1]})"
+							.hr
+					.stat-column-odd.pull-left
+						%h5 Trip Origin
+						.hr
+						-@origins.each do |d|
+							.stat-row
+								="#{d[0]} (#{d[1]})"
+							.hr
+					.stat-column-even.pull-left
+						%h5 Trips by Year
+						.hr
+						-@by_year.each do |d|
+							.stat-row
+								="#{d[0]} (#{d[1]})"
+							.hr
+					.stat-column-odd.pull-left
+						%h5 Trips by Month
+						.hr
+						-@by_month.each do |d|
+							.stat-row
+								="#{d[0]} (#{d[1]})"
+							.hr
+					.stat-column-even.pull-left
+						%h5 Trip Starts On
+						.hr
+						-@by_day_of_week_leave.each do |d|
+							.stat-row
+								="#{d[0]} (#{d[1]})"
+							.hr
+					.stat-column-odd.pull-left
+						%h5 Trip Ends On
+						.hr
+						-@by_day_of_week_return.each do |d|
+							.stat-row
+								="#{d[0]} (#{d[1]})"
+							.hr
+					.clearfix
+				.more-or-less-stats.text-center
+					=link_to "more stats", "Javascript:" 
 								
-								.back-flights
-									-trip.flights.each do |flight|
-										.flight-row
-											.flight-date.pull-left
-												=image_tag "plane.png", style: "max-width:20px;margin-right:8px;"
-												=flight.depart_time.strftime("%b %e")
-											.flight-airports.pull-left
-												=Airport.find(flight.depart_airport).faa.upcase
-												to
-												=Airport.find(flight.arrival_airport).faa.upcase
-											.flight-meta.pull-left
-												9 hours
-											.clearfix
-:javascript
-	$(window).bind("load", function() {
-		var base_url = "#{@cluster_image}";
-		var lineSymbol = {
-			path: 'M 0,-1 0,1',
-			strokeOpacity: 1,
-			scale: 4
-		};
-		var Tab = #{raw @hash.to_json}
-		var Poly = #{@polylines}
-		var mapStyle =
-		[
-			{
-				"featureType": "administrative",
-				"elementType": "all",
-				"stylers": 
-				[
-					{
-						"visibility": "off"
-					}
-				]
-			},
+				-@trips_by_month.each do |monthname, trips|
+					.year-header
+						%h2=monthname
+					.container
+						.row
+							-trips.each do |trip|
+								.span4
+									.flip-container.text-center
+										.flipper
+											.front{style: "background: url('#{image_path "sydney.jpg"}');background-size: cover;"}
+												- destination = destination_city(trip)
+												%h3
+													=destination
+												in
+												%b=trip.flights.first.depart_time.strftime("%B")
 
-			{
-				"featureType": "administrative.country",
-				"elementType": "geometry.stroke",
-				"stylers": 
-				[
-					{
-						"visibility": "on"
-					},
-					{
-						"color": "#1c1d1f"
-					},
+												%p
+													%b="#{days_visited(trip)} days"
 
-					{
-						"weight": 0.5
-					}
-				]
-			},
-			{
-				"featureType": "water",
-				"elementType": "all",
-				"stylers": 
-				[
-					{
-						"color": "#2e2e31"
-					}
-				]
+											.back
+												%h3=destination
+												.trip-date-range
+													%b=trip.flights.first.depart_time.strftime("%B %e")
+													to 
+													%b=trip.flights.last.arrival_time.strftime("%B %e")
+												.hr
+												.back-flights
+													-trip.flights.each do |flight|
+														.flight-row										
+															.flight-date.pull-left
+																=image_tag "plane.png", style: "max-width:20px;margin-right:8px;"
+																=flight.depart_time.strftime("%b %e")
+															.flight-airports.pull-left
+																=Airport.find(flight.depart_airport).faa.upcase
+																to
+																=Airport.find(flight.arrival_airport).faa.upcase
+															.flight-meta.pull-left
+																9 hours
+															.clearfix
+														.hr
+											
 
-			},
-
-			{
-				"featureType": "landscape",
-				"elementType": "all",
-				"stylers": 
-				[
-					{
-						"color": "#dddddd"
-					}
-				]
-			},
-
-			{
-				"featureType": "poi",
-				"elementType": "all",
-				"stylers": 
-				[
-					{
-						"color": "#dddddd"
-					}
-				]
-			},
-			{
-				"featureType": "road",
-				"elementType": "all",
-				"stylers": 
-				[
-					{
-						"visibility": "off"
-					}
-				]
-			},
-
-			{
-				"featureType": "transit",
-				"elementType": "all",
-				"stylers": 
-				[
-					{
-						"visibility": "off"
-					}
-				]
-			},
-
-			{
-				"featureType": "all",
-				"elementType": "labels",
-				"stylers": 
-				[
-					{
-						"visibility": "off"
-					}
-				]
-			}
-		] 
-
-
-		handler = Gmaps.build('Google', { markers: { clusterer: undefined  } });
-		//gmaps({"polylines"=> { "data" => Poly }})
-		handler.buildMap(
-			{
-				provider: 
-					{
-						//disableDefaultUI: true
-						// pass in other Google Maps API options here
-						styles: mapStyle,
-						//zoom: "default"
-					},
-				internal: 
-					{
-						id: 'map'
-					}
-			},
-			function()
-				{
-					markers = handler.addMarkers(Tab);
-					handler.bounds.extendWith(markers);
-					handler.fitMapToBounds();
-					handler.addPolylines(Poly, {strokeColor: "#25ce98", strokeWeight: 0.7, strokeOpacity: 1 });
-				}
-		);        
-	});
+=render "map_code"
