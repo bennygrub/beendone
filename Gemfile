@@ -35,6 +35,8 @@ gem 'jbuilder', '~> 1.2'
 
 gem 'pry'
 
+gem "paperclip", "~> 4.2"
+
 
 
 group :doc do
@@ -75,5 +77,6 @@ gem 'redis'
 gem "hirefire-resource"
 gem 'rollbar', '~> 1.1.0'
 gem 'resque-failed-job-mailer', :require => 'resque_failed_job_mailer'
+gem "wice_grid", '3.4.2'
 
 #gem "sidekiq"

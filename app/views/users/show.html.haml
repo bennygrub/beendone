@@ -104,11 +104,11 @@
 								.span4
 									.flip-container.text-center
 										.flipper
-											.front{style: "background: url('#{image_path "sydney.jpg"}');background-size: cover;"}
+											- destination = destination_city(trip)
+											.front{style: "background: url('#{destination.avatar.url}');background-size: cover;"}
 												.front-overlay
-													- destination = destination_city(trip)
 													%h3
-														=destination
+														=destination.city
 													%h4
 														in
 														=trip.flights.first.depart_time.strftime("%B")
@@ -119,7 +119,7 @@
 														&#9679;
 
 											.back
-												%h3=destination
+												%h3=destination.city
 												.trip-date-range
 													%b=trip.flights.first.depart_time.strftime("%B %e")
 													to 

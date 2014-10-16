@@ -4,7 +4,7 @@ class AirportsController < ApplicationController
   # GET /airports
   # GET /airports.json
   def index
-    @airports = Airport.all
+    @airports = initialize_grid(Airport.all)
   end
 
   # GET /airports/1
@@ -69,6 +69,6 @@ class AirportsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def airport_params
-      params.require(:airport).permit(:name, :city, :country, :faa, :icao, :latitude, :longitude, :altitude, :timezone, :dst)
+      params.require(:airport).permit(:name, :city, :country, :faa, :icao, :latitude, :longitude, :altitude, :timezone, :dst, :avatar)
     end
 end

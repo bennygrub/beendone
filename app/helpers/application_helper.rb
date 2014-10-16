@@ -2,15 +2,15 @@ module ApplicationHelper
 
 	def destination_city(trip)
     	if trip.flights.count < 3 #if the trip has 1 or 2 flights
-        	return Airport.find(trip.flights.first.arrival_airport).city#destination is the arrival of the first flight
+        	return Airport.find(trip.flights.first.arrival_airport)#destination is the arrival of the first flight
         elsif trip.flights.count.even? #if the trip has 3 or more flights and is even its probably the middle one
         	x = (trip.flights.count/2)-1
         	middle = trip.flights[x]
-        	return Airport.find(middle.arrival_airport).city
+        	return Airport.find(middle.arrival_airport)
         else#if the trip has 3 or more flights and is odd its probably the first of the middle ones
         	x = (trip.flights.count/2)-0.5
         	middle = trip.flights[x]
-        	return Airport.find(middle.arrival_airport).city
+        	return Airport.find(middle.arrival_airport)
         end
 	end
 
