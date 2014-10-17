@@ -21,10 +21,8 @@ class AaGrab
 	airline_id = Airline.find_by_name("American Airlines").id
 	##AMERICAN AIRLINES
   	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com")
-  	if aa_messages.count > 0
-	  	#aa_messages = aa_messages.map {|message| message.body_parts.first.content}
-	  	aa_messages.each do |message|
-	  		#email_message = message.body_parts.first.content
+  	aa_messages.each do |message|
+  		if Trip.find_by_message_id(message.message_id).nil?
 	  		dom = Nokogiri::HTML(message.body_parts.where(type: 'text/html').first.content)
 	  		flight_arrays = dom.xpath('//td[@valign="center" and @style="FONT-WEIGHT: normal; FONT-SIZE: 12px; COLOR: #607982; font-family:Arial;"]').each_slice(5).to_a
 	  		if flight_arrays.count > 0
@@ -135,10 +133,11 @@ class AaGrab
 		  				aeflightfix = true if ae.airport_id.blank? #set flag
 			  		end
 
-					flight = Flight.where(trip_id: trip.id, depart_time: d_time).first_or_create do |f|
+					flight = Flight.where(depart_time: d_time).first_or_create do |f|
 		  				f.trip_id = trip.id
 		  				f.airline_id = airline_id
 		  				f.depart_airport = depart_airport
+		  				f.depart_time = d_time
 		  				f.arrival_airport = arrival_airport
 		  				f.arrival_time = a_time
 		  				f.seat_type = "American"
@@ -149,7 +148,7 @@ class AaGrab
 
 		  		end
 		  	end
-	  	end
-	end
+		end
+  	end
   end
 end

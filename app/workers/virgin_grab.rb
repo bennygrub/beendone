@@ -22,9 +22,8 @@ class VirginGrab
   	airline_id = Airline.find_by_name("Virgin America").id
 
   	va_messages = account.messages.where(from: "virginamerica@elevate.virginamerica.com", subject: "/Virgin America Reservation/")
-	if va_messages.count > 0 
-		#va_messages = va_messages.map {|message| message.body_parts.first.content}
-	  	va_messages.each do |message|
+  	va_messages.each do |message|
+  		if Trip.find_by_message_id(message.message_id).nil?
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
 		  	matches = dom.xpath('/html/body/table/tr[14]/td/table/tr[2]/td/table/tr').map(&:to_s)
 		  	matches.shift

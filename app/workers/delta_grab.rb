@@ -21,8 +21,8 @@ class DeltaGrab
   	account = contextio.accounts.where(email: user.email).first
 	##DELTA
 	delta_messages = account.messages.where(from: "deltaelectronicticketreceipt@delta.com")
-  	if delta_messages.count > 0
-	  	delta_messages.each do |message|
+  	delta_messages.each do |message|
+	  	if Trip.find_by_message_id(message.message_id).nil?
 		  	dom = Nokogiri::HTML(message.body_parts.first.content)
 		  	matches = dom.xpath('/html/body//pre/text()').map(&:to_s)
 		  	
@@ -140,10 +140,11 @@ class DeltaGrab
 			  		end
 		  		end
 
-				flight = Flight.where(trip_id: trip.id, depart_time: flight[:departure_time].to_time).first_or_create do |f|
+				flight = Flight.where(depart_time: flight[:departure_time]).first_or_create do |f|
 	  				f.trip_id = trip.id
 	  				f.airline_id = airline_id
 	  				f.depart_airport = depart_airport
+	  				f.depart_time = flight[:departure_time]
 	  				f.arrival_airport = arrival_airport
 	  				f.arrival_time = flight[:arrival_time]
 	  				f.seat_type = "Delta"

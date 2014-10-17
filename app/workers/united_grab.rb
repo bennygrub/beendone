@@ -24,11 +24,8 @@ class UnitedGrab
 
 	email_change_date = Date.new(2011,1,1).to_time.to_i #date that email changed
   	u_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/', date_before: email_change_date)
-	
-	if u_messages.count > 0
-		#u_messages = u_messages.map {|message| message.body_parts.first.content}
-
-		u_messages.each do |message|
+	u_messages.each do |message|
+		if Trip.find_by_message_id(message.message_id).nil?
 			dom = Nokogiri::HTML(message.body_parts.first.content)
 			matches = dom.xpath('//*[@id="i"]/table[@style="width:511px;font:11px/15px Arial, sans-serif;"]').map(&:to_s)
 			trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
@@ -70,10 +67,11 @@ class UnitedGrab
 			  		#seat_split = flight_data.scan(/Booking class: (.*?)<a/).first.first
 			  		#seat_type = seat_split.scan(/<br>(.*?)<br>/).first.first
 			  		seat_type = "Economy"
-			  		flight = Flight.where(trip_id: trip.id, depart_time: depart_time).first_or_create do |f|
+			  		flight = Flight.where(depart_time: depart_time).first_or_create do |f|
 		  				f.trip_id = trip.id
 		  				f.airline_id = airline_id
 		  				f.depart_airport = depart_airport
+		  				f.depart_time = depart_time
 		  				f.arrival_airport = arrival_airport
 		  				f.arrival_time = arrival_time
 		  				f.seat_type = seat_type
@@ -87,9 +85,8 @@ class UnitedGrab
 
   	##OLD UNITED
   	u_oldest_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/', date_after: email_change_date)
-  	if u_oldest_messages.count > 0 
-	  	#u_oldest_messages = u_oldest_messages.map {|message| message.body_parts.first.content}
-	  	u_oldest_messages.each do |message|
+  	u_oldest_messages.each do |message|
+  		if Trip.find_by_message_id(message.message_id).nil?
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
 	  		matches = dom.xpath('//*[@id="flightTable"]/tr[@style="vertical-align: top;"]').map(&:to_s)
 	  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
@@ -137,10 +134,11 @@ class UnitedGrab
 		  				aeflightfix = true if de.airport_id.blank? #set flag
 			  		end
 
-		  			flight = Flight.where(trip_id: trip.id, depart_time: depart_time).first_or_create do |f|
+		  			flight = Flight.where(depart_time: depart_time).first_or_create do |f|
 		  				f.trip_id = trip.id
 		  				f.airline_id = airline_id
 		  				f.depart_airport = depart_airport
+		  				f.depart_time = depart_time
 		  				f.arrival_airport = arrival_airport
 		  				f.arrival_time = arrival_time
 		  				f.seat_type = seat_type

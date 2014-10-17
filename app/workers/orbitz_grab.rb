@@ -21,9 +21,8 @@ class OrbitzGrab
 
 	email_change_date = Date.new(2011,1,1).to_time.to_i
   	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare For Your Trip/i", date_before: email_change_date)
-  	if o_messages.count > 0
-	  	#o_messages = o_messages.map {|message| message.body_parts.first.content}
-		o_messages.each do |message|
+	o_messages.each do |message|
+		if Trip.find_by_message_id(message.message_id).nil?
 			dom = Nokogiri::HTML(message.body_parts.first.content)
 	  		matches = dom.xpath('//*[@id="emailFrame"]/tr/td/table/tr[2]/td[2]/table/tr[2]/td').map(&:to_s)
 	  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
@@ -41,16 +40,16 @@ class OrbitzGrab
 		  			arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
 		  			seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
 
-					flight = Flight.where(trip_id: trip.id, depart_time: depart_time.to_time).first_or_create do |f|
+					flight = Flight.where(depart_time: depart_time).first_or_create do |f|
 		  				f.trip_id = trip.id
 		  				f.airline_id = 43
 		  				f.depart_airport = depart_airport
+		  				f.depart_time = depart_time
 		  				f.arrival_airport = arrival_airport
 		  				f.arrival_time = arrival_time
 		  				f.seat_type = "Orbitz"
 					end
 	  			end
-
 	  		end
 	  	end
 	end
@@ -58,9 +57,8 @@ class OrbitzGrab
 	#ORBITZ OLD
 	email_change_date = Date.new(2011,1,1).to_time.to_i
   	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare For Your Trip/i", date_after: email_change_date)
-  	if o_messages.count > 0
-	  	#o_messages = o_messages.map {|message| message.body_parts.first.content}
-	  	o_messages.each do |message|
+	o_messages.each do |message|
+		if Trip.find_by_message_id(message.message_id).nil?
 	  		trip = Trip.find_or_create_by_message_id(user_id: user.id, message_id: message.message_id)
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
 		  	matches = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[1]/div[1]/table[2]/tr[2]/td/table/tr/td/table/tr').map(&:to_s)
@@ -112,10 +110,11 @@ class OrbitzGrab
 		  		arrival_airport = Airport.find_by_faa(arrival_airport.scan(/\((.*?)\)/).first.first).id
 		  		arrival_time = create_saveable_date(day, month, year, arrival_time)
 				
-				flight = Flight.where(trip_id: trip.id, depart_time: depart_time.to_time).first_or_create do |f|
+				flight = Flight.where(depart_time: depart_time).first_or_create do |f|
 	  				f.trip_id = trip.id
 	  				f.airline_id = 43
 	  				f.depart_airport = depart_airport
+	  				f.depart_time = depart_time
 	  				f.arrival_airport = arrival_airport
 	  				f.arrival_time = arrival_time
 	  				f.seat_type = "Orbitz"

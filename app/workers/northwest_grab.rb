@@ -24,8 +24,8 @@ class NorthwestGrab
   	airline_id = Airline.find_by_name("Northwest Airlines").id
   	#get messages from Virgin and pick the html
   	nw_messages = account.messages.where(from: "Northwest.Airlines@nwa.com", subject: "/nwa.com Reservations Air Purchase Confirmation/")
-  	if nw_messages.count > 0
-	  	nw_messages.each do |message|	  		
+  	nw_messages.each do |message|	  		
+  		if Trip.find_by_message_id(message.message_id).nil?
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
 	  		year = message.received_at.strftime("%Y")
 	  		cost = dom.xpath('//*[@id="totalCost"]').to_s.scan(/Price:(.*?)</).first.first.gsub(" ", "")
@@ -49,17 +49,17 @@ class NorthwestGrab
 
 	  			arrival_time = DateTime.new(year.to_i, a_month.to_i, a_day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
 
-  				flight = Flight.where(trip_id: trip.id, depart_time: depart_time.to_time).first_or_create do |f|
+					flight = Flight.where(depart_time: depart_time).first_or_create do |f|
 	  				f.trip_id = trip.id
 	  				f.airline_id = airline_id
 	  				f.depart_airport = depart_airport
+	  				f.depart_time = depart_time
 	  				f.arrival_airport = arrival_airport
 	  				f.arrival_time = arrival_time
 	  				f.seat_type = "Northwest"
 				end
 	  		end
-
 	  	end
-	end
+  	end
   end
 end

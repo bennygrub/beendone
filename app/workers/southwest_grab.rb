@@ -24,8 +24,8 @@ class SouthwestGrab
   	airline_id = Airline.find_by_name("Southwest Airlines").id
   	#get messages from Virgin and pick the html
     sw_messages = account.messages.where(from: "SouthwestAirlines@luv.southwest.com", subject: "/Southwest Airlines Confirmation-/")
-    if sw_messages.count > 0
-      sw_messages.each do |message|
+    sw_messages.each do |message|
+      if Trip.find_by_message_id(message.message_id).nil?
         year = message.received_at.strftime("%Y")
         dom = Nokogiri::HTML(message.body_parts.first.content)
         #cost = dom.xpath('//div[@style="line-height: 14px; font-family: arial,verdana; color: #666666; font-size: 11px; margin-right: 18px"]')#need to check further
@@ -45,10 +45,11 @@ class SouthwestGrab
             depart_time = DateTime.new(year.to_i, month.to_i, day.to_i, d_time[:hour].to_i, d_time[:min].to_i, 0, 0)
             arrival_time = DateTime.new(year.to_i, month.to_i, day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
             
-            flight = Flight.where(trip_id: trip.id, depart_time: depart_time.to_time).first_or_create do |f|
+            flight = Flight.where(depart_time: depart_time).first_or_create do |f|
               f.trip_id = trip.id
               f.airline_id = airline_id
               f.depart_airport = depart_airport
+              f.depart_time = depart_time
               f.arrival_airport = arrival_airport
               f.arrival_time = arrival_time
               f.seat_type = "Southwest"

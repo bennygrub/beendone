@@ -18,12 +18,9 @@ class CheapoGrab
   	end
   	#get the correct account
   	account = contextio.accounts.where(email: user.email).first
-	c_messages = account.messages.where(from: "cheapoair@cheapoair.com", subject: '/AIR TICKET/i')
-	if c_messages.count > 0
-		#c_messages = c_messages.map {|message| message.body_parts.first.content}
-		
-		c_messages.each do |message|
-			
+	c_messages = account.messages.where(from: "cheapoair@cheapoair.com", subject: '/Booking receipt/i')
+	c_messages.each do |message|
+		if Trip.find_by_message_id(message.message_id).nil?
 			dom = Nokogiri::HTML(message.body_parts.first.content)
 			year_data = dom.xpath('//*[@id="FlightBookingDetails"]/td/table[4]/tr/td/table/tr[1]').map(&:to_s).first
 			year_data = year_data.gsub("\t","")
@@ -56,18 +53,18 @@ class CheapoGrab
 			  	arrival_day = arrival_month_day[1].split(",").first
 			  	arrival_month = month_to_number(arrival_month_day[0])
 			  	
-			  	arrival_time = DateTime.new(year.to_i, arrival_month.to_i, arrival_day.to_i, arrival_hour_min[:hour].to_i, arrival_hour_min[:min].to_i, 0, 0)
-			  	
-				flight = Flight.where(trip_id: trip.id, depart_time: depart_time.to_time).first_or_create do |f|
+			  	arrival_time = DateTime.new(year.to_i, arrival_month.to_i, arrival_day.to_i, arrival_hour_min[:hour].to_i, arrival_hour_min[:min].to_i, 0, 0).utc
+				flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
 	  				f.trip_id = trip.id
 	  				f.airline_id = 103
 	  				f.depart_airport = depart_airport
+	  				f.depart_time = depart_time
 	  				f.arrival_airport = arrival_airport
 	  				f.arrival_time = arrival_time
 	  				f.seat_type = "Cheapo"
 				end
 			end
-		end
+		end#No other trips 
 	end
   end
 end
