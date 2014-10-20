@@ -1,3 +1,19 @@
 // Place all the styles related to the Pages controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+.home-bg{
+	background: image-url("home_1.jpg") no-repeat center center fixed;
+	height:100%;
+	width:100%;
+	position:absolute;
+	-webkit-background-size: cover;
+  	-moz-background-size: cover;
+  	-o-background-size: cover;
+  	background-size: cover;
+  	color:white;	
+}
+
+.home-bg .front-overlay{
+	padding: 200px 0 0 0;
+}

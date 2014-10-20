@@ -19,7 +19,7 @@
         .container
           = render 'layouts/navigation'
     #main{:role => "main"}
-      -if @map_page
+      -if @map_page || @home_page
         = render 'layouts/messages'
         = yield
       -else 
