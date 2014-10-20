@@ -12,7 +12,6 @@ class PagesController < ApplicationController
   	@trips = @trips.map{|trip| trip unless trip.flights.count < 1}.compact
   	@trips = @trips.sort_by{|trip| trip.flights.last.depart_time}.reverse
   	
-  	@destiny = 
 
   	@destinations_cities = @trips.map{|trip|find_destination(trip).city}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }
   	@origins = @trips.map{|trip| Airport.find(trip.flights.first.depart_airport).city}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }

@@ -4,12 +4,12 @@
 	.content
 		.row
 			.span12
-				.user-image.pull-left
-					=image_tag("user.png")
+				.user-image.pull-left.user-circle{style: "background: url('#{@user.avatar.url}');background-size: cover;"}
+					
 				.main-stats
 					.pull-left
 						%h1{style:"margin-left: 185px;"}
-							=current_user.name.titlecase
+							=@user.name.titlecase
 					.top-stats.pull-right
 						.top-stat.pull-left.top-stat-left
 							%h5.text-center

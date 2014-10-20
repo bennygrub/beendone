@@ -1,13 +1,22 @@
-<h2>Edit <%= resource_name.to_s.humanize %></h2>
+<h2>Edit <%= @user.name %></h2>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { :multipart => true, method: :put }) do |f| %>
   <%= devise_error_messages! %>
+  <div class="user-circle" style=<%="background:url(#{@user.avatar.url}); background-size: cover;"%>></div>
+  <br>
+  <div><%= f.text_field :name %></div>
+  <div><%= f.email_field :email, autofocus: true %></div>
+  <h4>User Image</h4>
+  <br>
+  <div ><%= f.file_field :avatar %></div>
+  <br>
 
-  <%= f.email_field :email, autofocus: true %>
 
   <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
     <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
   <% end %>
+
+
 
   <h4 style="margin-bottom:0;">Change Password</h4>
   <p style="font-size:13px;">(Leave blank to keep your current password)<p>
