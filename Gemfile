@@ -79,5 +79,6 @@ gem 'rollbar', '~> 1.1.0'
 gem 'resque-failed-job-mailer', :require => 'resque_failed_job_mailer'
 gem "wice_grid", '3.4.2'
 gem 'aws-sdk'
+gem 'friendly_id', '~> 5.0.0'
 
 #gem "sidekiq"
