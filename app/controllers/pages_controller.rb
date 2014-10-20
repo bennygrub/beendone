@@ -32,77 +32,7 @@ class PagesController < ApplicationController
 
   def home
   	if current_user
-  		@trips = current_user.trips#all trips from current_user
-  		@trips = @trips.map{|trip| trip unless trip.flights.count < 1}.compact #get rid of trips with zero flights
-  		@trips = @trips.sort_by{|trip| trip.flights.last.depart_time}.reverse #reverse cron from depart_time
-  		@trips_by_month = @trips.group_by { |trip| trip.flights.first.depart_time.strftime("%Y") } #organize trips by month
-  		
-  		@flights = current_user.flights
-  		@departs = @flights.map{|flight|
-  			d_port = Airport.find(flight.depart_airport)
-  			OpenStruct.new(
-  				{
-  					latitude: d_port.latitude, 
-  					longitude: d_port.longitude, 
-  					a_id: d_port.id,
-  					name: d_port.name,
-  					city: d_port.city,
-  					flight_id: flight.id,
-  					trip_id: flight.trip_id,
-  					type: "depart"
-  				}
-  			)
-  		}
-  		@arrivals = @flights.map{|flight|
-  			port = Airport.find(flight.arrival_airport)
-  			OpenStruct.new(
-  				{
-  					latitude: port.latitude, 
-  					longitude: port.longitude, 
-  					a_id: port.id,
-  					name: port.name,
-  					flight_id: flight.id,
-  					trip_id: flight.trip_id,
-  					type: "arrive"
-  				}
-  			)
-  		}
-  		@all_flights = @arrivals + @departs
-  		#sobj = OpenStruct.new({:color => ‘red’, :weight => 3 })
-  		@hash = Gmaps4rails.build_markers(@all_flights) do |flight, marker|
-  			marker.lat flight.latitude
-  			marker.lng flight.longitude
-  			marker.picture({
-              url: ActionController::Base.helpers.asset_path('map_pin.png'),
-              width: 22,
-              height: 42
-            })
-
-  			#marker.title flight.name
-  			marker.json({flight_id:flight.id})
-  			#marker.infowindow "#{flight.name}(#{flight.city})"
-  			marker.infowindow render_to_string(:partial => "maker_template", :locals => { :object => flight})
-		end
-
-		
-		#build polylines
-		@polylines = Array.new
-		@trips.each do |trip|
-			trip.flights.map{|flight| 
-				a_airport = Airport.find(flight.arrival_airport)
-				d_airport = Airport.find(flight.depart_airport)
-				hex = "%06x" % (rand * 0xffffff)
-				color = "##{hex}"
-				@polylines << 
-				[
-					{lng:d_airport.longitude, lat:d_airport.latitude, strokeColor: "#fff", strokeWeight: 1, strokeOpacity: 1},
-					{lng:a_airport.longitude, lat:a_airport.latitude}
-				]
-			}
-		end
-		@polylines = @polylines.to_json
-		#raise "#{@polylines}"
-
+  		redirect_to current_user
   	end
 
   end
