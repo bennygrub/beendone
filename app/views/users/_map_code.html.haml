@@ -39,12 +39,29 @@
 				]
 			},
 			{
+				"featureType": "administrative.province",
+				"elementType": "geometry.stroke",
+				"stylers": 
+				[
+					{
+						"visibility": "on"
+					},
+					{
+						"color": "#1c1d1f"
+					},
+
+					{
+						"weight": 0.5
+					}
+				]
+			},
+			{
 				"featureType": "water",
 				"elementType": "all",
 				"stylers": 
 				[
 					{
-						"color": "#2e2e31"
+						"color": "#058dbf"
 					}
 				]
 
@@ -126,7 +143,7 @@
 					markers = handler.addMarkers(Tab);
 					handler.bounds.extendWith(markers);
 					handler.fitMapToBounds();
-					handler.addPolylines(Poly, {strokeColor: "#25ce98", strokeWeight: 0.7, strokeOpacity: 1 });
+					handler.addPolylines(Poly, {strokeColor: "#f95500", strokeWeight: 0.7, strokeOpacity: 1 });
 				}
 		);        
 	});

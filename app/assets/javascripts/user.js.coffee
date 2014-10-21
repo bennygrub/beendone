@@ -9,6 +9,18 @@ $(document).ready ->
 		else if $(".more-or-less-stats a").text() == "less stats"
 			$(".more-stats").slideUp()
 			$(".more-or-less-stats a").text("more stats")
+	
+	$(".full-screen a").click ->	
+		$(".travel-map").css({'height' : '100%', 'position' : 'fixed', 'z-index' : '10001', 'top' : '0'})
+		$("#map").css({'height' : '100%'})
+		$(".unfull-screen").css({'display' : 'block'})
+	$(".unfull-screen a").click ->	
+		$(".travel-map").css({'height' : '100%', 'position' : 'static'})
+		$("#map").css({'height' : '400px'})
+		$(".unfull-screen").css({'display' : 'none'})
+
+
+
 	if $(".marquee").length > 0
 		$(".marquee").marquee
 			#speed in milliseconds of the marquee

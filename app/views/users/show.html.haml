@@ -13,6 +13,9 @@
 					.pull-left
 						%h1{style:"margin-left: 185px;"}
 							=@user.name.titlecase
+					.pull-left
+						.full-screen
+							=link_to "Full Screen Map", "Javascript:" 
 					.top-stats.pull-right
 						.top-stat.pull-left.top-stat-left
 							%h5.text-center
@@ -143,5 +146,7 @@
 															.clearfix
 														.hr
 											
+.unfull-screen
+	=link_to "(X) Click to Close Full Screen", "Javascript:"
 
 =render "map_code"

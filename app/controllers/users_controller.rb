@@ -40,45 +40,31 @@ class UsersController < ApplicationController
 
 
   	@flights = @user.flights
-  	@departs = @flights.map{|flight|
-  		d_port = Airport.find(flight.depart_airport)
-  		OpenStruct.new(
- 			{
-  				latitude: d_port.latitude, 
-  				longitude: d_port.longitude, 
-  				a_id: d_port.id,
-  				name: d_port.name,
- 				  city: d_port.city,
-  				flight_id: flight.id,
-  				trip_id: flight.trip_id,
-  				type: "depart"
-  			}
-  		)
-  	}
-  	@arrivals = @flights.map{|flight|
-  		port = Airport.find(flight.arrival_airport)
-  		OpenStruct.new(
-  			{
- 				  latitude: port.latitude, 
-  				longitude: port.longitude, 
-  				a_id: port.id,
-  				name: port.name,
-          name: port.city,
-  				flight_id: flight.id,
-  				trip_id: flight.trip_id,
-  				type: "arrive"
-  			}
-  		)
-  	}
-  	@all_flights = @arrivals + @departs
-  	@hash = Gmaps4rails.build_markers(@all_flights) do |flight, marker|
-  		marker.lat flight.latitude
-  		marker.lng flight.longitude
+    d_airport_ids = @flights.map{|f| f.depart_airport}
+    a_airport_ids = @flights.map{|f| f.arrival_airport}
+    aa = (a_airport_ids + d_airport_ids).uniq
+
+    @all = aa.map{|a_id|
+      port = Airport.find(a_id)
+      OpenStruct.new(
+        {
+          latitude: port.latitude, 
+          longitude: port.longitude, 
+          a_id: a_id,
+          name: port.name,
+          city: port.city,
+        }
+      )
+    }
+
+    @hash = Gmaps4rails.build_markers(@all) do |flight, marker|
+      marker.lat flight.latitude
+      marker.lng flight.longitude
       marker.shadow [10, true]
-  		#marker.picture({url: ActionController::Base.helpers.asset_path('map_pin.png'),width: 22,height: 42})
-      marker.json({custom_marker: "<div class='map-marker'>#{flight.city}</div><div class='mm-bot'>Visited:</div><div class='arrow-down'></div>"})
-  		marker.infowindow render_to_string(:partial => "pages/maker_template", :locals => { :object => flight})
-	end
+      #marker.picture({url: ActionController::Base.helpers.asset_path('map_pin.png'),width: 22,height: 42})
+      marker.json({custom_marker: "<div class='map-marker'>#{flight.city}</div><div class='mm-bot'>Visited:</div><div class='arrow-space'></div>"})
+      marker.infowindow render_to_string(:partial => "users/info_box", :locals => { :object => flight})
+    end
 
 	@cluster_image = ActionController::Base.helpers.asset_path("logo.png", type: :image)
 
@@ -97,6 +83,8 @@ class UsersController < ApplicationController
 		}
 	end
 	@polylines = @polylines.to_json
+
+  ##25ce98
   end
 
 
