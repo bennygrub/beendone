@@ -33,7 +33,11 @@ Beendone::Application.routes.draw do
   get "pages/northwest"
   get "pages/southwest"
   devise_for :users, :controllers => { omniauth_callbacks: 'omniauth_callbacks', :registrations => "registrations"  }
-  resources :users, only: [:show, :index, :edit]
+  resources :users, only: [:show, :index, :edit] do
+    member do
+      get :share
+    end
+  end
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

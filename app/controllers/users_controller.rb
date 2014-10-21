@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :share]
   include ApplicationHelper
 
   def edit
@@ -7,6 +7,18 @@ class UsersController < ApplicationController
 
   def index
     @users = initialize_grid(User.all)
+  end
+
+  def share
+    @trips = @user.trips.select{|trip| trip.flights.count > 0}
+    @destiny = @trips.map{|trip|{lon: find_destination(trip).longitude, lat: find_destination(trip).latitude} }
+    @markers = @destiny.map{|d| "&markers=color:green%7Clabel:one%7C#{d[:lat]},#{d[:lon]}"  }
+    @markers = @markers.each_with_index.map{|m, i| m if i <25  }.compact
+    #base = "https://maps.googleapis.com/maps/api/staticmap?center=auto&zoom=auto&size=600x300&maptype=roadmap"#world view
+    base = "https://maps.googleapis.com/maps/api/staticmap?size=600x300&maptype=roadmap"#auto zoom and center
+    markers = @markers.join
+    style = "&style=feature:administrative|element:all|visibility:off&style=feature:administrative.country|element:geometry.stroke|visibility:on|color:0x1c1d1f|weight:0.5&style=feature:water|element:all|color:0x2e2e31&style=feature:landscape|element:all|color:0xdddddd&style=feature:poi|element:all|color:0xdddddd&style=feature:road|element:all|visibility:off&style=feature:transit|element:all|visibility:off&style=feature:all|element:labels|visibility:off"
+    @map_url = base+markers+style
   end
 
   def show
