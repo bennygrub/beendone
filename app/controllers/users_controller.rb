@@ -63,6 +63,7 @@ class UsersController < ApplicationController
   				longitude: port.longitude, 
   				a_id: port.id,
   				name: port.name,
+          name: port.city,
   				flight_id: flight.id,
   				trip_id: flight.trip_id,
   				type: "arrive"
@@ -73,12 +74,9 @@ class UsersController < ApplicationController
   	@hash = Gmaps4rails.build_markers(@all_flights) do |flight, marker|
   		marker.lat flight.latitude
   		marker.lng flight.longitude
-  		marker.picture({
-  			url: ActionController::Base.helpers.asset_path('map_pin.png'),
-  			width: 22,
-  			height: 42
-        })
-  		marker.json({flight_id:flight.id})
+      marker.shadow [10, true]
+  		#marker.picture({url: ActionController::Base.helpers.asset_path('map_pin.png'),width: 22,height: 42})
+      marker.json({custom_marker: "<div class='map-marker'>#{flight.city}</div><div class='mm-bot'>Visited:</div><div class='arrow-down'></div>"})
   		marker.infowindow render_to_string(:partial => "pages/maker_template", :locals => { :object => flight})
 	end
 

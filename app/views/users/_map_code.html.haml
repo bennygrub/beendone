@@ -106,8 +106,7 @@
 		] 
 
 
-		handler = Gmaps.build('Google', { markers: { clusterer: undefined  } });
-		//gmaps({"polylines"=> { "data" => Poly }})
+		handler = Gmaps.build('Google', { builders: { Marker: CustomMarkerBuilder }, markers: { clusterer: undefined  } });
 		handler.buildMap(
 			{
 				provider: 

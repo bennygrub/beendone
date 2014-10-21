@@ -1,4 +1,4 @@
--if current_user.created_at > 5.minutes.ago
+-if @user.created_at > 5.minutes.ago
 	=render 'loading'
 
 .travel-map{:style => "width: 100%;"}

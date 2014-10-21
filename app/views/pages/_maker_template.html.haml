@@ -7,8 +7,8 @@
 -@destination_arrivals = user.flights.where("arrival_airport = ?", object.a_id).select{|flight| is_destination(flight) }
 -all_trips = @user.flights.where("arrival_airport = ? OR depart_airport = ?", port.id, port.id).map{|flight| Trip.find(flight.trip_id)}.uniq
 .info-window
-	%span
-		=image_tag('map.png')
+	.port-image
+		=image_tag(port.avatar.url)
 	%h3
 		=port.city
 	%p

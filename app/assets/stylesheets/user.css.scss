@@ -114,7 +114,7 @@
     z-index: 1;
     height: 100%;
     width: 100%;
-    position: fixed;
+    position: absolute;
     overflow: auto;
     top: 0px;
     left: 0px;
@@ -238,4 +238,47 @@
 
 .loading-airline{
 	margin: 0 10px;
+}
+
+.port-image img{
+	max-width:250px!important;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;	
+}
+
+
+.custom_marker_content{
+	background:#a7d3ad;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	min-width:100px;
+	text-align: center;
+	position:relative;
+	bottom:10px;	
+}
+
+.map-marker{
+	background: #525252;
+    -moz-border-radius: 3px 3px 0px 0px;
+    -webkit-border-radius: 3px 3px 0px 0px;
+	border-radius: 3px 3px 0px 0px; 
+	padding:5px;
+	color:white;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 800;
+	font-size:14px;
+}
+
+.arrow-down {
+	width: 0;
+	height: 0;
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-top: 10px solid #a7d3ad;
+	margin: auto;
+	position: relative;
+	top: 7px;
+
 }

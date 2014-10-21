@@ -33,5 +33,4 @@ $(document).ready ->
 		if $(".marquee").length > 0
 			location.reload()
 
-
 		
