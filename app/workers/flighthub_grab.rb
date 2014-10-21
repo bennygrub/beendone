@@ -48,6 +48,6 @@ class FlighthubGrab
           end
     		end
       end
-    end 
+    end
   end
 end

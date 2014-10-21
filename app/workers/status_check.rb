@@ -9,12 +9,12 @@ class StatusCheck
 
   def self.perform(job_ids)
   	finished = Array.new
-    while finished.size < job_ids.size
+    while finished.count < job_ids.count
       job_ids.each do |id|
         finished << id if job_finished(id)
       end
-      sleep 10
+      sleep 3
     end
-    Resque.enqueue(FlightGrab, user_id)
+    ErrorMailer.uca(1, "city", "message_id", 1 ).deliver
   end
 end

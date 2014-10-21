@@ -54,5 +54,6 @@ class VirginGrab
 		  	end	
 	  	end
 	end
+	completed("Finished!")
   end
 end
