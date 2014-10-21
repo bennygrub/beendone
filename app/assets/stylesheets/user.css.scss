@@ -216,3 +216,26 @@
     -webkit-border-radius: 50%; 
     border-radius: 50%;
 }
+
+.load-overlay {
+    z-index: 100000;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    overflow: auto;
+    top: 0px;
+    left: 0px;
+    background: rgba(0, 0, 0, 0.7); /*can be anything, of course*/
+}
+
+.loading-data{
+	color:white;
+	margin: 200px 0 0 0;
+}
+.loading-row{
+	margin: 50px 0 0 0;
+}
+
+.loading-airline{
+	margin: 0 10px;
+}

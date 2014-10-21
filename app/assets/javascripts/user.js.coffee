@@ -9,4 +9,29 @@ $(document).ready ->
 		else if $(".more-or-less-stats a").text() == "less stats"
 			$(".more-stats").slideUp()
 			$(".more-or-less-stats a").text("more stats")
+	if $(".marquee").length > 0
+		$(".marquee").marquee
+			#speed in milliseconds of the marquee
+			duration: 15000
+	  
+			#gap in pixels between the tickers
+			gap: 50
+
+			#time in milliseconds before the marquee will start animating
+			delayBeforeStart: 0
+
+			#'left' or 'right'
+			direction: "left"
+
+			#true or false - should the marquee be duplicated to show an effect of continues flow
+			duplicated: true
+		setTimeout (->
+			check_reload()
+		), 60000
+
+	check_reload =->
+		if $(".marquee").length > 0
+			location.reload()
+
+
 		
