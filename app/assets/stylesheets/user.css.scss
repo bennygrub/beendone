@@ -121,6 +121,17 @@
     background: rgba(0, 0, 0, 0.4); /*can be anything, of course*/
 }
 
+.front .front-overlay{
+    z-index: 1;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: auto;
+    top: 0px;
+    left: 0px;
+    background: rgba(0, 0, 0, 0.2); /*can be anything, of course*/	
+}
+
 .front h3 {
 	margin:100px 0 0 0;
 	font-size: 40px;
