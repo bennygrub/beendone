@@ -3,6 +3,8 @@
 
 .travel-map{:style => "width: 100%;"}
 	#map{:style => "width: 100%; height: 400px;"}
+	.full-screen
+		View Full Screen Map
 .container
 	.content
 		.row
@@ -13,9 +15,6 @@
 					.pull-left
 						%h1{style:"margin-left: 185px;"}
 							=@user.name.titlecase
-					.pull-left
-						.full-screen
-							=link_to "Full Screen Map", "Javascript:" 
 					.top-stats.pull-right
 						.top-stat.pull-left.top-stat-left
 							%h5.text-center
