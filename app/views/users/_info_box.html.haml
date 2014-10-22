@@ -11,23 +11,25 @@
 	%p
 		Times Visited:
 		=@destination_arrivals.count
-	.hr
 	-all_trips.each do |trip|
 		-destination = destination_flight_number(trip)
 		
 		-if trip.flights.first.depart_airport.to_i == port.id #trip started here
 			-if @destination_arrivals.count < 1
 				-trip.flights.where("depart_airport = ?", port.id).each do |lay|
+					.hr
 					%b 
 						="Flew Out (to #{Airport.find(lay.arrival_airport).city}):"
 					%p
 						=lay.depart_time.strftime("%D")
+					.hr
 		-elsif trip.flights[destination].arrival_airport.to_i == port.id#this is the trips destination
 			=#Destination:
 			=#port.city
 			=#{}"(#{trip.id})"
 			-arrive = in_out_flights(trip).first
 			-depart = in_out_flights(trip).last
+			.hr
 			%b=trip.flights.first.arrival_time.strftime("%B %Y")
 			-if days_visited(trip) == 0
 				%br
@@ -45,16 +47,20 @@
 					=arrive.arrival_time.strftime("%D")
 					="-"
 					=depart.depart_time.strftime("%D")
+			.hr
 		-elsif trip.flights.last.arrival_airport.to_i == port.id #last leg of trip - trip ends here
 			-if @destination_arrivals.count < 1
+				.hr
 				%p
 					Ended:
 					=port.city
 					="(#{trip.id})"
+				.hr
 		-else #layover
+			.hr
 			%b Layover(s) On:
 			-trip.flights.where("depart_airport = ?", port.id).each do |lay|
 				%p
 					=lay.depart_time.strftime("%D")
 					=#{}"(#{trip.id})"
-		.hr 
+			.hr 

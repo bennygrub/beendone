@@ -111,6 +111,7 @@
 									.flip-container.text-center
 										.flipper
 											- destination = destination_city(trip)
+											- num = days_visited(trip)
 											.front{style: "background: url('#{destination.avatar.url}');background-size: cover;"}
 												.front-overlay
 													%h3
@@ -121,7 +122,12 @@
 
 													%h5
 														&#9679;
-														="#{days_visited(trip)} days"
+														-if num > 0
+															="#{num} days"
+														-else
+															Forever
+															%span{style:"font-size:14px;font-weight:100;"}
+																(no return flight)
 														&#9679;
 
 											.back
