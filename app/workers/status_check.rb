@@ -4,6 +4,7 @@ class StatusCheck
   extend ResHelper
   extend Resque::Plugins::Retry
   include Resque::Plugins::Status
+  include ResHelper
 
   @queue = :status_queue
 
@@ -15,6 +16,6 @@ class StatusCheck
       end
       sleep 3
     end
-    ErrorMailer.uca(1, "city", "message_id", 1 ).deliver
+    UserMailer.finished_scan(1).deliver
   end
 end

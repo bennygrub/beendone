@@ -4,12 +4,14 @@ class UsairwaysGrab
   extend ResHelper
   extend Resque::Plugins::Retry
   include Resque::Plugins::Status
+  include ResHelper
 
   @queue = :usairways_queue
   @retry_limit = 5
   @retry_delay = 30
 
-  def self.perform(job_id, user_id)
+  def perform
+  	user_id = options['user_id']
   	user = User.find(user_id)
   	#auth into contextio
   	if Rails.env.production?

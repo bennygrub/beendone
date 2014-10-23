@@ -1,6 +1,7 @@
 require 'res_helper'
 class FlightGrab
   extend ResHelper
+  include ResHelper
   @queue = :flights_queue
 
   def self.perform(user_id)

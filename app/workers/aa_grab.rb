@@ -4,11 +4,13 @@ class AaGrab
   extend Resque::Plugins::Retry
   include Resque::Plugins::Status
   extend ResHelper
+  include ResHelper
   @queue = :aa_queue
   @retry_limit = 5
   @retry_delay = 30
 
-  def self.perform(job_id, user_id)
+  def perform
+  	user_id = options['user_id']
   	user = User.find(user_id)
   	#auth into contextio
   	if Rails.env.production?
