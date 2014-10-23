@@ -272,15 +272,29 @@
 }
 
 .map-marker{
-	background: #525252;
+	background-color: #525252;
     -moz-border-radius: 3px 3px 0px 0px;
     -webkit-border-radius: 3px 3px 0px 0px;
 	border-radius: 3px 3px 0px 0px; 
-	padding:5px;
+	//padding:5px;
 	color:white;
 	font-family: 'Open Sans', sans-serif;
 	font-weight: 600;
 	font-size:14px;
+}
+
+.map-city{
+	padding: 5px 15px 5px 5px;
+}
+
+.map-city-pin{
+	//background-image: image-url('citypin.png');
+	//background-repeat: no-repeat;
+	//background-position: 0 0;
+	//background-size: 18px;
+	//width:17px;
+	//height:15px;
+	//float:left;
 }
 .mm-bot{
 	color:#6FA378;

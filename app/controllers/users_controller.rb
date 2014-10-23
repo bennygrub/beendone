@@ -56,17 +56,16 @@ class UsersController < ApplicationController
         }
       )
     }
-
+    citypin = ActionController::Base.helpers.asset_path("citypin.png", type: :image)
     @hash = Gmaps4rails.build_markers(@all) do |flight, marker|
       marker.lat flight.latitude
       marker.lng flight.longitude
       marker.shadow [10, true]
       #marker.picture({url: ActionController::Base.helpers.asset_path('map_pin.png'),width: 22,height: 42})
-      marker.json({custom_marker: "<div class='map-marker'>#{flight.city}</div><div class='mm-bot'>Visited:</div><div class='arrow-space'></div>"})
+      marker.json({custom_marker: "<div class='map-marker'><div class='map-city'><span class='map-city-pin'><img style='max-width:17px;padding: 0 3px 3px 0;' src='#{citypin}'></span>#{flight.city}</div></div><div class='mm-bot'>Visited:</div><div class='arrow-space'></div>"})
       marker.infowindow render_to_string(:partial => "users/info_box", :locals => { :object => flight})
     end
 
-	@cluster_image = ActionController::Base.helpers.asset_path("logo.png", type: :image)
 
 	#build polylines
 	@polylines = Array.new
