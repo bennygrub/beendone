@@ -129,17 +129,18 @@
     overflow: auto;
     top: 0px;
     left: 0px;
-    background: rgba(0, 0, 0, 0.2); /*can be anything, of course*/	
+    background: rgba(80, 80, 80, 0.2); /*can be anything, of course*/	
 }
 
 .front h3 {
 	margin:100px 0 0 0;
 	font-size: 40px;
-	font-weight:800;
+	font-weight:700;
 }
 
 .front h4 {
 	font-size:30px;
+	font-weight:500;
 }
 
 .front h5{
@@ -241,10 +242,21 @@
 
 .loading-data{
 	color:white;
-	margin: 200px 0 0 0;
+	margin: 100px 0 0 0;
+}
+.loading-data h1 {
+	margin:0;
+}
+
+.loading-data h3 {
+	color:#e98b39;
+	margin:0;
+}
+.loading-data h2 {
+	margin:0;
 }
 .loading-row{
-	margin: 50px 0 0 0;
+	margin: 0 0 0 0;
 }
 
 .loading-airline{

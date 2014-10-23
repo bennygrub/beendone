@@ -8,7 +8,7 @@ class StatusCheck
 
   @queue = :status_queue
 
-  def self.perform(job_ids)
+  def self.perform(job_ids, user_id)
   	finished = Array.new
     while finished.count < job_ids.count
       job_ids.each do |id|
@@ -16,6 +16,7 @@ class StatusCheck
       end
       sleep 3
     end
-    UserMailer.finished_scan(1).deliver
+    #update user_db
+    UserMailer.finished_scan(user_id).deliver
   end
 end

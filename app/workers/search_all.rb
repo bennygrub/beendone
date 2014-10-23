@@ -22,6 +22,6 @@ class SearchAll
     job_ids << SouthwestGrab.create(:user_id => user_id)
     job_ids << PricelineGrab.create(:user_id => user_id)
 
-    Resque.enqueue(StatusCheck, job_ids)
+    Resque.enqueue(StatusCheck, job_ids, user_id)
   end
 end
