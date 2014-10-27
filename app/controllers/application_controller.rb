@@ -8,4 +8,8 @@ class ApplicationController < ActionController::Base
   	devise_parameter_sanitizer.for(:sign_up) << [:name, :avatar]
   	devise_parameter_sanitizer.for(:account_update) << [:name, :avatar]
   end
+  
+  def admin
+  	redirect_to root_path unless current_user.admin == true
+  end
 end

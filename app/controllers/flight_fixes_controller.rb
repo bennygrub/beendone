@@ -1,6 +1,8 @@
 class FlightFixesController < ApplicationController
+  helper_method :admin
   before_action :set_flight_fix, only: [:show, :edit, :update, :destroy]
-
+  before_action :authenticate_user!
+  before_action :admin
   # GET /flight_fixes
   # GET /flight_fixes.json
   def index

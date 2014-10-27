@@ -1,4 +1,4 @@
-class PagesController < ApplicationController
+class PagesController < ApplicationController  
   require 'nokogiri'
   require 'open-uri'
   require 'chronic'

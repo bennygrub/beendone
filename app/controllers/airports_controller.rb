@@ -1,6 +1,8 @@
 class AirportsController < ApplicationController
+  helper_method :admin
   before_action :set_airport, only: [:show, :edit, :update, :destroy]
-
+  before_action :authenticate_user!
+  before_action :admin
   # GET /airports
   # GET /airports.json
   def index

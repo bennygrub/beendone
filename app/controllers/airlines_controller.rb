@@ -1,5 +1,8 @@
 class AirlinesController < ApplicationController
+  helper_method :admin
   before_action :set_airline, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_user!
+  before_action :admin
 
   # GET /airlines
   # GET /airlines.json

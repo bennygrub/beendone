@@ -1,7 +1,9 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy, :share]
   include ApplicationHelper
-
+  helper_method :admin
+  before_action :authenticate_user!, only: [:index] 
+  before_action :admin, only: [:index]
   def edit
   end
 
