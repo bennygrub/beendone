@@ -1,11 +1,12 @@
 .home-bg.text-center
-  .front-overlay
-    %h1 Map your entire travel history with just one click.
-    %p Map, track,  sort your past  future travel without inputting anything.
-    = form_for(:user, :as => :user, :url => registration_path(:user)) do |f|
-      = f.text_field :name, placeholder: "Name"
-      = f.email_field :email, placeholder: "Email" 
-      = f.password_field :password, placeholder: "Password"
-      = button_tag :type => :submit do
-        Sign up
+	.front-overlay
+		.bump-down
+			%h1 Map your entire travel history with just one click.
+			%p Map, track,  sort your past  future travel without inputting anything.
+			= form_for(:user, :as => :user, :url => registration_path(:user)) do |f|
+				= f.text_field :name, placeholder: "Name"
+				= f.email_field :email, placeholder: "Email" 
+				= f.password_field :password, placeholder: "Password"
+				= button_tag :type => :submit do
+					Sign up
 

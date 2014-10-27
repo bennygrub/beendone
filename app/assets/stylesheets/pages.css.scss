@@ -15,5 +15,39 @@
 }
 
 .home-bg .front-overlay{
+	//padding: 200px 0 0 0;
+}
+
+.bump-down{
 	padding: 200px 0 0 0;
+	width:90%;
+	margin:auto;
+}
+
+input#user_remember_me{
+	margin: 0 3px 3px 0 ;
+}
+
+.little-box{
+	background: #25ce98;
+	width:80%;
+	margin:auto;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	padding:10px;
+}
+
+form#new_user.new_user input[type="submit"]{
+	width:100%;
+}
+
+form#new_user.new_user input{
+	width:97%;
+}
+
+@media (max-width: 800px) {
+	.bump-down button {width:100%;}
+	.bump-down input{width:97%;}
+	.little-box{width:90%;}
 }

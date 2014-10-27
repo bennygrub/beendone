@@ -1,0 +1,16 @@
+.little-box.text-center
+  .text-left
+    %h2.text-center Sign in
+    = form_for(resource, as: resource_name, url: session_path(resource_name)) do |f|
+      %div
+        = f.email_field :email, autofocus: true, placeholder: "Email"
+      %div
+        = f.password_field :password, autocomplete: "off", placeholder: "Password"
+      - if devise_mapping.rememberable?
+        %div
+          .pull-left{style:"margin:0 15px 5px 0;"}= f.check_box :remember_me
+          .pull-left{style:"color:white;"} Remember me
+          .clearfix
+      %div= f.submit "Sign in"
+.text-center
+  = render "devise/shared/links"
