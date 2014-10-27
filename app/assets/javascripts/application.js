@@ -15,6 +15,5 @@
 //= require twitter/bootstrap
 //= require underscore
 //= require gmaps/google
-//= require turbolinks
 //= require wice_grid
 //= require_tree .
