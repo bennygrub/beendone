@@ -3,7 +3,7 @@ class AuthController < ApplicationController
   	api = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0') #connect to contextio
   	
     if Rails.env.production?
-      callback_url = "http://ancient-citadel-8002.herokuapp.com/auth/receive" #set call back url
+      callback_url = "http://www.boardingpast.com/auth/receive" #set call back url
     else
       callback_url = "http://localhost:3000/auth/receive" #set call back url
     end
@@ -20,7 +20,7 @@ class AuthController < ApplicationController
   	uid = response.account.id
   	Authentication.create(user_id: current_user.id, provider: "contextio", uid: uid)
   	Resque.enqueue(SearchAll, current_user.id)
-  	flash[:notice] = "You're Map is being created, we will email you when you its ready"
+  	#flash[:notice] = "You're Map is being created, we will email you when you its ready"
   	redirect_to root_path
   end
 end

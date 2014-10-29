@@ -4,6 +4,7 @@
     %meta{:content => "width=device-width, initial-scale=1.0", :name => "viewport"}/
     %title= content_for?(:title) ? yield(:title) : "BoardingPast"
     %meta{:content => content_for?(:description) ? yield(:description) : "BoardingPast", :name => "description"}/
+    = favicon_link_tag 'favicon.ico'
     -if @map_page
       %script{:src => "//maps.google.com/maps/api/js?v=3.13&sensor=false&libraries=geometry", :type => "text/javascript"}
       %script{:src => "//google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.14/src/markerclusterer_packed.js", :type => "text/javascript"}
