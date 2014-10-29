@@ -18,5 +18,8 @@ class StatusCheck
     end
     #update user_db
     UserMailer.finished_scan(user_id).deliver
+    user = User.find(user_id)
+    user.scan = false
+    user.save
   end
 end
