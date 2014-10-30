@@ -22,7 +22,7 @@ class OrbitzGrab
   	account = contextio.accounts.where(email: user.email).first
   	airline_id = Airline.find_by_name("Orbitz").id
 	email_change_date = Date.new(2011,1,1).to_time.to_i
-  	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare For Your Trip/i")
+  	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare For Your Trip/i", limit: 500)
 	o_messages.each do |message|
 		if Trip.find_by_message_id(message.message_id).nil?
 			dom = Nokogiri::HTML(message.body_parts.first.content)
