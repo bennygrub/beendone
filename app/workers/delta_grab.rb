@@ -158,5 +158,70 @@ class DeltaGrab
 		  	end
 		end
 	end
+	delta_messages = account.messages.where(from: "DeltaAirLines@e.delta.com", limit: 50)
+  	no_subjects = ["It's Time To Check-In", "Your SkyMiles Account", "Your SkyMiles Password", "Reminder: Your January SkyMiles STATEMENT", "Reminder: Your February SkyMiles STATEMENT", "Reminder: Your March SkyMiles STATEMENT","Reminder: Your April SkyMiles STATEMENT", "Reminder: Your May SkyMiles STATEMENT", "Reminder: Your June SkyMiles STATEMENT", "Reminder: Your July SkyMiles STATEMENT", "Reminder: Your September SkyMiles STATEMENT", "Reminder: Your October SkyMiles STATEMENT", "Reminder: Your November SkyMiles STATEMENT", "Reminder: Your December SkyMiles STATEMENT", "Your January SkyMiles STATEMENT","Your February SkyMiles STATEMENT", "Your March SkyMiles STATEMENT", "Your April SkyMiles STATEMENT", "Your May SkyMiles STATEMENT", "Your June SkyMiles STATEMENT", "Your July SkyMiles STATEMENT", "Your August SkyMiles STATEMENT", "Your September SkyMiles STATEMENT", "Your October SkyMiles STATEMENT", "Your Novemeber SkyMiles STATEMENT", "Your December SkyMiles STATEMENT"]
+  	good_messages = delta_messages.select{|m| m unless no_subjects.include?(m.subject)}
+  	good_messages.each do |message|
+	  	if Trip.find_by_message_id(message.message_id).nil?
+		  	dom = Nokogiri::HTML(message.body_parts.first.content)
+		  	year = message.received_at.strftime("%Y")
+		  	flights = dom.xpath('/html/body/table/tr/td/table[3]/tr/td[2]/table[4]/tr/td[2]/table[6]/tr')
+		  	if flights.count == 10 || flights.count == 5
+		  		flight_array = dom.xpath('/html/body/table/tr/td/table[3]/tr/td[2]/table[4]/tr/td[2]/table[6]/tr').each_slice(5).to_a
+		  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
+		  		flight_array.each_with_index do |f, i|
+		  			x = i * 5
+			  		flight_date = flights[x].xpath('td[3]').text().split[1]
+			  		flight_day = flight_date.match(/\d+/).to_s
+			  		flight_month = month_to_number(flight_date.split(flight_day)[1])
+			  		flight_depart_time = am_pm_split(flights[x+2].xpath('td[3]').text().split[1])
+			  		depart_city = flights[x+2].xpath('td[5]').text()
+			  		flight_arrival_time = am_pm_split(flights[x+2].xpath('td[7]').text().split[1])
+			  		arrival_city = flights[x+2].xpath('td[9]').text()
+			  		
+			  		depart_time = DateTime.new(year.to_i, flight_month.to_i, flight_day.to_i, flight_depart_time[:hour].to_i,flight_depart_time[:min].to_i, 0, 0)
+			  		arrival_time = DateTime.new(year.to_i, flight_month.to_i, flight_day.to_i, flight_arrival_time[:hour].to_i,flight_arrival_time[:min].to_i, 0, 0)
+					
+					begin
+		  				depart_airport = Airport.find_by_city(depart_city.titleize).id
+		  				deflightfix = false
+		  			rescue Exception => e
+		  				de = city_error_check(depart_city, 1, airline_id, message.message_id, trip.id)
+		  				rollbar_error(message.message_id, depart_city, airline_id, user_id) if de.airport_id.blank?
+		  				depart_airport = de.airport_id.blank? ? 1 : de.airport_id#Random airport
+		  				deflightfix = true if de.airport_id.blank? #set flag
+			  		end
+					
+					begin
+		  				arrival_airport = Airport.find_by_city(arrival_city.titleize).issue_date
+		  				aeflightfix = false
+		  			rescue Exception => e
+		  				ae = city_error_check(arrival_city, 2, airline_id, message.message_id, trip.id)
+		  				rollbar_error(message.message_id, arrival_city, airline_id, user_id) if ae.airport_id.blank?
+		  				arrival_airport = ae.airport_id.blank? ? 2 : ae.airport_id#Random airport
+		  				aeflightfix = true if ae.airport_id.blank? #set flag
+			  		end
+
+				  	flight = Flight.where(depart_time: depart_time).first_or_create do |f|
+		  				f.trip_id = trip.id
+		  				f.airline_id = airline_id
+		  				f.depart_airport = depart_airport
+		  				f.depart_time = depart_time
+		  				f.arrival_airport = arrival_airport
+		  				f.arrival_time = arrival_time
+		  				f.seat_type = "Delta"
+					end
+			  			
+			  		FlightFix.create(airline_mapping_id: de.id, flight_id: flight.id, trip_id: trip.id, direction: 1) if deflightfix
+			  		FlightFix.create(airline_mapping_id: ae.id, flight_id: flight.id, trip_id: trip.id, direction: 2) if aeflightfix
+
+			  	end
+
+
+			else
+				
+			end
+		end
+	end
   end
 end
