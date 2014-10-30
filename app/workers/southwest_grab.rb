@@ -25,7 +25,7 @@ class SouthwestGrab
 
   	airline_id = Airline.find_by_name("Southwest Airlines").id
   	#get messages from Virgin and pick the html
-    sw_messages = account.messages.where(from: "SouthwestAirlines@luv.southwest.com", subject: "/Southwest Airlines Confirmation-/")
+    sw_messages = account.messages.where(from: "SouthwestAirlines@luv.southwest.com", subject: "/Southwest Airlines Confirmation-/", limit: 500)
     sw_messages.each do |message|
       if Trip.find_by_message_id(message.message_id).nil?
         year = message.received_at.strftime("%Y")

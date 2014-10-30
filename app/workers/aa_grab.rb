@@ -22,7 +22,7 @@ class AaGrab
   	account = contextio.accounts.where(email: user.email).first
 	airline_id = Airline.find_by_name("American Airlines").id
 	##AMERICAN AIRLINES
-  	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com")
+  	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com", limit: 500)
   	aa_messages.each do |message|
   		if Trip.find_by_message_id(message.message_id).nil?
 	  		dom = Nokogiri::HTML(message.body_parts.where(type: 'text/html').first.content)

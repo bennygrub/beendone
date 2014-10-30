@@ -22,7 +22,7 @@ class DeltaGrab
   	#get the correct account
   	account = contextio.accounts.where(email: user.email).first
 	##DELTA
-	delta_messages = account.messages.where(from: "deltaelectronicticketreceipt@delta.com")
+	delta_messages = account.messages.where(from: "deltaelectronicticketreceipt@delta.com", limit: 500)
   	delta_messages.each do |message|
 	  	if Trip.find_by_message_id(message.message_id).nil?
 		  	dom = Nokogiri::HTML(message.body_parts.first.content)
@@ -158,7 +158,7 @@ class DeltaGrab
 		  	end
 		end
 	end
-	delta_messages = account.messages.where(from: "DeltaAirLines@e.delta.com", limit: 50)
+	delta_messages = account.messages.where(from: "DeltaAirLines@e.delta.com", limit: 5000)
   	no_subjects = ["It's Time To Check-In", "Your SkyMiles Account", "Your SkyMiles Password", "Reminder: Your January SkyMiles STATEMENT", "Reminder: Your February SkyMiles STATEMENT", "Reminder: Your March SkyMiles STATEMENT","Reminder: Your April SkyMiles STATEMENT", "Reminder: Your May SkyMiles STATEMENT", "Reminder: Your June SkyMiles STATEMENT", "Reminder: Your July SkyMiles STATEMENT", "Reminder: Your September SkyMiles STATEMENT", "Reminder: Your October SkyMiles STATEMENT", "Reminder: Your November SkyMiles STATEMENT", "Reminder: Your December SkyMiles STATEMENT", "Your January SkyMiles STATEMENT","Your February SkyMiles STATEMENT", "Your March SkyMiles STATEMENT", "Your April SkyMiles STATEMENT", "Your May SkyMiles STATEMENT", "Your June SkyMiles STATEMENT", "Your July SkyMiles STATEMENT", "Your August SkyMiles STATEMENT", "Your September SkyMiles STATEMENT", "Your October SkyMiles STATEMENT", "Your Novemeber SkyMiles STATEMENT", "Your December SkyMiles STATEMENT"]
   	good_messages = delta_messages.select{|m| m unless no_subjects.include?(m.subject)}
   	good_messages.each do |message|

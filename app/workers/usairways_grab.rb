@@ -26,7 +26,7 @@ class UsairwaysGrab
 
   	airline_id = Airline.where("name = ?", "USAir").first.id
 
-  	usa_messages = account.messages.where(from: "reservations@email-usairways.com", date_before: email_change_date)
+  	usa_messages = account.messages.where(from: "reservations@email-usairways.com", date_before: email_change_date, limit: 500)
   	usa_messages.each do |message|
 	  	if Trip.find_by_message_id(message.message_id).nil?
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)

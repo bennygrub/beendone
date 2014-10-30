@@ -23,7 +23,7 @@ class PricelineGrab
   	account = contextio.accounts.where(email: user.email).first
 
 
-  	pl_messages = account.messages.where(from: "ItineraryAir@trans.priceline.com", subject: "/Your Itinerary for/")
+  	pl_messages = account.messages.where(from: "ItineraryAir@trans.priceline.com", subject: "/Your Itinerary for/", limit: 500)
   	pl_messages.each do |message|
       if Trip.find_by_message_id(message.message_id).nil?
     		email = message.body_parts.first.content

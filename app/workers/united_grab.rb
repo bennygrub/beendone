@@ -25,7 +25,7 @@ class UnitedGrab
   	airline_id = Airline.find_by_name("United Airlines").id
 
 	email_change_date = Date.new(2011,1,1).to_time.to_i #date that email changed
-  	u_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/', date_before: email_change_date)
+  	u_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/', date_before: email_change_date, limit: 500)
 	u_messages.each do |message|
 		if Trip.find_by_message_id(message.message_id).nil?
 			dom = Nokogiri::HTML(message.body_parts.first.content)
@@ -86,7 +86,7 @@ class UnitedGrab
   	
 
   	##OLD UNITED
-  	u_oldest_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/', date_after: email_change_date)
+  	u_oldest_messages = account.messages.where(from: "UNITED-CONFIRMATION@united.com", subject: '/Your United flight confirmation -/', date_after: email_change_date, limit: 500)
   	u_oldest_messages.each do |message|
   		if Trip.find_by_message_id(message.message_id).nil?
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)

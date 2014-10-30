@@ -23,7 +23,7 @@ class VirginGrab
   	account = contextio.accounts.where(email: user.email).first
   	airline_id = Airline.find_by_name("Virgin America").id
 
-  	va_messages = account.messages.where(from: "virginamerica@elevate.virginamerica.com", subject: "/Virgin America Reservation/")
+  	va_messages = account.messages.where(from: "virginamerica@elevate.virginamerica.com", subject: "/Virgin America Reservation/", limit: 500)
   	va_messages.each do |message|
   		if Trip.find_by_message_id(message.message_id).nil?
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)

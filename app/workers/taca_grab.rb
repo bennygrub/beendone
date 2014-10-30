@@ -23,7 +23,7 @@ class TacaGrab
   	account = contextio.accounts.where(email: user.email).first
   	airline_id = Airline.find_by_name("TACA").id
 
-  	taca_messages = account.messages.where(from: "edesk@taca.com", subject: "/TACA.COM/")
+  	taca_messages = account.messages.where(from: "edesk@taca.com", subject: "/TACA.COM/", limit: 500)
 
   	taca_messages.each do |message|
   		if Trip.find_by_message_id(message.message_id).nil?

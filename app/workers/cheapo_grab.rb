@@ -21,7 +21,7 @@ class CheapoGrab
   	end
   	#get the correct account
   	account = contextio.accounts.where(email: user.email).first
-	c_messages = account.messages.where(from: "cheapoair@cheapoair.com")
+	c_messages = account.messages.where(from: "cheapoair@cheapoair.com", limit: 500)
 	c_messages.each do |message|
 		if Trip.find_by_message_id(message.message_id).nil?
 			dom = Nokogiri::HTML(message.body_parts.first.content)

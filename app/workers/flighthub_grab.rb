@@ -22,7 +22,7 @@ class FlighthubGrab
   	account = contextio.accounts.where(email: user.email).first
 
 
-  	flighthub_messages = account.messages.where(from: "noreply@flighthub.com", subject: "/Your Electronic Ticket/")
+  	flighthub_messages = account.messages.where(from: "noreply@flighthub.com", subject: "/Your Electronic Ticket/", limit: 500)
   	flighthub_messages.each do |message|
       if Trip.find_by_message_id(message.message_id).nil?
     		dom = Nokogiri::HTML(message.body_parts.where(type: 'text/html').first.content)

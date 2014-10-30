@@ -22,7 +22,7 @@ class JetblueGrab
   	account = contextio.accounts.where(email: user.email).first
 	airline_id = Airline.find_by_name("JetBlue").id
 	##JETBLUE NEW
-  	jb_messages = account.messages.where(from: "reservations@jetblue.com", subject: "Itinerary for your upcoming trip")
+  	jb_messages = account.messages.where(from: "reservations@jetblue.com", subject: "Itinerary for your upcoming trip", limit: 500)
   	jb_messages.each do |message|
   		if Trip.find_by_message_id(message.message_id).nil?
 	  		year = message.received_at.strftime("%Y")
@@ -85,7 +85,7 @@ class JetblueGrab
   	end
 
   	#JetBlue OLDER
-  	jb_messages_old = account.messages.where(from: "mail@jetblueconnect.com", subject: "Your JetBlue E-tinerary")
+  	jb_messages_old = account.messages.where(from: "mail@jetblueconnect.com", subject: "Your JetBlue E-tinerary", limit: 500)
   	jb_messages_old.each do |message|
   		if Trip.find_by_message_id(message.message_id).nil?
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)

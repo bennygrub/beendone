@@ -24,7 +24,7 @@ class NorthwestGrab
 
   	airline_id = Airline.find_by_name("Northwest Airlines").id
   	#get messages from Virgin and pick the html
-  	nw_messages = account.messages.where(from: "Northwest.Airlines@nwa.com", subject: "/nwa.com Reservations Air Purchase Confirmation/")
+  	nw_messages = account.messages.where(from: "Northwest.Airlines@nwa.com", subject: "/nwa.com Reservations Air Purchase Confirmation/", limit: 500)
   	nw_messages.each do |message|	  		
   		if Trip.find_by_message_id(message.message_id).nil?
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
