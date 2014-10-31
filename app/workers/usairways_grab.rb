@@ -64,7 +64,7 @@ class UsairwaysGrab
 				  		depart_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, depart_time[:hour].to_i, depart_time[:min].to_i, 0, 0)
 				  		arrival_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, arrival_time[:hour].to_i, arrival_time[:min].to_i, 0, 0)
 			            
-			            flight = Flight.where(depart_time: depart_time).first_or_create do |f|
+			            flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
 			              f.trip_id = trip.id
 			              f.airline_id = airline_id
 			              f.depart_airport = depart_airport
@@ -109,7 +109,7 @@ class UsairwaysGrab
 				  		depart_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, depart_time[:hour].to_i, depart_time[:min].to_i, 0, 0)#error here
 				  		arrival_time = DateTime.new(date_month_day_year[3].to_i, month_to_number(date_month_day_year[1]).to_i, date_month_day_year[2].to_i, arrival_time[:hour].to_i, arrival_time[:min].to_i, 0, 0)
 
-			            flight = Flight.where(depart_time: depart_time).first_or_create do |f|
+			            flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
 			              f.trip_id = trip.id
 			              f.airline_id = airline_id
 			              f.depart_airport = depart_airport

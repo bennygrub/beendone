@@ -68,7 +68,7 @@ class JetblueGrab
 		  		end
 
 	  			
-				flight = Flight.where(depart_time: depart_time).first_or_create do |f|
+				flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
 	  				f.trip_id = trip.id
 	  				f.airline_id = airline_id
 	  				f.depart_airport = depart_airport
@@ -134,7 +134,7 @@ class JetblueGrab
 		  		depart_time = old_jb_time(date,depart_time)
 			  	
 
-			  	flight = Flight.where(depart_time: depart_time).first_or_create do |f|
+			  	flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
 	  				f.trip_id = trip.id
 	  				f.airline_id = airline_id
 	  				f.depart_airport = depart_airport

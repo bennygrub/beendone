@@ -74,7 +74,7 @@ class AaGrab
 		  				aeflightfix = true if ae.airport_id.blank? #set flag
 			  		end
 
-					flight = Flight.where(trip_id: trip.id, depart_time: d_time).first_or_create do |f|
+					flight = user.flights.where(trip_id: trip.id, depart_time: d_time).first_or_create do |f|
 		  				f.trip_id = trip.id
 		  				f.airline_id = airline_id
 		  				f.depart_airport = depart_airport

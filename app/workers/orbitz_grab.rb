@@ -43,7 +43,7 @@ class OrbitzGrab
 			  			arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
 			  			seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
 
-						flight = Flight.where(depart_time: depart_time).first_or_create do |f|
+						flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
 			  				f.trip_id = trip.id
 			  				f.airline_id = airline_id
 			  				f.depart_airport = depart_airport
@@ -105,7 +105,7 @@ class OrbitzGrab
 			  		arrival_airport = Airport.find_by_faa(arrival_airport.scan(/\((.*?)\)/).first.first).id
 			  		arrival_time = create_saveable_date(day, month, year, arrival_time)
 					
-					flight = Flight.where(depart_time: depart_time).first_or_create do |f|
+					flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
 		  				f.trip_id = trip.id
 		  				f.airline_id = airline_id
 		  				f.depart_airport = depart_airport

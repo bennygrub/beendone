@@ -7,7 +7,7 @@ class User < ActiveRecord::Base
   has_many :authentications
   has_many :trips
   has_many :flights, through: :trips
-  validates_presence_of :name
+  validates_presence_of :name, :email
   
   extend FriendlyId
   friendly_id :name, use: [:slugged, :finders]

@@ -41,7 +41,7 @@ class TacaGrab
 	  			depart_time = DateTime.new(day_month_year[2].to_i,month_to_number(day_month_year[1]).to_i,day_month_year[0].to_i,depart_time[:hour].to_i,depart_time[:min].to_i, 0, 0)
 	  			arrival_time = DateTime.new(day_month_year[2].to_i,month_to_number(day_month_year[1]).to_i,day_month_year[0].to_i,arrival_time[:hour].to_i,arrival_time[:min].to_i, 0, 0)
 	            
-	            flight = Flight.where(trip_id: trip.id, depart_time: depart_time).first_or_create do |f|
+	            flight = user.flights.where(trip_id: trip.id, depart_time: depart_time).first_or_create do |f|
 	              f.trip_id = trip.id
 	              f.airline_id = airline_id
 	              f.depart_airport = depart_airport

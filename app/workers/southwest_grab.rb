@@ -47,7 +47,7 @@ class SouthwestGrab
             depart_time = DateTime.new(year.to_i, month.to_i, day.to_i, d_time[:hour].to_i, d_time[:min].to_i, 0, 0)
             arrival_time = DateTime.new(year.to_i, month.to_i, day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
             
-            flight = Flight.where(depart_time: depart_time).first_or_create do |f|
+            flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
               f.trip_id = trip.id
               f.airline_id = airline_id
               f.depart_airport = depart_airport

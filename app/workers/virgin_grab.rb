@@ -45,7 +45,7 @@ class VirginGrab
 		  		depart_time = Time.parse("#{date} #{both_times[0].first}")
 		  		arrival_time = Time.parse("#{date} #{both_times[1].first}")
 
-	            flight = Flight.where(trip_id: trip.id, depart_time: depart_time.to_time).first_or_create do |f|
+	            flight = user.flights.where(trip_id: trip.id, depart_time: depart_time.to_time).first_or_create do |f|
 	              f.trip_id = trip.id
 	              f.airline_id = airline_id
 	              f.depart_airport = depart_airport

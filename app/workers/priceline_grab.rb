@@ -60,7 +60,7 @@ class PricelineGrab
     			d_time = DateTime.new(d_year.to_i, d_month.to_i, d_day.to_i, d_hour_min[:hour].to_i, d_hour_min[:min].to_i, 0, 0)
     			a_time = DateTime.new(a_year.to_i, a_month.to_i, a_day.to_i, a_hour_min[:hour].to_i, a_hour_min[:min].to_i, 0, 0)
           
-          flight = Flight.where(depart_time: d_time).first_or_create do |f|
+          flight = user.flights.where(depart_time: d_time).first_or_create do |f|
               f.trip_id = trip.id
               f.airline_id = 191
               f.depart_airport = depart_airport

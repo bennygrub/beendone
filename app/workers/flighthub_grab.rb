@@ -39,7 +39,7 @@ class FlighthubGrab
     			depart_airport = Airport.find_by_faa(airports[0]).id
           arrival_airport = Airport.find_by_faa(airports[1]).id
 
-          flight = Flight.where(depart_time: d_time).first_or_create do |f|
+          flight = user.flights.where(depart_time: d_time).first_or_create do |f|
               f.trip_id = trip.id
               f.airline_id = 23
               f.depart_airport = depart_airport
