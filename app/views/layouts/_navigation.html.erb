@@ -15,6 +15,9 @@
     <li><%= link_to 'Logout', destroy_user_session_path, :method=>'delete' %></li>
     <li class="divider-vertical"></li>
   <% else %>
+    <% if @map_page == true %>
+      <li class="yellow-btn"><%= link_to 'Create Your Own', root_path %></li>
+    <% end %>
     <li><%= link_to 'Login', new_user_session_path %></li>
   <% end %>
 </ul>
