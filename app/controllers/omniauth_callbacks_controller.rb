@@ -12,4 +12,11 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
         redirect_to new_user_registration_url
       end
   end
+
+  def instagram
+    uid = request.env["omniauth.auth"].uid
+    token = request.env["omniauth.auth"].credentials["token"]
+    Authentication.create(user_id: current_user.id, provider: "instagram", uid: uid, token: token )
+    redirect_to user_path(current_user)
+  end
 end

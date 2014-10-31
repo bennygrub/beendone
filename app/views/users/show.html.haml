@@ -101,7 +101,7 @@
 					.clearfix
 				.more-or-less-stats.text-center
 					=link_to "more stats", "Javascript:" 
-								
+
 				-@trips_by_month.each do |monthname, trips|
 					.year-header
 						%h2=monthname
@@ -134,9 +134,11 @@
 											.back
 												%h3=destination.city
 												.trip-date-range
-													%b=trip.flights.first.depart_time.strftime("%B %e")
+													-start = trip.flights.first.depart_time
+													-finish = trip.flights.last.arrival_time
+													%b=start.strftime("%B %e")
 													to 
-													%b=trip.flights.last.arrival_time.strftime("%B %e")
+													%b=finish.strftime("%B %e")
 												.hr
 												.back-flights
 													-trip.flights.each do |flight|
@@ -152,7 +154,25 @@
 																=Airline.find(flight.airline_id).name
 															.clearfix
 														.hr
-											
+												-if @user_check == true
+													-if @auth_check
+														.instagram-photos
+															= link_to user_omniauth_authorize_path(:instagram) do
+																=image_tag("insta.png")
+																Get my Instagram photos from this trip
+												
+												-unless @auth_check == true
+													-@html = []
+													-for media_item in @client.user_recent_media(:min_timestamp => 3.years.ago.to_i, :max_timestamp => finish.to_i )
+														-@html << media_item.images.standard_resolution.url
+													-if @html.count > 0
+														.instagram-photos
+															=link_to @html.first, { :class => "instarange", :rel => "instarange" } do
+																=image_tag("insta.png")
+																View Trip Photos
+															.hide
+																-@html.drop(1).each do |pic|
+																	=link_to "Instagram", pic, { :class => "instarange", :rel => "instarange" }	
 .unfull-screen
 	=link_to "(X) Click to Close Full Screen", "Javascript:"
 

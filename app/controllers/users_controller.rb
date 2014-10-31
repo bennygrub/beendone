@@ -69,23 +69,26 @@ class UsersController < ApplicationController
     end
 
 
-	#build polylines
-	@polylines = Array.new
-	@trips.each do |trip|
-		trip.flights.map{|flight| 
-			a_airport = Airport.find(flight.arrival_airport)
-			d_airport = Airport.find(flight.depart_airport)
-			hex = "%06x" % (rand * 0xffffff)
-			color = "##{hex}"
-			@polylines << 
-			[
-				{lng:d_airport.longitude, lat:d_airport.latitude},{lng:a_airport.longitude, lat:a_airport.latitude}
-			]
-		}
-	end
-	@polylines = @polylines.to_json
-
-  ##25ce98
+  	#build polylines
+  	@polylines = Array.new
+  	@trips.each do |trip|
+  		trip.flights.map{|flight| 
+  			a_airport = Airport.find(flight.arrival_airport)
+  			d_airport = Airport.find(flight.depart_airport)
+  			hex = "%06x" % (rand * 0xffffff)
+  			color = "##{hex}"
+  			@polylines << 
+  			[
+  				{lng:d_airport.longitude, lat:d_airport.latitude},{lng:a_airport.longitude, lat:a_airport.latitude}
+  			]
+  		}
+  	end
+  	@polylines = @polylines.to_json
+    ##25ce98
+    
+    @user_check = @user.id == current_user.id if current_user
+    @auth_check = @user.authentications.where("provider = ?", "instagram").count == 0 #check if the user has instagram auth
+    @client = Instagram.client(:access_token => @user.authentications.where("provider = ?", "instagram").first.token) unless @auth_check
   end
 
 

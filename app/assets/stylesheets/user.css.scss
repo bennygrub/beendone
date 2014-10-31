@@ -185,13 +185,27 @@
 .trip-date-range{
 	padding-bottom: 15px;
 }
-
+.instagram-photos{
+	position: absolute;
+	bottom: 0;
+	text-align: center;
+	left: 0;
+	right: 0;
+	margin: auto;
+}
 .hr {
 	opacity: 0.2;
 	border-top: 1px solid #737373;
 	border-bottom: 1px solid #fff;
 }
+.instagram-photos a {
+	color:white;
+	font-size: 12px;
+}
 
+.instagram-photos a:hover {
+	text-decoration: none;
+}
 .flight-date, .flight-airports, .flight-meta{
 	width:33%;
 }
