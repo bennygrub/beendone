@@ -163,7 +163,7 @@
 												
 												-unless @auth_check == true
 													-@html = []
-													-for media_item in @client.user_recent_media(:min_timestamp => 3.years.ago.to_i, :max_timestamp => finish.to_i )
+													-for media_item in @client.user_recent_media(:min_timestamp => start.to_i, :max_timestamp => finish.to_i )
 														-@html << media_item.images.standard_resolution.url
 													-if @html.count > 0
 														.instagram-photos
