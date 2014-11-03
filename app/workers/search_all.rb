@@ -22,6 +22,7 @@ class SearchAll
     job_ids << SouthwestGrab.create(:user_id => user_id)
     job_ids << PricelineGrab.create(:user_id => user_id)
     job_ids << HotwireGrab.create(:user_id => user_id)
+    job_ids << EmiratesGrab.create(:user_id => user_id)
 
     Resque.enqueue(StatusCheck, job_ids, user_id)
   end

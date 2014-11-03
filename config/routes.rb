@@ -34,6 +34,7 @@ Beendone::Application.routes.draw do
   get "pages/southwest"
   get "pages/delta"
   get "pages/hotwire"
+  get "pages/emirates"
   
   devise_for :users, :controllers => { omniauth_callbacks: 'omniauth_callbacks', :registrations => "registrations"  }
   resources :users, only: [:show, :index, :edit] do
