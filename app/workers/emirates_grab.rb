@@ -16,7 +16,7 @@ class EmiratesGrab
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: "annievenezia@gmail.com").first
+  	account = contextio.accounts.where(email: user.email).first
   	airline_id = Airline.find_by_name("Emirates").id
   	#get messages from Virgin and pick the html
   	sw_messages = account.messages.where(from: "do-not-reply@emirates.com", subject: "/Booking Confirmation/")
