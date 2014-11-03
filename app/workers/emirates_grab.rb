@@ -33,7 +33,7 @@ class EmiratesGrab
   			depart_month = month_to_number(depart_date_row[1])
   			depart_year = "20#{depart_date_row[2]}".to_i
   			depart_hour = am_pm_split(depart_col[2].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, ''))
-  			depart_airport = Airport.find_by_faa(depart_col[3].text().scan(/\((.*?)\)/).first.first)
+  			depart_airport = Airport.find_by_faa(depart_col[3].text().scan(/\((.*?)\)/).first.first).id
   			
   			arrival_col = flight[1].xpath('td')
   			arrival_date_row = arrival_col[0].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<span>(.*?)<\/span>/).first.first.split
@@ -41,7 +41,7 @@ class EmiratesGrab
   			arrival_month = month_to_number(arrival_date_row[1])
   			arrival_year = "20#{arrival_date_row[2]}".to_i
   			arrival_hour = am_pm_split(arrival_col[1].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, ''))
-  			arrival_airport = Airport.find_by_faa(arrival_col[2].text().scan(/\((.*?)\)/).first.first)
+  			arrival_airport = Airport.find_by_faa(arrival_col[2].text().scan(/\((.*?)\)/).first.first).id
 
   			depart_time = DateTime.new(depart_year.to_i,depart_month.to_i,depart_day.to_i,depart_hour[:hour].to_i,depart_hour[:min].to_i, 0, 0)
   			arrival_time = DateTime.new(arrival_year.to_i,arrival_month.to_i,arrival_day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)

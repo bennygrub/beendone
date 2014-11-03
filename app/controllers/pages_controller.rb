@@ -1181,7 +1181,7 @@ class PagesController < ApplicationController
   def emirates
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#account = contextio.accounts.where(email: "blgruber@gmail.com").first
-  	user = User.find(16)
+  	user = User.find(18)
   	account = contextio.accounts.where(email: user.email).first
   	
   	
@@ -1217,7 +1217,7 @@ class PagesController < ApplicationController
 
   			depart_time = DateTime.new(depart_year.to_i,depart_month.to_i,depart_day.to_i,depart_hour[:hour].to_i,depart_hour[:min].to_i, 0, 0)
   			arrival_time = DateTime.new(arrival_year.to_i,arrival_month.to_i,arrival_day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
-
+  			binding.pry
             flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
               f.trip_id = trip.id
               f.airline_id = airline_id
