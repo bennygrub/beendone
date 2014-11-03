@@ -8,4 +8,10 @@ class UserMailer < ActionMailer::Base
     #find a couple of fun stats to send with it
     mail(to: "#{@user.name} <#{@user.email}>", subject: "Your map is ready: we found #{@trips.count} of your trips")
   end
+  
+  def new_user_admin(user)
+    @user = User.find(user)
+    mail(to: "blgruber@gmail.com", subject: "A New User Signed Up for BoardingPast")
+  end
+
 end
