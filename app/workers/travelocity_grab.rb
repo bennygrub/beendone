@@ -57,5 +57,6 @@ class TravelocityGrab
 				end
   			end
   		end
+  	end
   end
 end
