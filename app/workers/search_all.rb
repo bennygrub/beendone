@@ -23,7 +23,8 @@ class SearchAll
     job_ids << PricelineGrab.create(:user_id => user_id)
     job_ids << HotwireGrab.create(:user_id => user_id)
     job_ids << EmiratesGrab.create(:user_id => user_id)
-    job_ids << EasyJetGrab.create(:user_id => user_id)
+    job_ids << EasyjetGrab.create(:user_id => user_id)
+    job_ids << TravelocityGrab.create(:user_id => user_id)
 
     
     Resque.enqueue(StatusCheck, job_ids, user_id) if flag == 0

@@ -17,9 +17,13 @@ class StatusCheck
       sleep 3
     end
     #update user_db
-    UserMailer.finished_scan(user_id).deliver
     user = User.find(user_id)
     user.scan = false
     user.save
+    unused_trips = user.trips.select{|t| t if t.flights.count == 0}
+    unused_trips.each do |t|
+      t.destroy
+    end
+    UserMailer.finished_scan(user_id).deliver
   end
 end
