@@ -6,7 +6,7 @@ class SearchAll
   include ResHelper
   @queue = :search_queue
 
-  def self.perform(user_id)
+  def self.perform(user_id, flag)
   	job_ids = Array.new
     job_ids << VirginGrab.create(:user_id => user_id)
     job_ids << AaGrab.create(:user_id => user_id)
@@ -23,7 +23,9 @@ class SearchAll
     job_ids << PricelineGrab.create(:user_id => user_id)
     job_ids << HotwireGrab.create(:user_id => user_id)
     job_ids << EmiratesGrab.create(:user_id => user_id)
+    job_ids << EasyJetGrab.create(:user_id => user_id)
 
-    Resque.enqueue(StatusCheck, job_ids, user_id)
+    
+    Resque.enqueue(StatusCheck, job_ids, user_id) if flag == 0
   end
 end

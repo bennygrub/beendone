@@ -14,6 +14,7 @@ Beendone::Application.routes.draw do
 
   post "auth/connect"
   get "auth/receive"
+  get "auth/recheck"
   get "user/edit"
   get "pages/home"
   get "pages/about"

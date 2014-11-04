@@ -19,8 +19,14 @@ class AuthController < ApplicationController
   	response = api.connect_tokens[contextio_token]
   	uid = response.account.id
   	Authentication.create(user_id: current_user.id, provider: "contextio", uid: uid)
-  	Resque.enqueue(SearchAll, current_user.id)
+  	Resque.enqueue(SearchAll, current_user.id, 0)
   	#flash[:notice] = "You're Map is being created, we will email you when you its ready"
   	redirect_to root_path
+  end
+
+  def recheck
+    user = params[:who]
+    Resque.enqueue(SearchAll, user, 1)
+    redirect_to '/resque'
   end
 end
