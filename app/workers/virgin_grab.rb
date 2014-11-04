@@ -14,11 +14,7 @@ class VirginGrab
   	user_id = options['user_id']
   	user = User.find(user_id)
   	#auth into contextio
-  	if Rails.env.production?
-  		contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
-  	else
-  		contextio = ContextIO.new('h00j8lpl', 'ueWLBkDRE6xlg2am')
-  	end
+  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
   	account = contextio.accounts.where(email: user.email).first
   	airline_id = Airline.find_by_name("Virgin America").id
