@@ -27,62 +27,94 @@ class JetblueGrab
   		if Trip.find_by_message_id(message.message_id).nil?
 	  		year = message.received_at.strftime("%Y")
 	  		dom = Nokogiri::HTML(message.body_parts.first.content)
-	  		number_of_flights = (dom.xpath('//*[@id="ticket"]/div/table/tr/td/table[4]/tr').count-5)/2
-	  		flight_loop = (1..number_of_flights).to_a
-	  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
-	  		flight_loop.each_with_index do |flight, index|
-	  			flight_index = (index + 1)*2
-	  			flight_data = dom.xpath("//*[@id='ticket']/div/table/tr/td/table[4]/tr[#{flight_index}]/td")
-	  			day_count = flight_data[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split.count
-	  			day = flight_data[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split[day_count-1].to_i
-	  			month = month_to_number(flight_data[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split[day_count-2])
-	  			d_time = am_pm_split(flight_data[1].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split.first)
-	  			a_time = am_pm_split(flight_data[1].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split.last)
+	  		if dom.xpath('//*[@id="ticket"]/div/table/tr/td/table[4]/tr').count > 0
+		  		number_of_flights = (dom.xpath('//*[@id="ticket"]/div/table/tr/td/table[4]/tr').count-5)/2
+		  		flight_loop = (1..number_of_flights).to_a
+		  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
+		  		flight_loop.each_with_index do |flight, index|
+		  			flight_index = (index + 1)*2
+		  			flight_data = dom.xpath("//*[@id='ticket']/div/table/tr/td/table[4]/tr[#{flight_index}]/td")
+		  			day_count = flight_data[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split.count
+		  			day = flight_data[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split[day_count-1].to_i
+		  			month = month_to_number(flight_data[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split[day_count-2])
+		  			d_time = am_pm_split(flight_data[1].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split.first)
+		  			a_time = am_pm_split(flight_data[1].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split.last)
 
-		  		message_year_check(month, year)
-		  		depart_time = DateTime.new(year.to_i, month.to_i, day.to_i, d_time[:hour].to_i, d_time[:min].to_i, 0, 0)
-	  			arrival_time = DateTime.new(year.to_i, month.to_i, day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
+			  		message_year_check(month, year)
+			  		depart_time = DateTime.new(year.to_i, month.to_i, day.to_i, d_time[:hour].to_i, d_time[:min].to_i, 0, 0)
+		  			arrival_time = DateTime.new(year.to_i, month.to_i, day.to_i, a_time[:hour].to_i, a_time[:min].to_i, 0, 0)
 
-		  		airport_cities = flight_data[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<strong>(.*?)<\/strong>/)
-		  		d_city = airport_cities.first.first.split(",").first.titleize
-		  		a_city = airport_cities.last.first.split(",").first.titleize
-		  		
-				begin
-	  				depart_airport = Airport.find_by_city(d_city).id
-	  				deflightfix = false
-	  			rescue Exception => e
-	  				de = city_error_check(d_city, 1, airline_id, message.message_id, trip.id)
-	  				rollbar_error(message.message_id, d_city, airline_id, user_id) if de.airport_id.blank?
-	  				depart_airport = de.airport_id.blank? ? 1 : de.airport_id#Random airport
-	  				deflightfix = true if de.airport_id.blank? #set flag
-		  		end
+			  		airport_cities = flight_data[2].to_s.gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').scan(/<strong>(.*?)<\/strong>/)
+			  		d_city = airport_cities.first.first.split(",").first.titleize
+			  		a_city = airport_cities.last.first.split(",").first.titleize
+			  		
+					begin
+		  				depart_airport = Airport.find_by_city(d_city).id
+		  				deflightfix = false
+		  			rescue Exception => e
+		  				de = city_error_check(d_city, 1, airline_id, message.message_id, trip.id)
+		  				rollbar_error(message.message_id, d_city, airline_id, user_id) if de.airport_id.blank?
+		  				depart_airport = de.airport_id.blank? ? 1 : de.airport_id#Random airport
+		  				deflightfix = true if de.airport_id.blank? #set flag
+			  		end
 
-				begin
-	  				arrival_airport = Airport.find_by_city(a_city).id
-	  				aeflightfix = false
-	  			rescue Exception => e
-	  				ae = city_error_check(a_city, 2, airline_id, message.message_id, trip.id)
-	  				rollbar_error(message.message_id, a_city, airline_id, user_id) if ae.airport_id.blank?
-	  				arrival_airport = ae.airport_id.blank? ? 2 : ae.airport_id#Random airport
-	  				aeflightfix = true if ae.airport_id.blank? #set flag
-		  		end
+					begin
+		  				arrival_airport = Airport.find_by_city(a_city).id
+		  				aeflightfix = false
+		  			rescue Exception => e
+		  				ae = city_error_check(a_city, 2, airline_id, message.message_id, trip.id)
+		  				rollbar_error(message.message_id, a_city, airline_id, user_id) if ae.airport_id.blank?
+		  				arrival_airport = ae.airport_id.blank? ? 2 : ae.airport_id#Random airport
+		  				aeflightfix = true if ae.airport_id.blank? #set flag
+			  		end
 
-	  			
-				flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
-	  				f.trip_id = trip.id
-	  				f.airline_id = airline_id
-	  				f.depart_airport = depart_airport
-	  				f.depart_time = depart_time
-	  				f.arrival_airport = arrival_airport
-	  				f.arrival_time = arrival_time
-	  				f.seat_type = "Jetblue"
-				end
 		  			
-		  		FlightFix.create(airline_mapping_id: de.id, flight_id: flight.id, trip_id: trip.id, direction: 1) if deflightfix
-		  		FlightFix.create(airline_mapping_id: ae.id, flight_id: flight.id, trip_id: trip.id, direction: 2) if aeflightfix
-	  		end
+					flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
+		  				f.trip_id = trip.id
+		  				f.airline_id = airline_id
+		  				f.depart_airport = depart_airport
+		  				f.depart_time = depart_time
+		  				f.arrival_airport = arrival_airport
+		  				f.arrival_time = arrival_time
+		  				f.seat_type = "Jetblue"
+					end
+			  			
+			  		FlightFix.create(airline_mapping_id: de.id, flight_id: flight.id, trip_id: trip.id, direction: 1) if deflightfix
+			  		FlightFix.create(airline_mapping_id: ae.id, flight_id: flight.id, trip_id: trip.id, direction: 2) if aeflightfix
+		  		end
+		  	else
+		  		matches = dom.xpath('/html/body/table/tr[2]/td[2]/table/tr[9]/td/table/tr[3]/td/table/tr')
+		  		matches = matches.select.with_index{|x, i| x unless i < 2} #remove first rows
+		  		matches = matches.select.with_index{|x, i| x unless i.odd?} #get everyother row
+		  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
+		  		matches.each do |match|
+		  			cols = match.xpath('td')
+		  			date = cols[0].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split(",").last
+		  			day = date.match(/\d+/).to_s
+		  			month = month_to_number(date.split(day).first)
+		  			time = cols[1].text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip.split()
+		  			depart_hour = am_pm_split(time.first)
+		  			arrival_hour = am_pm_split(time.last)
+		  			airports = cols[2].text().scan(/\((.*?)\)/)
+		  			depart_airport = Airport.find_by_faa(airports.first.first).id
+		  			arrival_airport = Airport.find_by_faa(airports.last.first).id
+
+			  		arrival_time = DateTime.new(year.to_i,month.to_i,day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
+			  		depart_time = DateTime.new(year.to_i,month.to_i,day.to_i,depart_hour[:hour].to_i,depart_hour[:min].to_i, 0, 0)
+
+					flight = Flight.where(depart_time: depart_time).first_or_create do |f|
+						f.trip_id = trip.id
+						f.airline_id = airline_id
+						f.depart_airport = depart_airport
+						f.depart_time = depart_time
+						f.arrival_airport = arrival_airport
+						f.arrival_time = arrival_time
+						f.seat_type = "Jetblue"
+					end
+		  		end
+		  	end
 	  	end
-  	end
+	end
 
   	#JetBlue OLDER
   	jb_messages_old = account.messages.where(from: "mail@jetblueconnect.com", subject: "Your JetBlue E-tinerary", limit: 500)
