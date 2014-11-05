@@ -26,7 +26,10 @@ class AuthController < ApplicationController
 
   def recheck
     user = params[:who]
-    Resque.enqueue(SearchAll, user, 1)
+    email = params[:email]
+    send = 1
+    send = 2 if email == 2
+    Resque.enqueue(SearchAll, user, send)
     redirect_to '/resque'
   end
 end
