@@ -50,7 +50,7 @@ class OrbitzGrab
 			  			end
 			  			depart_airport = Airport.find_by_faa(departure_data.first.first.scan(/\((.*?)\)/).first.first).id
 			  			depart_time = orbitz_time(departure_data.first.first.scan(/\:(.*?)\(/).first.first)
-			  			seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
+			  			#seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
 
 						flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
 			  				f.trip_id = trip.id
