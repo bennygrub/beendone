@@ -28,7 +28,6 @@ class AaGrab
 	  		email = message.body_parts.where(type: 'text/html')
 	  		if email.count.nil?
 	  			html = message.body_parts.first.content
-	  			binding.pry
 	  		else
 	  			html = email.first.content
 	  		end
