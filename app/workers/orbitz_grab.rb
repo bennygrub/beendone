@@ -36,11 +36,20 @@ class OrbitzGrab
 		  			split_flights.each do |flight|
 		  				flight = flight.gsub("\t","").gsub("\n","").gsub("\r","").gsub("&nbsp;","")
 			  			departure_data = flight.scan(/Departure(.*?)Arrival/)
-			  			arrival_data = flight.scan(/Arrival(.*?)Seat/)
+		  				if flight.scan(/Arrival(.*?)Seat/).count > 0
+			  				arrival_data = flight.scan(/Arrival(.*?)Seat/)
+			  				arrival_airport = Airport.find_by_faa(arrival_data.first.first.scan(/\((.*?)\)/).first.first).id
+			  				arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
+			  			else
+			  				arrival_data = flight.scan(/Arrival(.*?)Class/).first.first.scan(/\:(.*?)\(/).first.first.strip.split
+			  				arrival_day = arrival_data[1].split(",").first.to_i
+			  				arrival_month = month_to_number(arrival_data[0])
+			  				arrival_hour = am_pm_split(arrival_data[2]+arrival_data[3])
+			  				arrival_time = DateTime.new(@year.to_i,arrival_month.to_i,arrival_day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
+			  				arrival_airport = Airport.find_by_faa(flight.scan(/Arrival(.*?)Class/).first.first.scan(/\((.*?)\)/).first.first).id
+			  			end
 			  			depart_airport = Airport.find_by_faa(departure_data.first.first.scan(/\((.*?)\)/).first.first).id
 			  			depart_time = orbitz_time(departure_data.first.first.scan(/\:(.*?)\(/).first.first)
-			  			arrival_airport = Airport.find_by_faa(arrival_data.first.first.scan(/\((.*?)\)/).first.first).id
-			  			arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
 			  			seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
 
 						flight = user.flights.where(depart_time: depart_time).first_or_create do |f|

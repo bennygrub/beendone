@@ -22,10 +22,17 @@ class AaGrab
   	account = contextio.accounts.where(email: user.email).first
 	airline_id = Airline.find_by_name("American Airlines").id
 	##AMERICAN AIRLINES
-  	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com", limit: 500)
+  	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com", subject: "/E-Ticket Confirmation/", limit: 500)
   	aa_messages.each do |message|
   		if Trip.find_by_message_id(message.message_id).nil?
-	  		dom = Nokogiri::HTML(message.body_parts.where(type: 'text/html').first.content)
+	  		email = message.body_parts.where(type: 'text/html')
+	  		if email.count.nil?
+	  			html = message.body_parts.first.content
+	  			binding.pry
+	  		else
+	  			html = email.first.content
+	  		end
+	  		dom = Nokogiri::HTML(html)
 	  		flight_arrays = dom.xpath('//td[@valign="center" and @style="FONT-WEIGHT: normal; FONT-SIZE: 12px; COLOR: #607982; font-family:Arial;"]').each_slice(5).to_a
 	  		if flight_arrays.count > 0
 		  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create

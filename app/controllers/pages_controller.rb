@@ -266,18 +266,26 @@ class PagesController < ApplicationController
   end
   def contact
   	#auth into contextio
-  	user = User.find(21)
-  	user_id = 21
+  	user = User.find(18)
+  	user_id = 18
   	#auth into contextio
 	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
-  	#get the correct account
-  	account = contextio.accounts.where(email: user.email).first
+  	account = contextio.accounts.where(email: "carly.creighton@gmail.com").first
 	airline_id = Airline.find_by_name("American Airlines").id
 	##AMERICAN AIRLINES
-  	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com")
+  	aa_messages = account.messages.where(from: "notify@aa.globalnotifications.com", subject: "/E-Ticket Confirmation/", limit: 500)
+  	#no_subjects = ["American Airlines Upgrade Notification"]
+  	#good_messages = aa_messages.select{|m| m unless no_subjects.include?(m.subject)}
   	aa_messages.each do |message|
   		if Trip.find_by_message_id(message.message_id).nil?
-	  		dom = Nokogiri::HTML(message.body_parts.where(type: 'text/html').first.content)
+	  		email = message.body_parts.where(type: 'text/html')
+	  		if email.count.nil?
+	  			html = message.body_parts.first.content
+	  			binding.pry
+	  		else
+	  			html = email.first.content
+	  		end
+	  		dom = Nokogiri::HTML(html)
 	  		flight_arrays = dom.xpath('//td[@valign="center" and @style="FONT-WEIGHT: normal; FONT-SIZE: 12px; COLOR: #607982; font-family:Arial;"]').each_slice(5).to_a
 	  		if flight_arrays.count > 0
 		  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
@@ -326,7 +334,7 @@ class PagesController < ApplicationController
 		  				aeflightfix = true if ae.airport_id.blank? #set flag
 			  		end
 
-					flight = Flight.where(trip_id: trip.id, depart_time: d_time).first_or_create do |f|
+					flight = user.flights.where(trip_id: trip.id, depart_time: d_time).first_or_create do |f|
 		  				f.trip_id = trip.id
 		  				f.airline_id = airline_id
 		  				f.depart_airport = depart_airport
@@ -711,112 +719,123 @@ class PagesController < ApplicationController
   end
   def orbitz
   	#auth into contextio
+  	user_id = 18
+  	user = User.find(user_id)
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: current_user.email).first
-  	
-  	
-  	#get messages from Virgin and pick the html
-  	email_change_date = Date.new(2011,1,1).to_time.to_i
-  	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare For Your Trip/i", date_before: email_change_date)
-  	o_messages = o_messages.map {|message| message.body_parts.first.content}
+  	account = contextio.accounts.where(email: "carly.creighton@gmail.com").first
+  	airline_id = Airline.find_by_name("Orbitz").id
+	email_change_date = Date.new(2011,1,1).to_time.to_i
+  	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare For Your Trip/i", limit: 500)
 	o_messages.each do |message|
-		dom = Nokogiri::HTML(message)
-  		matches = dom.xpath('//*[@id="emailFrame"]/tr/td/table/tr[2]/td[2]/table/tr[2]/td').map(&:to_s)
-  		matches.each do |match|
-		  	match = match.gsub("\t","")
-  			match = match.gsub("\n","")
-  			match = match.gsub("\r","")	
-  			@year = match.scan(/<b>(.*?)<\/b>/)[2].first.split.last
-  			split_flights = ActionView::Base.full_sanitizer.sanitize(match).split("--------------------------------")
-  			split_flights.each do |flight|
-  				flight = flight.gsub("\t","")
-	  			flight = flight.gsub("\n","")
-	  			flight = flight.gsub("\r","")
-	  			flight = flight.gsub("&nbsp;","")
-	  			departure_data = flight.scan(/Departure(.*?)Arrival/)
-	  			arrival_data = flight.scan(/Arrival(.*?)Seat/)
-	  			depart_airport = departure_data.first.first.scan(/\((.*?)\)/).first.first
-	  			depart_time = orbitz_time(departure_data.first.first.scan(/\:(.*?)\(/).first.first)
-	  			arrival_airport = arrival_data.first.first.scan(/\((.*?)\)/).first.first
-	  			arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
-	  			seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
-	  			Flight.find_or_create_by_depart_time(trip_id: 28, airline_id: 43, depart_airport: Airport.find_by_faa(depart_airport).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_airport).id, arrival_time: arrival_time, seat_type: seat_type )
-  			end
+		if Trip.find_by_message_id(message.message_id).nil?
+			dom = Nokogiri::HTML(message.body_parts.first.content)
+	  		matches = dom.xpath('//*[@id="emailFrame"]/tr/td/table/tr[2]/td[2]/table/tr[2]/td').map(&:to_s)
+	  		if matches.count > 0
+		  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
+		  		matches.each do |match|
+				  	match = match.gsub("\t","").gsub("\n","").gsub("\r","")
+		  			@year = match.scan(/<b>(.*?)<\/b>/)[2].first.split.last
+		  			split_flights = ActionView::Base.full_sanitizer.sanitize(match).split("--------------------------------")
+		  			split_flights.each do |flight|
+		  				begin
+			  				flight = flight.gsub("\t","").gsub("\n","").gsub("\r","").gsub("&nbsp;","")
+				  			departure_data = flight.scan(/Departure(.*?)Arrival/)
+				  			if flight.scan(/Arrival(.*?)Seat/).count > 0
+				  				arrival_data = flight.scan(/Arrival(.*?)Seat/)
+				  				arrival_airport = Airport.find_by_faa(arrival_data.first.first.scan(/\((.*?)\)/).first.first).id
+				  				arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
+				  			else
+				  				arrival_data = flight.scan(/Arrival(.*?)Class/).first.first.scan(/\:(.*?)\(/).first.first.strip.split
+				  				arrival_day = arrival_data[1].split(",").first.to_i
+				  				arrival_month = month_to_number(arrival_data[0])
+				  				arrival_hour = am_pm_split(arrival_data[2]+arrival_data[3])
+				  				arrival_time = DateTime.new(@year.to_i,arrival_month.to_i,arrival_day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
+				  				arrival_airport = Airport.find_by_faa(flight.scan(/Arrival(.*?)Class/).first.first.scan(/\((.*?)\)/).first.first).id
+				  			end
+				  			depart_airport = Airport.find_by_faa(departure_data.first.first.scan(/\((.*?)\)/).first.first).id
+				  			depart_time = orbitz_time(departure_data.first.first.scan(/\:(.*?)\(/).first.first)
+				  			
+				  			seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
 
-  		end
-  	end
+							flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
+				  				f.trip_id = trip.id
+				  				f.airline_id = airline_id
+				  				f.depart_airport = depart_airport
+				  				f.depart_time = depart_time
+				  				f.arrival_airport = arrival_airport
+				  				f.arrival_time = arrival_time
+				  				f.seat_type = "Orbitz"
+							end
+						rescue
 
-
-
-  	#get messages from Virgin and pick the html
-  	email_change_date = Date.new(2011,1,1).to_time.to_i
-  	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare For Your Trip/i", date_after: email_change_date)
-  	o_messages = o_messages.map {|message| message.body_parts.first.content}
-  	o_messages.each do |message|
-  		dom = Nokogiri::HTML(message)
-	  	matches = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[1]/div[1]/table[2]/tr[2]/td/table/tr/td/table/tr').map(&:to_s)
-	  	year_array = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[2]/div[1]/table[1]/tr[3]/td/div[3]/text()')
-	  	year = year_array.to_s.split[8]
-	  	flight_arrays = matches.each_slice(7).to_a
-	  	flight_arrays.pop
-	  	flight_arrays.each do |flight|
-	  		
-	  		#flight data
-	  		flight_date_split = ActionView::Base.full_sanitizer.sanitize(flight[0]).split
-	  		word_count = flight_date_split.count
-	  		if word_count == 9
-		  		month = flight_date_split[3]
-		  		day = flight_date_split[4]
+							binding.pry
+						end
+		  			end
+		  		end
 		  	else
-		  		month = flight_date_split[2]
-		  		day = flight_date_split[3]
-		  	end
+				matches = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[1]/div[1]/table[2]/tr[2]/td/table/tr/td/table/tr').map(&:to_s)
+			  	year_array = dom.xpath('/html/body/table/tr/td/table[2]/tr/td[2]/div[1]/table[1]/tr[3]/td/div[3]/text()')
+			  	year = year_array.to_s.split[8]
+			  	flight_arrays = matches.each_slice(7).to_a
+			  	flight_arrays.pop
+			  	trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
+			  	flight_arrays.each do |flight|
+			  		
+			  		#flight data
+			  		flight_date_split = ActionView::Base.full_sanitizer.sanitize(flight[0]).split
+			  		word_count = flight_date_split.count
+			  		if word_count == 9
+				  		month = flight_date_split[3]
+				  		day = flight_date_split[4]
+				  	else
+				  		month = flight_date_split[2]
+				  		day = flight_date_split[3]
+				  	end
 
-	  		#departure data
-	  		depart_array_extra = ActionView::Base.full_sanitizer.sanitize(flight[2])
-	  		depart_array_extra = depart_array_extra.gsub("\t","")
-	  		depart_array_extra = depart_array_extra.gsub("\n","")
-	  		depart_array_extra = depart_array_extra.gsub("\r","")
-	  		depart_array_extra = depart_array_extra.gsub("&nbsp;","")
-	  		depart_array = depart_array_extra.scan(/(^.*?)\|/)
-	  		depart_array = depart_array.first.first
-	  		depart_array = depart_array.split
-	  		depart_time = "#{depart_array[0]} #{depart_array[1]}"
-	  		depart_array.shift(2)
-	  		depart_airport = depart_array
-	  		depart_airport = depart_airport.join(" ")
-	  		airport_data = flight[1]
-	  		airport_data = airport_data.gsub("\t","")
-	  		airport_data = airport_data.gsub("\n","")
-	  		airport_data = airport_data.gsub("\r","")
-	  		airport_data = airport_data.gsub("&nbsp;","")
-	  		airline_array = airport_data.scan(/<span class="flightNameAndNumber">(.*?)<\/span>/).first.first.split
-	  		airline_array.pop
-	  		airline = airline_array.join(" ")
-	  		depart_time = create_saveable_date(day, month, year, depart_time)
+			  		#departure data
+			  		depart_array_extra = ActionView::Base.full_sanitizer.sanitize(flight[2])
+			  		depart_array_extra = depart_array_extra.gsub("\t","").gsub("\n","").gsub("\r","").gsub("&nbsp;","")
+			  		depart_array = depart_array_extra.scan(/(^.*?)\|/)
+			  		depart_array = depart_array.first.first
+			  		depart_array = depart_array.split
+			  		depart_time = "#{depart_array[0]} #{depart_array[1]}"
+			  		depart_array.shift(2)
+			  		depart_airport = depart_array
+			  		depart_airport = depart_airport.join(" ")
+			  		depart_airport = Airport.find_by_faa(depart_airport.scan(/\((.*?)\)/).first.first).id
+			  		airport_data = flight[1]
+			  		airport_data = airport_data.gsub("\t","").gsub("\n","").gsub("\r","").gsub("&nbsp;","")
+			  		airline_array = airport_data.scan(/<span class="flightNameAndNumber">(.*?)<\/span>/).first.first.split
+			  		airline_array.pop
+			  		airline = airline_array.join(" ")
+			  		depart_time = create_saveable_date(day, month, year, depart_time)
 
-	  		#arrival data
-	  		arrival_array_extra = ActionView::Base.full_sanitizer.sanitize(flight[4])
-	  		arrival_array_extra = arrival_array_extra.gsub("\t","")
-	  		arrival_array_extra = arrival_array_extra.gsub("\n","")
-	  		arrival_array_extra = arrival_array_extra.gsub("\r","")
-	  		arrival_array_extra = arrival_array_extra.gsub("&nbsp;","")
-	  		arrival_array = arrival_array_extra.scan(/(^.*?)\|/)
-	  		arrival_array = arrival_array.first.first
-	  		arrival_array = arrival_array.split
-	  		arrival_time = "#{arrival_array[0]} #{arrival_array[1]}"
-	  		arrival_array.shift(2)
-	  		arrival_airport = arrival_array
-	  		arrival_airport = arrival_airport.join(" ")
-	  		arrival_time = create_saveable_date(day, month, year, arrival_time)
-
-	  		Flight.find_or_create_by_depart_time(trip_id: 28, airline_id: 43, depart_airport: Airport.find_by_faa(depart_airport.scan(/\((.*?)\)/).first.first).id, depart_time: depart_time, arrival_airport: Airport.find_by_faa(arrival_airport.scan(/\((.*?)\)/).first.first).id, arrival_time: arrival_time, seat_type: "COACH" )
-
-	  		
+			  		#arrival data
+			  		arrival_array_extra = ActionView::Base.full_sanitizer.sanitize(flight[4])
+			  		arrival_array_extra = arrival_array_extra.gsub("\t","").gsub("\n","").gsub("\r","").gsub("&nbsp;","")
+			  		arrival_array = arrival_array_extra.scan(/(^.*?)\|/)
+			  		arrival_array = arrival_array.first.first
+			  		arrival_array = arrival_array.split
+			  		arrival_time = "#{arrival_array[0]} #{arrival_array[1]}"
+			  		arrival_array.shift(2)
+			  		arrival_airport = arrival_array
+			  		arrival_airport = arrival_airport.join(" ")
+			  		arrival_airport = Airport.find_by_faa(arrival_airport.scan(/\((.*?)\)/).first.first).id
+			  		arrival_time = create_saveable_date(day, month, year, arrival_time)
+					
+					flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
+		  				f.trip_id = trip.id
+		  				f.airline_id = airline_id
+		  				f.depart_airport = depart_airport
+		  				f.depart_time = depart_time
+		  				f.arrival_airport = arrival_airport
+		  				f.arrival_time = arrival_time
+		  				f.seat_type = "Orbitz"
+					end
+			  	end
+			end	
 	  	end
-	  	
-	  	
 	end
   end
 
