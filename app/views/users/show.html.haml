@@ -166,17 +166,17 @@
 																Get my Instagram photos from this trip
 												
 												-unless @auth_check == true
-													-@html = []
+													-html = []
 													-for media_item in @client.user_recent_media(:min_timestamp => start.to_i, :max_timestamp => finish.to_i )
-														-@html << media_item.images.standard_resolution.url
-													-if @html.count > 0
+														-html << media_item.images.standard_resolution.url
+													-if html.count > 0
 														.instagram-photos
-															=link_to @html.first, { :class => "instarange", :rel => "instarange" } do
+															=link_to html.first, { :class => "instarange", :rel => "instarange#{trip.id}" } do
 																=image_tag("insta.png")
 																View Trip Photos
 															.hide
-																-@html.drop(1).each do |pic|
-																	=link_to "Instagram", pic, { :class => "instarange", :rel => "instarange" }	
+																-html.drop(1).each do |pic|
+																	=link_to "Instagram", pic, { :class => "instarange", :rel => "instarange#{trip.id}" }	
 .unfull-screen
 	=link_to "(X) Click to Close Full Screen", "Javascript:"
 
