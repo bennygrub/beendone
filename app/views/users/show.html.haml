@@ -126,9 +126,13 @@
 														-if num > 0
 															="#{num} days"
 														-else
-															Forever
-															%span{style:"font-size:14px;font-weight:100;"}
-																(no return flight)
+															-if trip.flights > 1 && trip.flight.first.depart_airport == trip.flight.last.arrival_airport 
+																Returned the Same Day
+															-else
+																Forever
+																%span{style:"font-size:14px;font-weight:100;"}
+																	(no return flight)
+
 														&#9679;
 
 											.back
