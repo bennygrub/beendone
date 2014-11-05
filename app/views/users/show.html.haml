@@ -126,7 +126,7 @@
 														-if num > 0
 															="#{num} days"
 														-else
-															-if trip.flights > 1 && trip.flight.first.depart_airport == trip.flight.last.arrival_airport 
+															-if trip.flights > 1 && trip.flights.first.depart_airport == trip.flights.last.arrival_airport 
 																Returned the Same Day
 															-else
 																Forever
