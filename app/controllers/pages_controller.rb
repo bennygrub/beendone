@@ -137,10 +137,6 @@ class PagesController < ApplicationController
 		  	year = message.received_at.strftime('%Y')
 		  	dom = Nokogiri::HTML(message.body_parts.first.content)
 		  	matches = dom.xpath('/html/body//pre/text()').map(&:to_s)
-		  	#full_string = dom.xpath('/html/body//pre').text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip
-		  	#lvs = full_string.scan(/LV (.*?)V/)
-		  	#ars = full_string.scan(/ AR (.*?)COACH/)
-		  	#.strip.scan(/LV (.*?) /)
 		  	
 			#get overall data
 		  	fare = matches[2].scan(/Fare: (.+)/).first.first.strip.split(/\s+/).first
@@ -191,19 +187,12 @@ class PagesController < ApplicationController
 		  		
 		  		day = depart_day_array[i]
 		  		month = depart_month_array[i]
-		  		begin
-		  			arrival_hour = am_pm_split(arrival_hour_array[i])
-		  			depart_hour = am_pm_split(depart_hour_array[i])
-		  		rescue => e
-		  			binding.pry
-		  		end
+		  		
+	  			arrival_hour = am_pm_split(arrival_hour_array[i])
+	  			depart_hour = am_pm_split(depart_hour_array[i])
 
-		  		begin
-		  			arrival_time = DateTime.new(year.to_i,month.to_i,day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
-		  			depart_time = DateTime.new(year.to_i,month.to_i,day.to_i,depart_hour[:hour].to_i,depart_hour[:min].to_i, 0, 0)
-				rescue => e
-		  			binding.pry
-		  		end
+	  			arrival_time = DateTime.new(year.to_i,month.to_i,day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
+	  			depart_time = DateTime.new(year.to_i,month.to_i,day.to_i,depart_hour[:hour].to_i,depart_hour[:min].to_i, 0, 0)
 
 				begin
 					depart_airport = Airport.find_by_city(depart_city.titleize).id
