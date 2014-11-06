@@ -12,32 +12,53 @@ module ResHelper
   end
 
   def am_pm_split(full_time)
-  	if full_time.scan(/a.m./i).count > 0
-  		reg_time = full_time.split(/a.m./i).first
-  		hour_min = reg_time.split(":")
-  		hour = hour_min[0].to_i
-  	elsif full_time.scan(/p.m./i).count > 0
-  		reg_time = full_time.split(/p.m./i).first
-  		hour_min = reg_time.split(":")
-  		hour = hour_min[0].to_i + 12
-      hour = hour-12 if hour == 24
-  	elsif full_time.scan(/pm/i).count > 0
-  		reg_time = full_time.split(/pm/i).first
-  		hour_min = reg_time.split(":")
-  		hour = hour_min[0].to_i  + 12
-      hour = hour-12 if hour == 24
-
-  	elsif full_time.scan(/am/i).count > 0
-  		reg_time = full_time.split(/am/i).first
-  		hour_min = reg_time.split(":")
-  		hour = hour_min[0].to_i
-  	else
-  		reg_time = full_time
-  		hour_min = reg_time.split(":")
-  		hour = hour_min[0].to_i
-  	end
-  	min = hour_min[1]
-  	return {hour: hour, min: min}
+    if full_time.scan(/a.m./i).count > 0
+      reg_time = full_time.split(/a.m./i).first
+      hour_min = reg_time.split(":")
+      hour = hour_min[0].to_i
+    elsif full_time.scan(/p.m./i).count > 0
+      reg_time = full_time.split(/p.m./i).first
+      hour_min = reg_time.split(":")
+      hour = hour_min[0].to_i
+      hour = hour + 12 unless hour == 12
+    elsif full_time.scan(/pm/i).count > 0
+      reg_time = full_time.split(/pm/i).first
+      hour_min = reg_time.split(":")
+      hour = hour_min[0].to_i
+      hour = hour + 12 unless hour == 12
+    elsif full_time.scan(/am/i).count > 0
+      reg_time = full_time.split(/am/i).first
+      hour_min = reg_time.split(":")
+      hour = hour_min[0].to_i
+    elsif full_time.scan(/P/i).count > 0
+      reg_time = full_time.split("P").first
+      if reg_time.length == 3
+        hour = reg_time.first.to_i
+        hour_min = [0, reg_time[1]+reg_time[2] ]
+      else
+        hour = (reg_time[0]+reg_time[1]).to_i
+        hour_min = [0, reg_time[2]+reg_time[3]]
+      end
+      hour = hour + 12 unless hour == 12
+    elsif full_time.scan(/A/i).count > 0
+      reg_time = full_time.split("A").first
+      if reg_time.length == 3
+        hour = reg_time.first.to_i
+        hour_min = [0, reg_time[1]+reg_time[2] ]
+      else
+        hour = (reg_time[0]+reg_time[1]).to_i
+        hour_min = [0, reg_time[2]+reg_time[3]]
+      end
+    elsif full_time.scan(/N/i).count > 0
+      hour = 12
+      hour_min = [0, "00"]
+    else
+      reg_time = full_time
+      hour_min = reg_time.split(":")
+      hour = hour_min[0].to_i
+    end
+    min = hour_min[1]
+    return {hour: hour, min: min}
   end
 
   def create_saveable_date(day, month, year, hour)
