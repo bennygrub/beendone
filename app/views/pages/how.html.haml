@@ -1,17 +1,20 @@
 %h1.text-center How It Works
+%p.text-center BoardingPast is dead simple. We find your old travel email receipts and create a personalized interactive map plotting all of your trips.
+.howitworks
+	%h3.text-center Step 1: Enter Your Email
+	.text-center=image_tag "emailauth.png"
 
-.row{style:"margin-bottom:50px;"}
-	.span1
-		%h2.text-center{style:"margin:0px;"} 1
-	.span11
-		%p You sign up for BoardingPast with the email address where you have your travel receipts sent. That includes airline tickets, hotel bookings, and train tickets.
-.row{style:"margin-bottom:50px;"}
-	.span1
-		%h2.text-center{style:"margin:0px;"} 2
-	.span11
-		%p We scan your travel receipt emails for flight, train, and accomodation information. We currently collect your travel data from over 70 airlines, 7 train companies, and 7 hotel booking sites. Please note that we do not scan any emails that are not travel related.
-.row{style:"margin-bottom:50px;"}
-	.span1
-		%h2.text-center{style:"margin:0px;"} 3
-	.span11
-		%p We create an interactive map of your travel plotted with all of your flights. We also aggregate your travel stats into fun and interesting insights about your travel tendencies which you can view and share with your friends.
+	%div{style:"margin:auto;margin-bottom:50px;width:80%;"}
+		%p.text-center{style:"margin-top:5px;"} You sign up for BoardingPast with the email address where you have your travel receipts sent. That includes airline tickets, hotel bookings, and train tickets.
+	
+	%h3.text-center Step 2: Your Email Travel Receipts Are Scanned
+	.text-center=image_tag "boardpass.png"
+
+	%div{style:"margin:auto;margin-bottom:50px;width:80%;"}
+		%p.text-center{style:"margin-top:5px;"} We scan your travel receipt emails for flight, train, and accomodation information. We currently collect your travel data from over 70 airlines, 7 train companies, and 7 hotel booking sites. Please note that we do not scan any emails that are not travel related.
+	
+	%h3.text-center Step 3: Your Personalized Interactive Map of Your Travel
+	.text-center=image_tag "memap.png"
+
+	%div{style:"margin:auto;margin-bottom:50px;width:80%;"}
+		%p.text-center{style:"margin-top:5px;"} We create an interactive map of your travel plotted with all of your flights. We also aggregate your travel stats into fun and interesting insights about your travel tendencies which you can view and share with your friends.
