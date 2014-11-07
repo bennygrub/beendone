@@ -38,6 +38,18 @@ input#user_remember_me{
 	padding:10px;
 }
 
+.header-title{
+	background: black;
+	width: 55%;
+	margin: 30px auto 20px auto;
+	color: white;
+	border-bottom: 3px #25ce98 solid;
+}
+
+.header-title h3 {
+	margin: 0px;
+}
+
 form#new_user.new_user input[type="submit"]{
 	width:100%;
 }
@@ -46,6 +58,18 @@ form#new_user.new_user input{
 	width:97%;
 }
 
+.me-circle{
+	background-image: image-url("backpack.jpg");
+	background-size: 275px; 
+	background-position: 50% 50%;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    width: 250px;
+    height: 250px;
+    margin: 20px auto;
+}
 @media (max-width: 800px) {
 	.bump-down button {width:100%;}
 	.bump-down input{width:97%;}

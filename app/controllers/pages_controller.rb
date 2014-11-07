@@ -13,6 +13,9 @@ class PagesController < ApplicationController
   	if current_user
   		redirect_to current_user
   	end
+  end
+  
+  def how 
 
   end
 
@@ -21,106 +24,6 @@ class PagesController < ApplicationController
   end
 
   def about
-  	user_id = 18
-  	user = User.find(user_id)
-  	#auth into contextio
-  	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
-  	airline_id = Airline.find_by_name("Delta Air Lines").id
-  	#get the correct account
-  	account = contextio.accounts.where(email: "carly.creighton@gmail.com").first
-  	message = account.messages["5457886f7955f537228bada7"]
-  	year = message.received_at.strftime('%Y')
-  	dom = Nokogiri::HTML(message.body_parts.first.content)
-  	matches = dom.xpath('/html/body//pre/text()').map(&:to_s)
-  	#full_string = dom.xpath('/html/body//pre').text().gsub("\r", "").gsub("\n", "").gsub("\t","").gsub(%r{\"}, '').strip
-  	#lvs = full_string.scan(/LV (.*?)V/)
-  	#ars = full_string.scan(/ AR (.*?)COACH/)
-  	#.strip.scan(/LV (.*?) /)
-  	
-	#get overall data
-  	fare = matches[2].scan(/Fare: (.+)/).first.first.strip.split(/\s+/).first
-  	issue_data = matches.last.match(/Issue date:(.*)/).to_s
-  	issue_date = split_by_space(issue_data)[2]
-  	issue_year = issue_date.split(//).last(2).join("").to_i
-  	
-  	#departure data 1
-
-  	trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
-  	
-  	depart_day_array = Array.new
-  	depart_month_array = Array.new
-  	
-  	matches[0].scan(/(^.*?)LV/).each do |departures|
-  		depart_day_array << departures.first.strip.split(/\s+/)[1].match(/\d+/).to_s
-  		depart_month_array << month_to_number(departures.first.strip.split(/\s+/)[1].split(departures.first.strip.split(/\s+/)[1].match(/\d+/).to_s).last)
-	end
-	
-
-	depart_city_array = Array.new
-	depart_hour_array = Array.new
-
-	matches[0].scan(/\LV(.*)/).each do |departure|			
-		departure_data = departure.first.strip.split(/\s+/)
-		departure_data.pop(2)
-		depart_hour_array << departure_data.pop
-		depart_city_array << departure_data.join(" ")
-	end
-  	
-  	#arrival information
-  	arrival_hour_array = Array.new
-  	arrival_city_array = Array.new
-  	matches[0].scan(/AR (.*?)COACH/).each do |lv|
-  		arrival_row = lv.first.split
-  		arrival_hour_array << arrival_row.pop
-  		arrival_city_array << arrival_row.join(" ")
-  	end
-
-  	arrival_city_array.each_with_index do |x, i|
-  		depart_city = depart_city_array[i]
-  		arrival_city = arrival_city_array[i]
-  		
-  		day = depart_day_array[i]
-  		month = depart_month_array[i]
-
-  		arrival_hour = am_pm_split(arrival_hour_array[i])
-  		depart_hour = am_pm_split(depart_hour_array[i])
-
-  		arrival_time = DateTime.new(year.to_i,month.to_i,day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
-  		depart_time = DateTime.new(year.to_i,month.to_i,day.to_i,depart_hour[:hour].to_i,depart_hour[:min].to_i, 0, 0)
-
-		begin
-			depart_airport = Airport.find_by_city(depart_city.titleize).id
-			deflightfix = false
-		rescue Exception => e
-			de = city_error_check(depart_city, 1, airline_id, message.message_id, trip.id)
-			rollbar_error(message.message_id, depart_city, airline_id, user_id) if de.airport_id.blank?
-			depart_airport = de.airport_id.blank? ? 1 : de.airport_id#Random airport
-			deflightfix = true if de.airport_id.blank? #set flag
-		end
-
-		begin
-			arrival_airport = Airport.find_by_city(arrival_city.titleize).id
-			aeflightfix = false
-		rescue Exception => e
-			ae = city_error_check(arrival_city, 2, airline_id, message.message_id, trip.id)
-			rollbar_error(message.message_id, arrival_city, airline_id, user_id) if ae.airport_id.blank?
-			arrival_airport = ae.airport_id.blank? ? 2 : ae.airport_id#Random airport
-			aeflightfix = true if ae.airport_id.blank? #set flag
-  		end
-		
-		flight = Flight.where(depart_time: depart_time).first_or_create do |f|
-				f.trip_id = trip.id
-				f.airline_id = airline_id
-				f.depart_airport = depart_airport
-				f.depart_time = depart_time
-				f.arrival_airport = arrival_airport
-				f.arrival_time = arrival_time
-				f.seat_type = "Delta"
-		end
-  			
-  		FlightFix.create(airline_mapping_id: de.id, flight_id: flight.id, trip_id: trip.id, direction: 1) if deflightfix
-  		FlightFix.create(airline_mapping_id: ae.id, flight_id: flight.id, trip_id: trip.id, direction: 2) if aeflightfix
-	end
   end
   def delta
   	user_id = 18

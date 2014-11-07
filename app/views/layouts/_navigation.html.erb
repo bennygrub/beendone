@@ -18,6 +18,13 @@
     <% if @map_page == true %>
       <li class="yellow-btn"><%= link_to 'Create Your Own', root_path %></li>
     <% end %>
+    <li class="divider-vertical"></li>
+    <li><%= link_to 'About Us', pages_about_path %></li>
+    <li class="divider-vertical"></li>
+    <li><%= link_to 'How It Works', pages_how_path %></li>
+    <li class="divider-vertical"></li>
+    <li><%= link_to 'Examples', user_path('ben-gruber') %></li>
+    <li class="divider-vertical"></li>
     <li><%= link_to 'Login', new_user_session_path %></li>
   <% end %>
 </ul>

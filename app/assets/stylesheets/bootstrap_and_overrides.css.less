@@ -122,6 +122,33 @@ box-shadow: none;
 .navbar .btn, .navbar .btn-group {
   margin-top: 15px;
 }
+
+.white-shadow {
+  text-shadow: 1px 1px 1px black;
+}
+
+.ghost {
+  position: relative;
+}
+.ghost::before {
+  content: " ";
+  display: inline-block;
+  height: 100%;
+  width: 1%;
+  vertical-align: middle;
+}
+.ghost p {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0px;
+}
+.ghost h2 {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0px;
+}
+
+
 body.pages.home{padding-left:0px!important;padding-right:0px!important;}
 @media (max-width: 979px) {
   .top-stats{width: 100%;margin: 40px auto 0 auto;}

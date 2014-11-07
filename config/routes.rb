@@ -18,6 +18,7 @@ Beendone::Application.routes.draw do
   get "user/edit"
   get "pages/home"
   get "pages/about"
+  get "pages/how"
   get "pages/contact"
   get "pages/usairways"
   get "pages/jetblue"
