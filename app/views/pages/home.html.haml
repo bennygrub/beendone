@@ -1,13 +1,73 @@
 .home-bg.text-center
 	.front-overlay
-		.bump-down
+		.bump-down#gohome
 			%h1.white-shadow{style:"margin:0px;"} Where Has Life Taken You?
 			%h3.white-shadow{style:"margin:0px;"} Get An Interactive Map of Every Place You’ve Been
-			%p.text-center.white-shadow{style:"font-size: 18px;margin:0 0 70px 0;"} All of your past & future travel data updated automatically by pulling from your email travel receipts.
+			%p.text-center.white-shadow{style:"font-size: 18px;margin:0 0 30px 0;"} All of your past & future travel data updated automatically by analyzing your email travel receipts.
 			= form_for(:user, :as => :user, :url => registration_path(:user)) do |f|
 				= f.text_field :name, placeholder: "Name"
 				= f.email_field :email, placeholder: "Email" 
 				= f.password_field :password, placeholder: "Password"
 				= button_tag :type => :submit do
-					Sign up
+					Create My Map
+			
+		.text-center
+			=link_to "#howhome", class: "clearbutton" do 
+				Wanna Know How We Do It?
+#howhome.home-alter.text-center{style:"background:rgb(244, 244, 244);padding:30px 0px;"}
+	%h2 How It Works
+	.row-fluid
+		
+		.span4
+			%h4 1. Enter Your Email
+			=image_tag "emailauth.png"
+		.span4
+			%h4 2. We Scan Your Email Travel Receipts
+			=image_tag "boardpass.png"
+		.span4
+			%h4 3. Your Travel Map is Created
+			=image_tag "memap.png"
 
+		.clearfix
+	%br
+	%br	
+	=link_to "#gohome", class: "yellow-btn", style: "padding: 9px; margin: 9px;" do 
+		Create My Map
+.home-alter0
+	.row
+		.span6
+			.home-explain.text-center
+				%h3 An Interactive Map of Your Travels
+				%p Browse the interactive map of your travel desintations with fun stats about each including how long you were there, where you stopped over, and how much money you spent getting there.
+				%br
+				%br	
+				=link_to "#gohome", class: "yellow-btn", style: "padding: 9px; margin: 9px;" do 
+					Create My Map
+		.span6
+			.home-picture=image_tag "benmap.jpg"
+		.clearfix
+.home-alter.row
+	.span6
+		.home-picture=image_tag "instagramshow.jpg"
+	.span6
+		.home-explain.text-center
+			%h3 Reignite the Memories of Your Trips
+			%p Connect your Instagram account to get your instagrams for your trips, invite friends to upload photos and music that remind you of your great adventures.
+			%br
+			%br	
+			=link_to "#gohome", class: "yellow-btn", style: "padding: 9px; margin: 9px;" do 
+				Create My Map
+	.clearfix
+.home-alter0
+	.row
+		.span6
+			.home-explain.text-center
+				%h3 Your Trips Update Automatically
+				%p Every time you go on a new trips from here on out, BoardingPast will work behind the scenes to update your map, stats, and everything else in your account without you lifting a finger.
+				%br
+				%br	
+				=link_to "#gohome", class: "yellow-btn", style: "padding: 9px; margin: 9px;" do 
+					Create My Map
+		.span6
+			.home-picture=image_tag "locationsquares.jpg"
+		.clearfix

@@ -4,9 +4,9 @@
 
 .home-bg{
 	background: image-url("home_1.jpg") no-repeat center center fixed;
-	height:100%;
+	height: 550px;
 	width:100%;
-	position:absolute;
+	position: relative;
 	-webkit-background-size: cover;
   	-moz-background-size: cover;
   	-o-background-size: cover;
@@ -24,8 +24,50 @@
 	margin:auto;
 }
 
+
+.home-alter, .home-alter0{
+	//padding-top: 55px;
+}
+
+.home-alter0 {
+	background: rgb(84, 84, 84);
+	color: white;
+}
+.home-explain{
+	padding: 80px 40px 0 40px;
+}
+.home-picture{
+	padding: 40px 4px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.home-picture img{
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+
+.clearbutton {
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	border: 2px solid white;
+	color: white;
+	padding: 10px;
+}
+
+.clearbutton:hover{
+	color: #f1c40f;
+	
+	border: 1px solid #f1c40f;
+	text-decoration: none;
+}
+
 input#user_remember_me{
-	margin: 0 3px 3px 0 ;
+	margin: 0 3px 3px 0;
 }
 
 .little-box{
@@ -79,4 +121,9 @@ form#new_user.new_user input{
 	.bump-down button {width:100%;}
 	.bump-down input{width:97%;}
 	.little-box{width:90%;}
+}
+
+@media (max-width: 500px) {
+	.home-explain{width: 100%;text-align: center;padding: 0;}
+	.home-picture{width: 100%;}
 }

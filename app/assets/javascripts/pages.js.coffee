@@ -18,3 +18,5 @@ $(window).bind "load", ->
 
 	$(window).resize ->
 		bumpDown()
+
+	$('a').smoothScroll()
