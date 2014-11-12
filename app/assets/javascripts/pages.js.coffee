@@ -8,7 +8,7 @@ $(window).bind "load", ->
 	bumpDown =->
 		if $('.bump-down').length > 0
 			if $( window ).width() > 600
-				height = ($( window ).height())/4
+				height = ($( window ).height())/5
 			else
 				height = 50
 			
