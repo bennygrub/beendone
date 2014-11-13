@@ -632,7 +632,7 @@ class PagesController < ApplicationController
   	user = User.find(user_id)
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')
   	#get the correct account
-  	account = contextio.accounts.where(email: "carly.creighton@gmail.com").first
+  	account = contextio.accounts.where(email: "trojanette07@yahoo.com").first
   	airline_id = Airline.find_by_name("Orbitz").id
 	email_change_date = Date.new(2011,1,1).to_time.to_i
   	o_messages = account.messages.where(from: "travelercare@orbitz.com", subject: "/Prepare For Your Trip/i", limit: 500)
@@ -644,41 +644,38 @@ class PagesController < ApplicationController
 		  		trip = Trip.where(user_id: user.id, message_id: message.message_id).first_or_create
 		  		matches.each do |match|
 				  	match = match.gsub("\t","").gsub("\n","").gsub("\r","")
-		  			@year = match.scan(/<b>(.*?)<\/b>/)[2].first.split.last
-		  			split_flights = ActionView::Base.full_sanitizer.sanitize(match).split("--------------------------------")
-		  			split_flights.each do |flight|
-		  				begin
-			  				flight = flight.gsub("\t","").gsub("\n","").gsub("\r","").gsub("&nbsp;","")
-				  			departure_data = flight.scan(/Departure(.*?)Arrival/)
-				  			if flight.scan(/Arrival(.*?)Seat/).count > 0
-				  				arrival_data = flight.scan(/Arrival(.*?)Seat/)
-				  				arrival_airport = Airport.find_by_faa(arrival_data.first.first.scan(/\((.*?)\)/).first.first).id
-				  				arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
-				  			else
-				  				arrival_data = flight.scan(/Arrival(.*?)Class/).first.first.scan(/\:(.*?)\(/).first.first.strip.split
-				  				arrival_day = arrival_data[1].split(",").first.to_i
-				  				arrival_month = month_to_number(arrival_data[0])
-				  				arrival_hour = am_pm_split(arrival_data[2]+arrival_data[3])
-				  				arrival_time = DateTime.new(@year.to_i,arrival_month.to_i,arrival_day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
-				  				arrival_airport = Airport.find_by_faa(flight.scan(/Arrival(.*?)Class/).first.first.scan(/\((.*?)\)/).first.first).id
-				  			end
-				  			depart_airport = Airport.find_by_faa(departure_data.first.first.scan(/\((.*?)\)/).first.first).id
-				  			depart_time = orbitz_time(departure_data.first.first.scan(/\:(.*?)\(/).first.first)
-				  			
-				  			seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
+				  	if match.scan(/<b>(.*?)<\/b>/).count > 0
+		  				@year = match.scan(/<b>(.*?)<\/b>/)[2].first.split.last
+		  				split_flights = ActionView::Base.full_sanitizer.sanitize(match).split("--------------------------------")
+		  				split_flights.each do |flight|
+		  					flight = flight.gsub("\t","").gsub("\n","").gsub("\r","").gsub("&nbsp;","")
+			  				departure_data = flight.scan(/Departure(.*?)Arrival/)
+		  					if flight.scan(/Arrival(.*?)Seat/).count > 0
+			  					arrival_data = flight.scan(/Arrival(.*?)Seat/)
+			  					arrival_airport = Airport.find_by_faa(arrival_data.first.first.scan(/\((.*?)\)/).first.first).id
+			  					arrival_time = orbitz_time(arrival_data.first.first.scan(/\:(.*?)\(/).first.first)
+			  				else
+			  					arrival_data = flight.scan(/Arrival(.*?)Class/).first.first.scan(/\:(.*?)\(/).first.first.strip.split
+			  					arrival_day = arrival_data[1].split(",").first.to_i
+			  					arrival_month = month_to_number(arrival_data[0])
+			  					arrival_hour = am_pm_split(arrival_data[2]+arrival_data[3])
+			  					arrival_time = DateTime.new(@year.to_i,arrival_month.to_i,arrival_day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
+			  					arrival_airport = Airport.find_by_faa(flight.scan(/Arrival(.*?)Class/).first.first.scan(/\((.*?)\)/).first.first).id
+			  				end
+			  				depart_airport = Airport.find_by_faa(departure_data.first.first.scan(/\((.*?)\)/).first.first).id
+			  				depart_time = orbitz_time(departure_data.first.first.scan(/\:(.*?)\(/).first.first)
+			  				#seat_type = arrival_data.first.first.scan(/Class:(.*)/).first.first
 
 							flight = user.flights.where(depart_time: depart_time).first_or_create do |f|
-				  				f.trip_id = trip.id
-				  				f.airline_id = airline_id
-				  				f.depart_airport = depart_airport
-				  				f.depart_time = depart_time
-				  				f.arrival_airport = arrival_airport
-				  				f.arrival_time = arrival_time
-				  				f.seat_type = "Orbitz"
+			  					f.trip_id = trip.id
+			  					f.airline_id = airline_id
+			  					f.depart_airport = depart_airport
+			  					f.depart_time = depart_time
+			  					f.arrival_airport = arrival_airport
+			  					f.arrival_time = arrival_time
+			  					f.seat_type = "Orbitz"
 							end
-						rescue => e
-							binding.pry
-						end
+		  				end
 		  			end
 		  		end
 		  	else
