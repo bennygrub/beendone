@@ -4,7 +4,7 @@
 
 .home-bg{
 	background: image-url("home_1.jpg") no-repeat center center fixed;
-	height: 550px;
+	height: 580px;
 	width:100%;
 	position: relative;
 	-webkit-background-size: cover;
@@ -26,7 +26,7 @@
 .blacker {
 	background: rgba(0, 0, 0, 0.35);
 	padding: 45px 0;
-	width: 75%;
+	width: 90%;
 	margin: auto;
 }
 
@@ -122,6 +122,11 @@ form#new_user.new_user input{
 	background: whitesmoke;
 	padding: 30px 0;
 }
+@media (max-width: 800px) {
+	.blacker {width: 90%;padding: 0 10px;}
+	.blacker input, .blacker button {width: 90%;margin:5px auto;}
+}
+
 @media (max-width: 800px) {
 	.bump-down button {width:100%;}
 	.bump-down input{width:97%;}

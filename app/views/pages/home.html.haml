@@ -4,7 +4,7 @@
 		.blacker
 			%h1.white-shadow{style:"margin:0px;"} Where Has Life Taken You?
 			%h3.white-shadow{style:"margin:0px;"} Get An Interactive Map of Every Place You’ve Been
-			%p.text-center.white-shadow{style:"font-size: 18px;margin:0 0 30px 0;"} All of your past & future travel data updated automatically by analyzing your email travel receipts.
+			%p.text-center.white-shadow{style:"margin:0 0 30px 0;"} All of your past & future travel data updated automatically by analyzing your email travel receipts.
 			= form_for(:user, :as => :user, :url => registration_path(:user)) do |f|
 				= f.text_field :name, placeholder: "Name"
 				= f.email_field :email, placeholder: "Email" 
