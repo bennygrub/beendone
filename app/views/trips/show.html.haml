@@ -1,0 +1,25 @@
+.trip-bg{style: "background:url('#{@destination.avatar.url}');color:white;height:100%;"}
+	-if @trip.name.blank?
+		%h1="#{@destination.city}"
+	-else
+		%h1="#{@trip.name}"
+	%h3 Flights on the Trip
+	- @trip.flights.each_with_index do |flight, index|
+		.flight-div
+			%p
+				="Flight #{index+1}:"
+				= Airport.find(flight.depart_airport).city
+				to
+				= Airport.find(flight.arrival_airport).city
+.other
+	%p Invite Friends to Trip
+	%p Link to peoples trips Together
+	%p Add Destinations to the Trip
+	%p Add Instagram
+	%p Add Twitter
+	%p Add Music
+	%p Upload Pictures
+	%p Import Pictures (facebook albums, dropbox, flickr)
+	%p Write a Description of the Trip
+	%p Add Specific Memory of Trip
+	%p Add Tag to Group Trips

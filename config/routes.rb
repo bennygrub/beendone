@@ -7,6 +7,7 @@ Beendone::Application.routes.draw do
   end
 
   resources :airport_mappings
+  resources :trips
 
   resources :airlines
 
