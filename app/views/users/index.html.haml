@@ -8,5 +8,8 @@
     - link_to 'Edit', edit_user_path(a)
   -g.column name: 'View' do |a|
     - link_to 'View', a
+  -g.column name: 'F Check' do |a|
+    -n = User.find(a).id
+    - link_to 'Run', auth_recheck_path(who: n)
   -g.column name: 'Delete' do |a|
     - link_to 'Delete', a, :method => :delete, :data => { :confirm => 'Are you sure?' }
