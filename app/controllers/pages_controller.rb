@@ -31,7 +31,7 @@ class PagesController < ApplicationController
   	#auth into contextio
   	contextio = ContextIO.new('d67xxta6', 'AtuL8ONalrRJpQC0')  	
   	#get the correct account
-  	account = contextio.accounts.where(email: "blgruber@gmail.com").first
+  	account = contextio.accounts.where(email: "nwcooper@gmail.com").first
   	airline_id = Airline.find_by_name("Delta Air Lines").id
 	##DELTA
 	delta_messages = account.messages.where(from: "deltaelectronicticketreceipt@delta.com", limit: 500)
@@ -66,15 +66,19 @@ class PagesController < ApplicationController
 		  		arrival_hour = am_pm_split(ar.split('AR', 2)[1].strip.chars.each_slice(14).map(&:join)[1].split.first)
 		  		
 		  		
-
-		  		arrival_time = DateTime.new(year.to_i,month.to_i,day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
-	  			depart_time = DateTime.new(year.to_i,month.to_i,day.to_i,depart_hour[:hour].to_i,depart_hour[:min].to_i, 0, 0)
+		  		begin
+			  		arrival_time = DateTime.new(year.to_i,month.to_i,day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
+		  			depart_time = DateTime.new(year.to_i,month.to_i,day.to_i,depart_hour[:hour].to_i,depart_hour[:min].to_i, 0, 0)	
+		  		rescue Exception => e
+		  			arrival_time = DateTime.new(year.to_i,month.to_i,day.to_i-1,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
+		  			depart_time = DateTime.new(year.to_i,month.to_i,day.to_i-1,depart_hour[:hour].to_i,depart_hour[:min].to_i, 0, 0)
+		  		end
+		  		
 				
 				begin
 					depart_airport = Airport.find_by_city(depart_city.titleize).id
 					deflightfix = false
 				rescue Exception => e
-					binding.pry
 					de = city_error_check(depart_city, 1, airline_id, message.message_id, trip.id)
 					rollbar_error(message.message_id, depart_city, airline_id, user_id) if de.airport_id.blank?
 					depart_airport = de.airport_id.blank? ? 1 : de.airport_id#Random airport
@@ -85,7 +89,6 @@ class PagesController < ApplicationController
 					arrival_airport = Airport.find_by_city(arrival_city.titleize).id
 					aeflightfix = false
 				rescue Exception => e
-					binding.pry
 					ae = city_error_check(arrival_city, 2, airline_id, message.message_id, trip.id)
 					rollbar_error(message.message_id, arrival_city, airline_id, user_id) if ae.airport_id.blank?
 					arrival_airport = ae.airport_id.blank? ? 2 : ae.airport_id#Random airport

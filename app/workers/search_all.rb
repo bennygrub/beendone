@@ -27,6 +27,7 @@ class SearchAll
     job_ids << TravelocityGrab.create(:user_id => user_id)
 
     
-    Resque.enqueue(StatusCheck, job_ids, user_id) if flag == 0
+    Resque.enqueue(StatusCheck, job_ids, user_id) if flag == 2
+    Resque.enqueue(SearchAll, current_user.id, 2) if flag == 0
   end
 end

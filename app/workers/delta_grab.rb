@@ -49,8 +49,13 @@ class DeltaGrab
 		  		arrival_city = ar.split('AR', 2)[1].strip.chars.each_slice(14).map(&:join).first.strip
 		  		arrival_hour = am_pm_split(ar.split('AR', 2)[1].strip.chars.each_slice(14).map(&:join)[1].split.first)
 
-		  		arrival_time = DateTime.new(year.to_i,month.to_i,day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
-	  			depart_time = DateTime.new(year.to_i,month.to_i,day.to_i,depart_hour[:hour].to_i,depart_hour[:min].to_i, 0, 0)
+		  		begin
+			  		arrival_time = DateTime.new(year.to_i,month.to_i,day.to_i,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
+		  			depart_time = DateTime.new(year.to_i,month.to_i,day.to_i,depart_hour[:hour].to_i,depart_hour[:min].to_i, 0, 0)	
+		  		rescue Exception => e
+		  			arrival_time = DateTime.new(year.to_i,month.to_i,day.to_i-1,arrival_hour[:hour].to_i,arrival_hour[:min].to_i, 0, 0)
+		  			depart_time = DateTime.new(year.to_i,month.to_i,day.to_i-1,depart_hour[:hour].to_i,depart_hour[:min].to_i, 0, 0)
+		  		end
 				
 				begin
 					depart_airport = Airport.find_by_city(depart_city.titleize).id
