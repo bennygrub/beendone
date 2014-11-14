@@ -15,6 +15,7 @@ Beendone::Application.routes.draw do
   post "auth/connect"
   get "auth/receive"
   get "auth/recheck"
+  get "auth/clear"
   get "user/edit"
   get "pages/home"
   get "pages/about"
@@ -41,7 +42,7 @@ Beendone::Application.routes.draw do
   get "pages/travelocity"
   
   devise_for :users, :controllers => { omniauth_callbacks: 'omniauth_callbacks', :registrations => "registrations"  }
-  resources :users, only: [:show, :index, :edit] do
+  resources :users, only: [:show, :index, :edit, :destroy] do
     member do
       get :share
     end

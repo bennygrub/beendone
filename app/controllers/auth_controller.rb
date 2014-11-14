@@ -32,4 +32,17 @@ class AuthController < ApplicationController
     Resque.enqueue(SearchAll, user, send)
     redirect_to '/resque'
   end
+
+  def clear
+    num = params[:who]
+    user = User.find(num)
+    user.flights.each do |f|
+      f.destroy
+    end
+    user.trips.each do |f|
+      f.destroy
+    end
+    redirect_to users_path, notice: 'Users Trips and Flights were Deleted'
+  end
+
 end

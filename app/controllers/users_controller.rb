@@ -90,7 +90,15 @@ class UsersController < ApplicationController
     @auth_check = @user.authentications.where("provider = ?", "instagram").count == 0 #check if the user has instagram auth
     @client = Instagram.client(:access_token => @user.authentications.where("provider = ?", "instagram").first.token) unless @auth_check
   end
-
+  # DELETE /flight_fixes/1
+  # DELETE /flight_fixes/1.json
+  def destroy
+    @user.destroy
+    respond_to do |format|
+      format.html { redirect_to users_url }
+      format.json { head :no_content }
+    end
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
