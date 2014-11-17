@@ -1,19 +1,19 @@
-.trip-bg{style: "background:url('#{@destination.avatar.url}');color:white;height:100%;"}
+.trip-bg{style: "background:url('#{@destination.avatar.url}');"}
 	-if @trip.name.blank?
-		%h1="#{@destination.city}"
+		%h1.text-center="#{@destination.city}"
 	-else
-		%h1="#{@trip.name}"
-	%h3 Flights on the Trip
-	- @trip.flights.each_with_index do |flight, index|
-		.flight-div
-			%p
-				="Flight #{index+1}:"
-				= Airport.find(flight.depart_airport).city
-				to
-				= Airport.find(flight.arrival_airport).city
+		%h1.text-center="#{@trip.name}"
+%h3 Flights on the Trip
+- @trip.flights.each_with_index do |flight, index|
+	.flight-div
+		%p
+			="Flight #{index+1}:"
+			= Airport.find(flight.depart_airport).city
+			to
+			= Airport.find(flight.arrival_airport).city
 .other
 	%p Invite Friends to Trip
-	%p Link to peoples trips Together
+	%p Link two peoples trips Together
 	%p Add Destinations to the Trip
 	%p Add Instagram
 	%p Add Twitter
