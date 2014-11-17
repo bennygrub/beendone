@@ -4,10 +4,11 @@ class TripsController < ApplicationController
   before_action :set_trip, only: [:show, :edit, :update, :destroy]
   before_action :authenticate_user!
   before_action :admin
+  skip_before_action :verify_authenticity_token
   # GET /tripes
   # GET /tripes.json
   def index
-    @tripes = Trip.all
+    @trips = initialize_grid(Trip.all)
   end
 
   # GET /tripes/1
@@ -15,6 +16,17 @@ class TripsController < ApplicationController
   def show
     @map_page = true
     @destination = destination_city(@trip)
+    if @trip.cover.blank? 
+      @cover = @destination.avatar.url
+    else
+      @cover = @trip.cover.url
+    end
+    @arrive = @trip.flights.first.arrival_time
+    @depart = @trip.flights.last.depart_time
+    @user = User.find(@trip.user_id)
+    @user_check = @user.id == current_user.id if current_user
+    @auth_check = @user.authentications.where("provider = ?", "instagram").count == 0 #check if the user has instagram auth
+    @client = Instagram.client(:access_token => @user.authentications.where("provider = ?", "instagram").first.token) unless @auth_check
   end
 
   # GET /tripes/new
@@ -47,11 +59,13 @@ class TripsController < ApplicationController
   def update
     respond_to do |format|
       if @trip.update(trip_params)
-        format.html { redirect_to @trip, notice: 'Flight fix was successfully updated.' }
+        format.html { redirect_to @trip, notice: 'Trip was successfully updated.' }
         format.json { head :no_content }
+        format.js
       else
         format.html { render action: 'edit' }
         format.json { render json: @trip.errors, status: :unprocessable_entity }
+        format.js
       end
     end
   end
@@ -74,7 +88,7 @@ class TripsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def trip_params
-      params.require(:trip).permit(:user_id, :name, :message_id)
+      params.require(:trip).permit(:user_id, :name, :message_id, :cover)
     end
 
 end

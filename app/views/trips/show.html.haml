@@ -1,8 +1,76 @@
-.trip-bg{style: "background:url('#{@destination.avatar.url}');"}
-	-if @trip.name.blank?
-		%h1.text-center="#{@destination.city}"
-	-else
-		%h1.text-center="#{@trip.name}"
+.trip-bg.text-center{style: "background:url('#{@cover}');"}
+	%a.edit-link#cover-edit{"data-toggle" => "modal", :href => "#coverModal", :role => "button"} (Edit Cover Photo)
+	.clearfix
+	=render "trip_cover"
+	#timeframe
+		%h3
+			=@arrive.strftime("%b %d")
+			to
+			="#{@depart.strftime("%b %d")},"
+			=@depart.strftime("%Y")
+	%a.edit-link#name-edit{"data-toggle" => "modal", :href => "#nameModal", :role => "button"} (Edit Trip Name)
+.container
+	.content
+		.row
+			.span12
+				Trip Description:
+				Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+		.row
+			.span4
+				.trip-area-dark.text-center
+					%h3 Flight Details
+					-@trip.flights.each do |flight|
+						.flight-row										
+							.flight-date.pull-left
+								=image_tag "plane.png", style: "max-width:20px;margin-right:8px;"
+								=flight.depart_time.strftime("%b %e")
+							.flight-airports.pull-left
+								=Airport.find(flight.depart_airport).faa.upcase
+								to
+								=Airport.find(flight.arrival_airport).faa.upcase
+							.flight-meta.pull-left
+								=Airline.find(flight.airline_id).name
+							.clearfix
+			.span4
+				.trip-area-light.text-center
+					%h3 Trip Mates	
+			.span4
+				.trip-area-dark.text-center
+					%h3 Trip Highlights
+		.row
+			.span4
+				-if @user_check == true
+					-if @auth_check
+						.trip-prompt.text-center
+							= link_to user_omniauth_authorize_path(:instagram) do
+								.trip-area-light
+									%h3 Trip Instagrams
+									=image_tag("insta.png")
+									%p Add my Instagrams from this trip with one click
+				-else
+					.trip-area-light.text-center
+						%h3 Trip Instagrams
+						-unless @auth_check == true
+							-html = []
+							-for media_item in @client.user_recent_media(:min_timestamp => start.to_i, :max_timestamp => finish.to_i )
+								-html << media_item.images.standard_resolution.url
+							-if html.count > 0
+								.instagram-photos
+									=link_to html.first, { :class => "instarange", :rel => "instarange#{@trip.id}" } do
+										=image_tag("insta.png")
+										View Trip Photos
+									.hide
+										-html.drop(1).each do |pic|
+											=link_to "Instagram", pic, { :class => "instarange", :rel => "instarange#{@trip.id}" }
+			.span4
+				.trip-area-dark.text-center
+					%h3 Trip Tweets
+			.span4
+				.trip-area-light.text-center
+					%h3 Trip Facebook Posts
+
+
+
 %h3 Flights on the Trip
 - @trip.flights.each_with_index do |flight, index|
 	.flight-div
@@ -11,6 +79,7 @@
 			= Airport.find(flight.depart_airport).city
 			to
 			= Airport.find(flight.arrival_airport).city
+
 .other
 	%p Invite Friends to Trip
 	%p Link two peoples trips Together
@@ -23,3 +92,6 @@
 	%p Write a Description of the Trip
 	%p Add Specific Memory of Trip
 	%p Add Tag to Group Trips
+
+=render "cover_modal"
+=render "destination_modal"

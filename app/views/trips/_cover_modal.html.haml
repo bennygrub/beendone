@@ -1,0 +1,18 @@
+#coverModal.modal.hide.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :tabindex => "-1"}
+	.modal-header
+		%button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} ×
+		%h3#coverModalLabel Change Your Trip Cover Image
+	.modal-body
+		= form_for @trip, :html => { :multipart => true }, :remote => true do |f|
+			- if @trip.errors.any?
+				#error_explanation
+					%h2= "#{pluralize(@trip.errors.count, "error")} prohibited this trip from being saved:"
+					%ul
+						- @trip.errors.full_messages.each do |msg|
+							%li= msg
+			.field
+				= f.label "Trip Cover Photo"
+				= f.file_field :cover
+			%button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"} Cancel
+			%button
+				= f.submit 'Update Cover'

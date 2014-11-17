@@ -1,2 +1,18 @@
-%h1 Trips#index
-%p Find me in app/views/trips/index.html.haml
+%h1 Trips
+
+= grid(@trips) do |g|
+  - g.column name: 'ID', attribute: 'id'
+  - g.column name: 'User ID', attribute: 'user_id'
+  - g.column name: 'Name', attribute: 'name'
+  -g.column name: 'User Name' do |a|
+    -User.find(a.user_id).name
+  -g.column name: 'Edit' do |a|
+    - link_to 'Edit', edit_trip_path(a)
+  -g.column name: 'View' do |a|
+    - link_to 'View', a
+  -g.column name: 'Delete' do |a|
+    - link_to 'Delete', a, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Trip', new_trip_path

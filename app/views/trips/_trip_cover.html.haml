@@ -1,0 +1,7 @@
+#trip_name
+	-if @trip.name.blank?
+		%h1.text-center
+		="#{@destination.city}"
+	-else
+		%h1.text-center
+		="#{@trip.name}"

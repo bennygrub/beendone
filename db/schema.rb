@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141031194246) do
+ActiveRecord::Schema.define(version: 20141117223728) do
 
   create_table "airlines", force: true do |t|
     t.string   "name"
@@ -73,9 +73,9 @@ ActiveRecord::Schema.define(version: 20141031194246) do
   create_table "flights", force: true do |t|
     t.integer  "trip_id"
     t.integer  "airline_id"
-    t.text     "depart_airport"
+    t.integer  "depart_airport"
     t.datetime "depart_time"
-    t.text     "arrival_airport"
+    t.integer  "arrival_airport"
     t.datetime "arrival_time"
     t.text     "seat_type"
     t.datetime "created_at"
@@ -101,6 +101,10 @@ ActiveRecord::Schema.define(version: 20141031194246) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "message_id"
+    t.string   "cover_file_name"
+    t.string   "cover_content_type"
+    t.integer  "cover_file_size"
+    t.datetime "cover_updated_at"
   end
 
   create_table "users", force: true do |t|
