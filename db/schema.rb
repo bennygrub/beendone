@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141118041520) do
+ActiveRecord::Schema.define(version: 20141118165549) do
 
   create_table "airlines", force: true do |t|
     t.string   "name"
@@ -105,6 +105,22 @@ ActiveRecord::Schema.define(version: 20141118041520) do
     t.datetime "updated_at"
   end
 
+  create_table "mates", force: true do |t|
+    t.integer  "trip_id"
+    t.string   "email"
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "places", force: true do |t|
+    t.integer  "trip_id"
+    t.integer  "user_id"
+    t.string   "location"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "trips", force: true do |t|
     t.integer  "user_id"
     t.string   "name"
@@ -115,6 +131,7 @@ ActiveRecord::Schema.define(version: 20141118041520) do
     t.string   "cover_content_type"
     t.integer  "cover_file_size"
     t.datetime "cover_updated_at"
+    t.text     "description"
   end
 
   create_table "users", force: true do |t|

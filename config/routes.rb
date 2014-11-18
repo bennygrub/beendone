@@ -1,4 +1,8 @@
 Beendone::Application.routes.draw do
+  resources :places
+
+  resources :mates
+
   resources :highlights
 
   resources :flight_fixes do

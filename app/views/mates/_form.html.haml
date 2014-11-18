@@ -1,0 +1,23 @@
+= form_for @mate do |f|
+  - if @mate.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@mate.errors.count, "error")} prohibited this mate from being saved:"
+      %ul
+        - @mate.errors.full_messages.each do |msg|
+          %li= msg
+
+  = f.hidden_field :trip_id, value: @trip.id
+  = f.hidden_field :user_id, value: current_user.id
+  .field
+    = f.label :email
+    = f.text_field :email
+  .field
+    = f.label :name
+    = f.text_field :name
+  .field
+    .pull-left= f.check_box :email_user
+    .pull-left{style:"margin: 3px 0 0 10px;"}= f.label "Email user an invite to this trip"
+    .clearfix
+  %button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"} Cancel
+  %button
+    = f.submit 'Add Trip Mate'

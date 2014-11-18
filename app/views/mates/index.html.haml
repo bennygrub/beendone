@@ -1,0 +1,23 @@
+%h1 Listing mates
+
+%table
+  %tr
+    %th Trip
+    %th Email
+    %th Name
+    %th
+    %th
+    %th
+
+  - @mates.each do |mate|
+    %tr
+      %td= mate.trip_id
+      %td= mate.email
+      %td= mate.name
+      %td= link_to 'Show', mate
+      %td= link_to 'Edit', edit_mate_path(mate)
+      %td= link_to 'Destroy', mate, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Mate', new_mate_path

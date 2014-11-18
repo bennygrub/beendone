@@ -64,6 +64,7 @@ margin: 0 auto;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
 	height:250px;
+	position:relative;
 }
 
 .trip-prompt .trip-area-light:hover, .trip-prompt .trip-area-dark:hover{
@@ -74,4 +75,21 @@ margin: 0 auto;
 
 .trip-prompt a{
 	text-decoration:none;
+}
+
+#highlight-edit{
+	position: absolute;
+	top: 20px;
+	right: 10px;
+	font-size: 12px;
+	padding: 0 5px;
+}
+.dotted-box{
+	background:lightgrey;
+	border: dashed 1px #0088cc;
+}
+
+.description-add{
+	margin:10px 0;
+	padding:10px;
 }

@@ -1,0 +1,15 @@
+%p#notice= notice
+
+%p
+  %b Trip:
+  = @place.trip_id
+%p
+  %b User:
+  = @place.user_id
+%p
+  %b Location:
+  = @place.location
+
+= link_to 'Edit', edit_place_path(@place)
+\|
+= link_to 'Back', places_path

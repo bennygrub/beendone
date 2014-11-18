@@ -1,0 +1,23 @@
+%h1 Listing places
+
+%table
+  %tr
+    %th Trip
+    %th User
+    %th Location
+    %th
+    %th
+    %th
+
+  - @places.each do |place|
+    %tr
+      %td= place.trip_id
+      %td= place.user_id
+      %td= place.location
+      %td= link_to 'Show', place
+      %td= link_to 'Edit', edit_place_path(place)
+      %td= link_to 'Destroy', place, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Place', new_place_path

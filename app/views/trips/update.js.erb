@@ -1,3 +1,5 @@
 $("#nameModal").modal("hide");
 $("#coverModal").modal("hide");
-$('#trip_name').html('<%= escape_javascript(render 'trip_cover') %>')
+$("#descriptionModal").modal("hide");
+$('#trip_name').html('<%= escape_javascript(render 'trip_cover') %>');
+$('#trip-description').html('<%= escape_javascript(render 'trip_description') %>');

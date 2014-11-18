@@ -8,6 +8,8 @@ class User < ActiveRecord::Base
   has_many :trips
   has_many :flights, through: :trips
   has_many :highlights
+  has_many :mates
+  has_many :places
   validates_presence_of :name, :email
   after_create :new_user
   extend FriendlyId

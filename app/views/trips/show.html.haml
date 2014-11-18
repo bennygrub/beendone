@@ -13,28 +13,10 @@
 	.content
 		.row
 			.span12
-				Trip Description:
-				Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+				#trip-description
+					=render "trip_description"
 		.row
-			.span4
-				.trip-area-dark.text-center
-					%h3 Flight Details
-					-@trip.flights.each do |flight|
-						.flight-row										
-							.flight-date.pull-left
-								=image_tag "plane.png", style: "max-width:20px;margin-right:8px;"
-								=flight.depart_time.strftime("%b %e")
-							.flight-airports.pull-left
-								=Airport.find(flight.depart_airport).faa.upcase
-								to
-								=Airport.find(flight.arrival_airport).faa.upcase
-							.flight-meta.pull-left
-								=Airline.find(flight.airline_id).name
-							.clearfix
-			.span4
-				.trip-area-light.text-center
-					%h3 Trip Mates	
-			.span4
+			.span8
 				.trip-area-dark.text-center
 					-if @trip.highlights.count < 1
 						.trip-prompt.text-center
@@ -45,13 +27,36 @@
 									%p Add specific memories that highlight your great trip
 					-else
 						%h3 Trip Highlights
-						%a#highlight-edit{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
-							Add New Highlight
+						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
+							+ add
 						-@trip.highlights.each do |highlight|
 							.highlight-row
-								%p.text-left=highlight.name
-		.row{style:"margin-top:10px;"}
+								.pull-left
+									%p.text-left=highlight.name
+								.pull-left
+									%p.text-left= link_to 'remove', highlight, :method => :delete, :data => { :confirm => 'Are you sure?' }
+								.clearfix
 			.span4
+				-if @trip.mates.count < 1
+					.trip-area-light.text-center.dotted-box
+						%a#mate-edit{"data-toggle" => "modal", :href => "#mateModal", :role => "button"} 
+							%h3 Trip Mates
+							=image_tag("insta.png")
+							%p Add and invite the people you shared this trip with
+				-else
+					.trip-area-light.text-center
+						%h3 Trip Mates
+						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#mateModal", :role => "button"}
+							+ add
+						-@trip.mates.each do |mate|
+							.highlight-row
+								.pull-left
+									%p.text-left=mate.name
+								.pull-left
+									%p.text-left= link_to 'remove', mate, :method => :delete, :data => { :confirm => 'Are you sure?' }
+								.clearfix
+		.row{style:"margin-top:10px;"}
+			.span8
 				-if @user_check == true
 					-if @auth_check
 						.trip-prompt.text-center
@@ -77,21 +82,48 @@
 											=link_to "Instagram", pic, { :class => "instarange", :rel => "instarange#{@trip.id}" }
 			.span4
 				.trip-area-dark.text-center
+					-if @trip.places.count < 1
+						.trip-prompt.text-center
+							%a#place-edit{"data-toggle" => "modal", :href => "#placeModal", :role => "button"} 
+								.trip-area-light
+									%h3 Trip Places
+									=image_tag("insta.png")
+									%p Add the places you have been on the trip. This can include cities, restaurants, hotels, or anything important to you.
+					-else
+						%h3 Trip Places
+						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#placeModal", :role => "button"}
+							+ add
+						-@trip.places.each do |place|
+							.highlight-row
+								.pull-left
+									%p.text-left=place.location
+								.pull-left
+									%p.text-left= link_to 'remove', place, :method => :delete, :data => { :confirm => 'Are you sure?' }
+								.clearfix
+		.row{style:"margin-top:10px;"}
+			.span4
+				.trip-area-light.text-center
+					%h3 Flight Details
+					-@trip.flights.each do |flight|
+						.flight-row										
+							.flight-date.pull-left
+								=image_tag "plane.png", style: "max-width:20px;margin-right:8px;"
+								=flight.depart_time.strftime("%b %e")
+							.flight-airports.pull-left
+								=Airport.find(flight.depart_airport).faa.upcase
+								to
+								=Airport.find(flight.arrival_airport).faa.upcase
+							.flight-meta.pull-left
+								=Airline.find(flight.airline_id).name
+							.clearfix
+				
+			.span4
+				.trip-area-dark.text-center
 					%h3 Trip Tweets
 			.span4
 				.trip-area-light.text-center
 					%h3 Trip Facebook Posts
 
-
-
-%h3 Flights on the Trip
-- @trip.flights.each_with_index do |flight, index|
-	.flight-div
-		%p
-			="Flight #{index+1}:"
-			= Airport.find(flight.depart_airport).city
-			to
-			= Airport.find(flight.arrival_airport).city
 
 .other
 	%p Invite Friends to Trip
@@ -109,3 +141,6 @@
 =render "cover_modal"
 =render "highlight_modal"
 =render "destination_modal"
+=render "mate_modal"
+=render "description_modal"
+=render "place_modal"

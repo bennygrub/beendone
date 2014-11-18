@@ -56,7 +56,7 @@ class HighlightsController < ApplicationController
   def destroy
     @highlight.destroy
     respond_to do |format|
-      format.html { redirect_to highlights_url }
+      format.html { redirect_to trip_path(@highlight.trip_id) }
       format.json { head :no_content }
     end
   end
