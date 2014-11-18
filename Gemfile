@@ -84,5 +84,6 @@ gem 'friendly_id', '~> 5.0.0'
 gem 'omniauth-instagram'
 gem 'instagram', '~> 1.1.3'
 gem 'fancybox2-rails', '~> 0.2.8'
+gem "nested_form"
 
 #gem "sidekiq"

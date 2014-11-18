@@ -118,6 +118,7 @@ GEM
     multi_json (1.10.1)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
+    nested_form (0.3.2)
     nokogiri (1.6.2.1)
       mini_portile (= 0.6.0)
     oauth (0.4.7)
@@ -276,6 +277,7 @@ DEPENDENCIES
   jquery-rails
   jquery-smooth-scroll-rails
   less-rails
+  nested_form
   nokogiri
   omniauth
   omniauth-google-oauth2

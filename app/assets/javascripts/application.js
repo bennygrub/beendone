@@ -17,5 +17,6 @@
 //= require gmaps/google
 //= require wice_grid
 //= require fancybox
+//= require jquery_nested_form
 //= require jquery-smooth-scroll
 //= require_tree .

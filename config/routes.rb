@@ -1,4 +1,6 @@
 Beendone::Application.routes.draw do
+  resources :highlights
+
   resources :flight_fixes do
     collection do
       get "fixup"

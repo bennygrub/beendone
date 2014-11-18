@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
   has_many :authentications
   has_many :trips
   has_many :flights, through: :trips
+  has_many :highlights
   validates_presence_of :name, :email
   after_create :new_user
   extend FriendlyId

@@ -23,6 +23,7 @@ class TripsController < ApplicationController
     end
     @arrive = @trip.flights.first.arrival_time
     @depart = @trip.flights.last.depart_time
+    @trip.highlights.build
     @user = User.find(@trip.user_id)
     @user_check = @user.id == current_user.id if current_user
     @auth_check = @user.authentications.where("provider = ?", "instagram").count == 0 #check if the user has instagram auth
@@ -88,7 +89,7 @@ class TripsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def trip_params
-      params.require(:trip).permit(:user_id, :name, :message_id, :cover)
+      params.require(:trip).permit(:user_id, :name, :message_id, :cover, highlights_attributes: [:id, :name, :user_id, :trip_id, :category_id, :description])
     end
 
 end

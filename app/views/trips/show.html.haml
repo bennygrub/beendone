@@ -36,8 +36,21 @@
 					%h3 Trip Mates	
 			.span4
 				.trip-area-dark.text-center
-					%h3 Trip Highlights
-		.row
+					-if @trip.highlights.count < 1
+						.trip-prompt.text-center
+							%a#highlight-edit{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"} 
+								.trip-area-light
+									%h3 Trip Highlights
+									=image_tag("insta.png")
+									%p Add specific memories that highlight your great trip
+					-else
+						%h3 Trip Highlights
+						%a#highlight-edit{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
+							Add New Highlight
+						-@trip.highlights.each do |highlight|
+							.highlight-row
+								%p.text-left=highlight.name
+		.row{style:"margin-top:10px;"}
 			.span4
 				-if @user_check == true
 					-if @auth_check
@@ -94,4 +107,5 @@
 	%p Add Tag to Group Trips
 
 =render "cover_modal"
+=render "highlight_modal"
 =render "destination_modal"
