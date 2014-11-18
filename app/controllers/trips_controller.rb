@@ -23,7 +23,7 @@ class TripsController < ApplicationController
     end
     @arrive = @trip.flights.first.arrival_time
     @depart = @trip.flights.last.depart_time
-    @trip.highlights.build
+    @highlight = Highlight.new
     @user = User.find(@trip.user_id)
     @user_check = @user.id == current_user.id if current_user
     @auth_check = @user.authentications.where("provider = ?", "instagram").count == 0 #check if the user has instagram auth

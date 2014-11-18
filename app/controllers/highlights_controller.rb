@@ -28,7 +28,7 @@ class HighlightsController < ApplicationController
 
     respond_to do |format|
       if @highlight.save
-        format.html { redirect_to @highlight, notice: 'Highlight was successfully created.' }
+        format.html { redirect_to trip_path(@highlight.trip_id), notice: 'Highlight was successfully created.' }
         format.json { render action: 'show', status: :created, location: @highlight }
       else
         format.html { render action: 'new' }

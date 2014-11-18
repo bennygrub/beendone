@@ -3,24 +3,24 @@
 		%button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} ×
 		%h3#coverModalLabel Add a Trip Memory/Highlight
 	.modal-body
-		= nested_form_for @trip do |f|
-			- if @trip.errors.any?
+		= form_for @highlight do |f|
+			- if @highlight.errors.any?
 				#error_explanation
-					%h2= "#{pluralize(@trip.errors.count, "error")} prohibited this highlight from being saved:"
+					%h2= "#{pluralize(@highlight.errors.count, "error")} prohibited this highlight from being saved:"
 					%ul
-						- @trip.errors.full_messages.each do |msg|
+						- @highlight.errors.full_messages.each do |msg|
 							%li= msg
-			=f.fields_for :highlights do |t|	
-				=t.hidden_field :user_id, value: current_user.id
-				.field
-					= t.label :category_id
-					= t.number_field :category_id
-				.field
-					= t.label :name
-					= t.text_field :name
-				.field
-					= t.label :description
-					= t.text_area :description
+			=f.hidden_field :trip_id, value: @trip.id
+			=f.hidden_field :user_id, value: current_user.id
+			.field
+				= f.label :category_id
+				= f.number_field :category_id
+			.field
+				= f.label :name
+				= f.text_field :name
+			.field
+				= f.label :description
+				= f.text_area :description
 			%button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"} Cancel
 			%button
 				= f.submit 'Add Highlight'
