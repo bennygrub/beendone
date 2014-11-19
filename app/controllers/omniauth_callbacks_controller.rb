@@ -19,4 +19,13 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     Authentication.create(user_id: current_user.id, provider: "instagram", uid: uid, token: token )
     redirect_to user_path(current_user)
   end
+  
+  def twitter
+    uid = request.env["omniauth.auth"].uid
+    token = request.env["omniauth.auth"].credentials["token"]
+    secret = request.env["omniauth.auth"].credentials["secret"]
+    Authentication.create(user_id: current_user.id, provider: "twitter", uid: uid, token: token, secret: secret )
+    redirect_to user_path(current_user)
+  end
+
 end

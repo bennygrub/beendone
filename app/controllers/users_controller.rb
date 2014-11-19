@@ -89,6 +89,9 @@ class UsersController < ApplicationController
     @user_check = @user.id == current_user.id if current_user
     @auth_check = @user.authentications.where("provider = ?", "instagram").count == 0 #check if the user has instagram auth
     @client = Instagram.client(:access_token => @user.authentications.where("provider = ?", "instagram").first.token) unless @auth_check
+    @trip = Trip.new
+    @trip.flights.build
+    @airlines = Airline.all.order('name ASC')
   end
   # DELETE /flight_fixes/1
   # DELETE /flight_fixes/1.json

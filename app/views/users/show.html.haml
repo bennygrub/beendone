@@ -38,6 +38,13 @@
 								CITIES
 								%br
 								%span=@destinations_cities.count
+						-if @user_check
+							.top-stat.pull-left.add-trip-btn
+								%h5.text-center
+									=link_to new_trip_path do
+										ADD TRIP
+										%br
+										%span.yellow-btn{style:"padding:0 8px;"} +
 					.clearfix
 				.clearfix
 				.more-stats.hide
@@ -163,3 +170,5 @@
 	=link_to "(X) Click to Close Full Screen", "Javascript:"
 
 =render "map_code"
+-if @user_check 
+	=render "add_trip_modal"

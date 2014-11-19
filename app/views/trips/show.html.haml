@@ -83,9 +83,29 @@
 									%p.text-left=place.location
 								.pull-left
 									%p.text-left= link_to 'remove', place, :method => :delete, :data => { :confirm => 'Are you sure?' }
-								.clearfix
+								.clearfix			
+		-if @user_check == true && @facebook_check == 7
+			.pull-left.block-small
+				.trip-area-dark.text-center
+					%h3 Trip Tweets
+		-if @user_check == true && @twitter_check == false
+			.pull-left.block-small
+				= link_to user_omniauth_authorize_path(:twitter) do
+					.trip-area-light.text-center.dotted-box
+						%h3 Add Your Trip Tweets
+						=image_tag("insta.png")
+						%p Add my Tweets from this trip with one click
+		-elsif @twitter_check == true && @tweets.count > 0
+			.pull-left.block-small
+				.trip-area-light.text-center
+					%h3 Trip Tweets
+					.insta-frame
+						-@tweets.each_with_index do |tweet, index|
+							- if index < 2
+								.pull-left.insta-thumb
+									=tweet.text
 		-if @user_check == true && @auth_check == false
-			.pull-left{style:"min-width:75%;"}
+			.pull-left.block-big
 				= link_to user_omniauth_authorize_path(:instagram) do
 					.trip-area-light.text-center.dotted-box
 						%h3 Trip Instagrams
@@ -93,7 +113,7 @@
 						%p Add my Instagrams from this trip with one click
 		-elsif @auth_check
 			- if @instagram_photos.count > 0
-				.pull-left{style:"min-width:75%;"}
+				.pull-left.block-big
 					.trip-area-light.text-center
 						%h3 Trip Instagrams
 						.insta-frame
@@ -108,15 +128,9 @@
 								=link_to @instas[6], { :class => "instarange", :rel => "instarange#{@trip.id}" } do
 									=image_tag("insta.png")
 									View More Photos
-						.clearfix				
-		-if @facebook
-			.pull-left.block-small
-				.trip-area-dark.text-center
-					%h3 Trip Tweets
-		-if @twitter
-			.pull-left.block-small
-				.trip-area-light.text-center
-					%h3 Trip Facebook Posts
+						.clearfix	
+		.clearfix
+		
 		.row
 			.span6
 				.trip-area-light.text-center
@@ -147,20 +161,6 @@
 						Friday
 						Came back on a 
 						Tuesday
-
-
-.other
-	%p Invite Friends to Trip
-	%p Link two peoples trips Together
-	%p Add Destinations to the Trip
-	%p Add Instagram
-	%p Add Twitter
-	%p Add Music
-	%p Upload Pictures
-	%p Import Pictures (facebook albums, dropbox, flickr)
-	%p Write a Description of the Trip
-	%p Add Specific Memory of Trip
-	%p Add Tag to Group Trips
 -if @user_check
 	=render "cover_modal"
 	=render "highlight_modal"

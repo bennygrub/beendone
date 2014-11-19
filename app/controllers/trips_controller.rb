@@ -38,6 +38,24 @@ class TripsController < ApplicationController
       @instagram_photos = @client.user_recent_media(:min_timestamp => @arrive.to_i, :max_timestamp => @depart.to_i)
       @instas = @instagram_photos.map{|media_item| media_item.images.standard_resolution.url}
     end
+    @facebook_check = @user.authentications.where("provider = ?", "facebook").count != 0 #check if the user has instagram auth
+    @twitter_check = @user.authentications.where("provider = ?", "twitter").count != 0 #check if the user has instagram auth
+    if @twitter_check
+      @twit_auth = @user.authentications.where("provider = ?", "twitter")
+      client = Twitter::REST::Client.new do |config|
+        if Rails.env.development?
+          config.consumer_key        = "KXxqcOE3eqI6sddRyavNeHTtL"
+          config.consumer_secret     = "ZLDWYmWOzP7cU26BjJe3NPflNRu9iRtYwy6RMDD8RTUWGRMxNH"
+        else
+          config.consumer_key        = "lIsxQnuCiG9kwNvOJwsjFg3ao"
+          config.consumer_secret     = "GTR5WZzZIqllS07wK1jsWsyKeDFX6qxBg9oVdGufbOJA1lHGL3"
+        end        
+        config.access_token        = @twit_auth.first.token
+        config.access_token_secret = @twit_auth.first.secret
+      end
+      @tweets = client.user_timeline(:since_id => @arrive.to_i, :max_id => @depart.to_i)
+      #@tweets = client.user_timeline
+    end
   end
 
   # GET /tripes/new
