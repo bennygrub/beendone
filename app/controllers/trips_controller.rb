@@ -22,15 +22,21 @@ class TripsController < ApplicationController
     else
       @cover = @trip.cover.url
     end
-    @arrive = @trip.flights.first.arrival_time
-    @depart = @trip.flights.last.depart_time
+    #@arrive = @trip.flights.first.arrival_time
+    #@depart = @trip.flights.last.depart_time
+    @arrive = 3.years.ago
+    @depart = Time.now
     @highlight = Highlight.new
     @mate = Mate.new
     @place = Place.new
     @user = User.find(@trip.user_id)
-    @user_check = @user.id == current_user.id if current_user
-    @auth_check = @user.authentications.where("provider = ?", "instagram").count == 0 #check if the user has instagram auth
-    @client = Instagram.client(:access_token => @user.authentications.where("provider = ?", "instagram").first.token) unless @auth_check
+    @user_check = @user.id == current_user.id if current_user#checks to if the current user owns the trip
+    @auth_check = @user.authentications.where("provider = ?", "instagram").count != 0 #check if the user has instagram auth
+    if @auth_check
+      @client = Instagram.client(:access_token => @user.authentications.where("provider = ?", "instagram").first.token)
+      @instagram_photos = @client.user_recent_media(:min_timestamp => @arrive.to_i, :max_timestamp => @depart.to_i)
+      @instas = @instagram_photos.map{|media_item| media_item.images.standard_resolution.url}
+    end
   end
 
   # GET /tripes/new

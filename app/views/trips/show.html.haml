@@ -17,15 +17,14 @@
 					=render "trip_description"
 		.row
 			.span8
-				.trip-area-dark.text-center
-					-if @trip.highlights.count < 1
-						.trip-prompt.text-center
-							%a#highlight-edit{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"} 
-								.trip-area-light
-									%h3 Trip Highlights
-									=image_tag("insta.png")
-									%p Add specific memories that highlight your great trip
-					-else
+				-if @trip.highlights.count < 1
+					%a#hl-edit{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
+						.trip-area-light.text-center.dotted-box 
+							%h3 Add Trip Highlights
+							=image_tag("insta.png")
+							%p Add specific memories that highlight your great trip
+				-else
+					.trip-area-dark.text-center
 						%h3 Trip Highlights
 						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
 							+ add
@@ -38,9 +37,9 @@
 								.clearfix
 			.span4
 				-if @trip.mates.count < 1
-					.trip-area-light.text-center.dotted-box
-						%a#mate-edit{"data-toggle" => "modal", :href => "#mateModal", :role => "button"} 
-							%h3 Trip Mates
+					%a#m-edit{"data-toggle" => "modal", :href => "#mateModal", :role => "button"} 
+						.trip-area-light.text-center.dotted-box
+							%h3 Add Trip Mates
 							=image_tag("insta.png")
 							%p Add and invite the people you shared this trip with
 				-else
@@ -57,49 +56,49 @@
 								.clearfix
 		.row{style:"margin-top:10px;"}
 			.span8
-				-if @user_check == true
-					-if @auth_check
-						.trip-prompt.text-center
-							= link_to user_omniauth_authorize_path(:instagram) do
-								.trip-area-light
-									%h3 Trip Instagrams
-									=image_tag("insta.png")
-									%p Add my Instagrams from this trip with one click
-				-else
-					.trip-area-light.text-center
-						%h3 Trip Instagrams
-						-unless @auth_check == true
-							-html = []
-							-for media_item in @client.user_recent_media(:min_timestamp => start.to_i, :max_timestamp => finish.to_i )
-								-html << media_item.images.standard_resolution.url
-							-if html.count > 0
+				-if @user_check == true && @auth_check == false
+					= link_to user_omniauth_authorize_path(:instagram) do
+						.trip-area-light.text-center.dotted-box
+							%h3 Trip Instagrams
+							=image_tag("insta.png")
+							%p Add my Instagrams from this trip with one click
+				-elsif @auth_check
+					- if @instagram_photos.count > 0
+						.trip-area-light.text-center
+							%h3 Trip Instagrams
+							.insta-frame
+								-@instas.each_with_index do |insta, index|
+									- if index < 6
+										=link_to insta, { :class => "instarange", :rel => "instarange#{@trip.id}" } do
+											.pull-left
+												.insta-thumb
+													=image_tag(insta)
+							-if @instas.count >6
 								.instagram-photos
-									=link_to html.first, { :class => "instarange", :rel => "instarange#{@trip.id}" } do
+									=link_to @instas[6], { :class => "instarange", :rel => "instarange#{@trip.id}" } do
 										=image_tag("insta.png")
-										View Trip Photos
-									.hide
-										-html.drop(1).each do |pic|
-											=link_to "Instagram", pic, { :class => "instarange", :rel => "instarange#{@trip.id}" }
-			.span4
-				.trip-area-dark.text-center
-					-if @trip.places.count < 1
-						.trip-prompt.text-center
-							%a#place-edit{"data-toggle" => "modal", :href => "#placeModal", :role => "button"} 
-								.trip-area-light
-									%h3 Trip Places
-									=image_tag("insta.png")
-									%p Add the places you have been on the trip. This can include cities, restaurants, hotels, or anything important to you.
+										View More Photos
+							.clearfix
 					-else
-						%h3 Trip Places
-						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#placeModal", :role => "button"}
-							+ add
-						-@trip.places.each do |place|
-							.highlight-row
-								.pull-left
-									%p.text-left=place.location
-								.pull-left
-									%p.text-left= link_to 'remove', place, :method => :delete, :data => { :confirm => 'Are you sure?' }
-								.clearfix
+						No Instagram Photos
+			.span4				
+				-if @trip.places.count < 1
+					%a#p-edit{"data-toggle" => "modal", :href => "#placeModal", :role => "button"} 
+						.trip-area-light.text-center.dotted-box
+							%h3 Add Trip Places
+							=image_tag("insta.png")
+							%p Add the places you have been on the trip. This can include cities, restaurants, hotels, or anything important to you.
+				-else
+					%h3 Trip Places
+					%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#placeModal", :role => "button"}
+						+ add
+					-@trip.places.each do |place|
+						.highlight-row
+							.pull-left
+								%p.text-left=place.location
+							.pull-left
+								%p.text-left= link_to 'remove', place, :method => :delete, :data => { :confirm => 'Are you sure?' }
+							.clearfix
 		.row{style:"margin-top:10px;"}
 			.span4
 				.trip-area-light.text-center

@@ -85,8 +85,11 @@ margin: 0 auto;
 	padding: 0 5px;
 }
 .dotted-box{
-	background:lightgrey;
+	background:rgba(245, 245, 245, 1);
 	border: dashed 1px #0088cc;
+}
+.dotted-box:hover{
+	background:rgb(224, 224, 224);
 }
 
 .description-add{
@@ -106,4 +109,13 @@ margin: 0 auto;
 	top:10px;
 	right:10px;
 }
-
+.insta-frame{
+	margin:auto;
+	width: 90%;
+}
+.insta-thumb img {
+	max-width: 75px;
+}
+.insta-thumb {
+	padding: 5px;
+}

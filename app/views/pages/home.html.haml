@@ -3,7 +3,7 @@
 		.bump-down#gohome
 		.blacker
 			%h1.white-shadow{style:"margin:0px;"} Where Has Life Taken You?
-			%h3.white-shadow{style:"margin:0px;"} Get An Interactive Map of Every Place You’ve Been
+			%h3.white-shadow{style:"margin:0px;"} Relive the Fun of Every Trip You've Taken with An Interactive Map
 			%p.text-center.white-shadow{style:"margin:0 0 30px 0;"} All of your past & future travel data updated automatically by analyzing your email travel receipts.
 			= form_for(:user, :as => :user, :url => registration_path(:user)) do |f|
 				= f.text_field :name, placeholder: "Name"
@@ -60,7 +60,7 @@
 				Create My Map
 	.clearfix
 .home-alter0
-	.row
+	.row{style:"padding-bottom:25px"}
 		.span6
 			.home-explain.text-center
 				%h3 Your Trips Update Automatically
