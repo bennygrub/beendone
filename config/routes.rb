@@ -13,7 +13,9 @@ Beendone::Application.routes.draw do
   end
 
   resources :airport_mappings
-  resources :trips
+  resources :trips do
+    get :autocomplete_airport_city, :on => :collection
+  end
 
   resources :airlines
 

@@ -1,6 +1,11 @@
 class Airport < ActiveRecord::Base
   require 'csv'
-
+  def display_name
+    "#{self.city} (#{self.faa})"
+  end
+  def funky_method
+    "#{self.city.camelize} (#{self.faa})"
+  end
   has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/missing.png"
   validates_attachment_content_type :avatar, :content_type => /\Aimage\/.*\Z/
 

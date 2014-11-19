@@ -85,5 +85,6 @@ gem 'omniauth-instagram'
 gem 'instagram', '~> 1.1.3'
 gem 'fancybox2-rails', '~> 0.2.8'
 gem "nested_form"
-
+gem 'jquery-ui-rails'
+gem 'rails4-autocomplete'
 #gem "sidekiq"

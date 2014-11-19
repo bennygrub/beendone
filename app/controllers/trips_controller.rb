@@ -5,6 +5,7 @@ class TripsController < ApplicationController
   before_action :authenticate_user!
   before_action :admin
   skip_before_action :verify_authenticity_token
+  autocomplete :airport, :city, :extra_data => [:faa], :display_value => :funky_method, :full => true
   # GET /tripes
   # GET /tripes.json
   def index
@@ -35,6 +36,9 @@ class TripsController < ApplicationController
   # GET /tripes/new
   def new
     @trip = Trip.new
+    @trip.flights.build
+    @airlines = Airline.all.order('name ASC')
+    #@airports = Airport.where("faa is NOT NULL").order('city ASC')
   end
 
   # GET /tripes/1/edit
@@ -44,16 +48,34 @@ class TripsController < ApplicationController
   # POST /tripes
   # POST /tripes.json
   def create
-    @trip = Trip.new(trip_params)
 
-    respond_to do |format|
-      if @trip.save
-        format.html { redirect_to @trip, notice: 'Flight fix was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @trip }
-      else
-        format.html { render action: 'new' }
-        format.json { render json: @trip.errors, status: :unprocessable_entity }
+    begin 
+      d_ports = trip_params[:flights_attributes].map{|f| f[1][:depart_airport].scan(/\((.*?)\)/).first.first }
+      a_ports = trip_params[:flights_attributes].map{|f| f[1][:arrival_airport].scan(/\((.*?)\)/).first.first }
+      ports = d_ports + a_ports
+      ports.map{|f| Airport.find_by_faa(f)}        
+
+      @trip = Trip.create(user_id: current_user.id, name: trip_params[:name])
+      trip_params[:flights_attributes].each do |flight|
+        d = flight[1][:depart_time].split('/')
+        a = flight[1][:arrival_time].split('/')
+        depart_airport = Airport.find_by_faa(flight[1][:depart_airport].scan(/\((.*?)\)/).first.first).id
+        arrival_airport = Airport.find_by_faa(flight[1][:arrival_airport].scan(/\((.*?)\)/).first.first).id
+        depart_time = DateTime.new(d[2].to_i, d[0].to_i,d[1].to_i,11,30, 0, 0)
+        arrival_time = DateTime.new(a[2].to_i, a[0].to_i,a[1].to_i,16,30, 0, 0)
+        Flight.create(
+          airline_id: flight[1][:airline_id],
+          trip_id: @trip.id,
+          depart_airport: depart_airport,
+          arrival_airport: arrival_airport,
+          depart_time: depart_time,
+          arrival_time: arrival_time
+        )
       end
+    
+      redirect_to @trip, notice: 'Trip was Created'
+    rescue
+      redirect_to new_trip_path, notice: 'Please select a listed airport with FAA code'
     end
   end
 
@@ -91,7 +113,9 @@ class TripsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def trip_params
-      params.require(:trip).permit(:user_id, :name, :message_id, :description, :cover, highlights_attributes: [:id, :name, :user_id, :trip_id, :category_id, :description])
+      params.require(:trip).permit(:user_id, :name, :message_id, :description, :cover, flights_attributes: [:id, :airline_id, :trip_id, :depart_airport, :arrival_airport, :depart_time, :arrival_time])
     end
-
+    def get_autocomplete_items(parameters)
+      super(parameters).where("faa IS NOT NULL")
+    end
 end

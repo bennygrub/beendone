@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require jquery.ui.all
 //= require twitter/bootstrap
 //= require underscore
 //= require gmaps/google
@@ -19,4 +20,5 @@
 //= require fancybox
 //= require jquery_nested_form
 //= require jquery-smooth-scroll
+//= require autocomplete-rails
 //= require_tree .
