@@ -29,6 +29,7 @@ class TripsController < ApplicationController
     @highlight = Highlight.new
     @mate = Mate.new
     @place = Place.new
+    @categories = Category.all
     @user = User.find(@trip.user_id)
     @user_check = @user.id == current_user.id if current_user#checks to if the current user owns the trip
     @auth_check = @user.authentications.where("provider = ?", "instagram").count != 0 #check if the user has instagram auth

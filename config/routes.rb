@@ -1,4 +1,6 @@
 Beendone::Application.routes.draw do
+  resources :categories
+
   resources :places
 
   resources :mates

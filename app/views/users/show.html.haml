@@ -109,74 +109,56 @@
 						.row
 							-trips.each do |trip|
 								.span4
-									.flip-container.text-center
-										.flipper
-											- destination = destination_city(trip)
-											- num = days_visited(trip)
-											.front{style: "background: url('#{destination.avatar.url}');background-size: cover;"}
-												.front-overlay
-													%h3
-														=destination.city
-													%h4
-														in
-														=trip.flights.first.depart_time.strftime("%B")
+									=link_to trip do
+										.flip-container.text-center
+											.flipper
+												- destination = destination_city(trip)
+												- num = days_visited(trip)
+												.front{style: "background: url('#{destination.avatar.url}');background-size: cover;"}
+													.front-overlay
+														%h3
+															=destination.city
+														%h4
+															in
+															=trip.flights.first.depart_time.strftime("%B")
 
-													%h5
-														&#9679;
-														-if num > 0
-															="#{num} days"
-														-else
-															-if trip.flights.count > 1 && trip.flights.first.depart_airport == trip.flights.last.arrival_airport 
-																Returned the Same Day
+														%h5
+															&#9679;
+															-if num > 0
+																="#{num} days"
 															-else
-																Forever
-																%span{style:"font-size:14px;font-weight:100;"}
-																	(no return flight)
+																-if trip.flights.count > 1 && trip.flights.first.depart_airport == trip.flights.last.arrival_airport 
+																	Returned the Same Day
+																-else
+																	Forever
+																	%span{style:"font-size:14px;font-weight:100;"}
+																		(no return flight)
 
-														&#9679;
+															&#9679;
 
-											.back
-												%h3=destination.city
-												.trip-date-range
-													-start = trip.flights.first.depart_time
-													-finish = trip.flights.last.arrival_time
-													%b=start.strftime("%B %e")
-													to 
-													%b=finish.strftime("%B %e")
-												.hr
-												.back-flights
-													-trip.flights.each do |flight|
-														.flight-row										
-															.flight-date.pull-left
-																=image_tag "plane.png", style: "max-width:20px;margin-right:8px;"
-																=flight.depart_time.strftime("%b %e")
-															.flight-airports.pull-left
-																=Airport.find(flight.depart_airport).faa.upcase
-																to
-																=Airport.find(flight.arrival_airport).faa.upcase
-															.flight-meta.pull-left
-																=Airline.find(flight.airline_id).name
-															.clearfix
-														.hr
-												-if @user_check == true
-													-if @auth_check
-														.instagram-photos
-															= link_to user_omniauth_authorize_path(:instagram) do
-																=image_tag("insta.png")
-																Get my Instagram photos from this trip
-												
-												-unless @auth_check == true
-													-html = []
-													-for media_item in @client.user_recent_media(:min_timestamp => start.to_i, :max_timestamp => finish.to_i )
-														-html << media_item.images.standard_resolution.url
-													-if html.count > 0
-														.instagram-photos
-															=link_to html.first, { :class => "instarange", :rel => "instarange#{trip.id}" } do
-																=image_tag("insta.png")
-																View Trip Photos
-															.hide
-																-html.drop(1).each do |pic|
-																	=link_to "Instagram", pic, { :class => "instarange", :rel => "instarange#{trip.id}" }	
+												.back
+													%h3=destination.city
+													.trip-date-range
+														-start = trip.flights.first.depart_time
+														-finish = trip.flights.last.arrival_time
+														%b=start.strftime("%B %e")
+														to 
+														%b=finish.strftime("%B %e")
+													.hr
+													.back-flights
+														-trip.flights.each do |flight|
+															.flight-row										
+																.flight-date.pull-left
+																	=image_tag "plane.png", style: "max-width:20px;margin-right:8px;"
+																	=flight.depart_time.strftime("%b %e")
+																.flight-airports.pull-left
+																	=Airport.find(flight.depart_airport).faa.upcase
+																	to
+																	=Airport.find(flight.arrival_airport).faa.upcase
+																.flight-meta.pull-left
+																	=Airline.find(flight.airline_id).name
+																.clearfix
+															.hr
 .unfull-screen
 	=link_to "(X) Click to Close Full Screen", "Javascript:"
 
