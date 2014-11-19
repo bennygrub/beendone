@@ -1,5 +1,6 @@
 .trip-bg.text-center{style: "background:url('#{@cover}');"}
-	%a.edit-link#cover-edit{"data-toggle" => "modal", :href => "#coverModal", :role => "button"} (Edit Cover Photo)
+	-if @user_check
+		%a.edit-link#cover-edit{"data-toggle" => "modal", :href => "#coverModal", :role => "button"} (Edit Cover Photo)
 	.clearfix
 	=render "trip_cover"
 	#timeframe
@@ -8,16 +9,20 @@
 			to
 			="#{@depart.strftime("%b %d")},"
 			=@depart.strftime("%Y")
-	%a.edit-link#name-edit{"data-toggle" => "modal", :href => "#nameModal", :role => "button"} (Edit Trip Name)
+	-if @user_check
+		%a.edit-link#name-edit{"data-toggle" => "modal", :href => "#nameModal", :role => "button"} (Edit Trip Name)
 .container
 	.content
 		.row
 			.span12
 				#trip-description
-					=render "trip_description"
+					-unless @trip.description.blank?
+						=render "trip_description"
+					-else
+						%div{style: "margin:10px 0;"}
 		.row
 			.span8
-				-if @trip.highlights.count < 1
+				-if @trip.highlights.count < 1 && @user_check
 					%a#hl-edit{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
 						.trip-area-light.text-center.dotted-box 
 							%h3 Add Trip Highlights
@@ -26,8 +31,9 @@
 				-else
 					.trip-area-dark.text-center
 						%h3 Trip Highlights
-						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
-							+ add
+						-if @user_check
+							%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
+								+ add
 						-@trip.highlights.each do |highlight|
 							.highlight-row
 								.pull-left
@@ -36,7 +42,7 @@
 									%p.text-left= link_to 'remove', highlight, :method => :delete, :data => { :confirm => 'Are you sure?' }
 								.clearfix
 			.span4
-				-if @trip.mates.count < 1
+				-if @trip.mates.count < 1 && @user_check
 					%a#m-edit{"data-toggle" => "modal", :href => "#mateModal", :role => "button"} 
 						.trip-area-light.text-center.dotted-box
 							%h3 Add Trip Mates
@@ -45,8 +51,9 @@
 				-else
 					.trip-area-light.text-center
 						%h3 Trip Mates
-						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#mateModal", :role => "button"}
-							+ add
+						-if @user_check
+							%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#mateModal", :role => "button"}
+								+ add
 						-@trip.mates.each do |mate|
 							.highlight-row
 								.pull-left
@@ -82,23 +89,25 @@
 					-else
 						No Instagram Photos
 			.span4				
-				-if @trip.places.count < 1
+				-if @trip.places.count < 1 && @user_check
 					%a#p-edit{"data-toggle" => "modal", :href => "#placeModal", :role => "button"} 
 						.trip-area-light.text-center.dotted-box
 							%h3 Add Trip Places
 							=image_tag("insta.png")
 							%p Add the places you have been on the trip. This can include cities, restaurants, hotels, or anything important to you.
 				-else
-					%h3 Trip Places
-					%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#placeModal", :role => "button"}
-						+ add
-					-@trip.places.each do |place|
-						.highlight-row
-							.pull-left
-								%p.text-left=place.location
-							.pull-left
-								%p.text-left= link_to 'remove', place, :method => :delete, :data => { :confirm => 'Are you sure?' }
-							.clearfix
+					.trip-area-light.text-center
+						%h3 Trip Places
+						-if @user_check
+							%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#placeModal", :role => "button"}
+								+ add
+						-@trip.places.each do |place|
+							.highlight-row
+								.pull-left
+									%p.text-left=place.location
+								.pull-left
+									%p.text-left= link_to 'remove', place, :method => :delete, :data => { :confirm => 'Are you sure?' }
+								.clearfix
 		.row{style:"margin-top:10px;"}
 			.span4
 				.trip-area-light.text-center
@@ -136,10 +145,10 @@
 	%p Write a Description of the Trip
 	%p Add Specific Memory of Trip
 	%p Add Tag to Group Trips
-
-=render "cover_modal"
-=render "highlight_modal"
-=render "destination_modal"
-=render "mate_modal"
-=render "description_modal"
-=render "place_modal"
+-if @user_check
+	=render "cover_modal"
+	=render "highlight_modal"
+	=render "destination_modal"
+	=render "mate_modal"
+	=render "description_modal"
+	=render "place_modal"

@@ -2,8 +2,8 @@ class TripsController < ApplicationController
   include ApplicationHelper
   helper_method :admin
   before_action :set_trip, only: [:show, :edit, :update, :destroy]
-  before_action :authenticate_user!
-  before_action :admin
+  before_action :authenticate_user!, except: [:show]
+  before_action :admin, only: [:index]
   skip_before_action :verify_authenticity_token
   autocomplete :airport, :city, :extra_data => [:faa], :display_value => :funky_method, :full => true
   # GET /tripes
@@ -22,10 +22,10 @@ class TripsController < ApplicationController
     else
       @cover = @trip.cover.url
     end
-    #@arrive = @trip.flights.first.arrival_time
-    #@depart = @trip.flights.last.depart_time
-    @arrive = 3.years.ago
-    @depart = Time.now
+    @arrive = @trip.flights.first.arrival_time
+    @depart = @trip.flights.last.depart_time
+    #@arrive = 3.years.ago
+    #@depart = Time.now
     @highlight = Highlight.new
     @mate = Mate.new
     @place = Place.new
