@@ -56,6 +56,10 @@ class TripsController < ApplicationController
       @tweets = client.user_timeline(:since_id => @arrive.to_i, :max_id => @depart.to_i)
       #@tweets = client.user_timeline
     end
+    if @facebook_check
+      @fb_auth = @user.authentications.where("provider = ?", "facebook").first
+      @statuses = FbGraph::User.me(@fb_auth.token).statuses(:until => @arrive.to_i, :since => @depart.to_i)
+    end
   end
 
   # GET /tripes/new

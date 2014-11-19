@@ -84,10 +84,7 @@
 								.pull-left
 									%p.text-left= link_to 'remove', place, :method => :delete, :data => { :confirm => 'Are you sure?' }
 								.clearfix			
-		-if @user_check == true && @facebook_check == 7
-			.pull-left.block-small
-				.trip-area-dark.text-center
-					%h3 Trip Tweets
+		
 		-if @user_check == true && @twitter_check == false
 			.pull-left.block-small
 				= link_to user_omniauth_authorize_path(:twitter) do
@@ -104,6 +101,7 @@
 							- if index < 2
 								.pull-left.insta-thumb
 									=tweet.text
+		
 		-if @user_check == true && @auth_check == false
 			.pull-left.block-big
 				= link_to user_omniauth_authorize_path(:instagram) do
@@ -128,7 +126,27 @@
 								=link_to @instas[6], { :class => "instarange", :rel => "instarange#{@trip.id}" } do
 									=image_tag("insta.png")
 									View More Photos
-						.clearfix	
+						.clearfix
+		-if @user_check == true && @facebook_check == false
+			.pull-left.block-small
+				= link_to user_omniauth_authorize_path(:facebook) do
+					.trip-area-light.text-center.dotted-box
+						%h3 Add Your Trip Facebook Posts
+						=image_tag("insta.png")
+						%p Add my FB Posts from this trip with one click
+		-elsif @facebook_check == true && @statuses.count > 0
+			.pull-left.block-small
+				.trip-area-light.text-center
+					%h3 Trip Facebook Posts
+					.insta-frame
+						-@statuses.each_with_index do |post, index|
+							- if index < 2
+								.pull-left.insta-thumb
+									=post.story
+		-elsif @facebook_check == true && @statuses.count < 1 && @user_check
+			.pull-left.block-small
+				.trip-area-light.text-center
+					%p You have no facebook posts for this trips timeframe
 		.clearfix
 		
 		.row

@@ -28,4 +28,11 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     redirect_to user_path(current_user)
   end
 
+  def facebook
+    uid = request.env["omniauth.auth"].uid
+    token = request.env["omniauth.auth"].credentials["token"]
+    Authentication.create(user_id: current_user.id, provider: "facebook", uid: uid, token: token )
+    redirect_to user_path(current_user)
+  end
+
 end
