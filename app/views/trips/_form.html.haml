@@ -20,13 +20,13 @@
         =t.label "Depart Airport"
         =t.autocomplete_field :depart_airport, autocomplete_airport_city_trips_path
       .field.field-time
-        =t.label "Depart Time"
+        =t.label "Depart Time (mm/dd/year)"
         =t.text_field :depart_time, class: "date_picker"
       .field
         =t.label "Arrival Airport"
         =t.autocomplete_field :arrival_airport, autocomplete_airport_city_trips_path
       .field.field-time
-        =t.label "Arrival Time"
+        =t.label "Arrival Time (mm/dd/year)"
         =t.text_field :arrival_time, class: "date_picker"
       .field.remove-flight-link
         =t.link_to_remove "Remove this Flight"

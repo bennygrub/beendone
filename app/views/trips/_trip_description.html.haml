@@ -1,9 +1,11 @@
--if @trip.description.blank?
+-if @trip.description.blank? && @user_check
 	%a#description_add{"data-toggle" => "modal", :href => "#descriptionModal", :role => "button"}
 		.dotted-box.text-center.description-add
 			+ Add Trip Description/Summary
--else
+-elsif !@trip.description.blank? && @user_check
 	%p
 		=@trip.description
 	%p
 		%a#description_add{"data-toggle" => "modal", :href => "#descriptionModal", :role => "button"} Edit
+-else
+	%p

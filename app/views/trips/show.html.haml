@@ -16,100 +16,109 @@
 		.row
 			.span12
 				#trip-description
-					-unless @trip.description.blank?
-						=render "trip_description"
-					-else
-						%div{style: "margin:10px 0;"}
-		.row
-			.span8
-				-if @trip.highlights.count < 1 && @user_check
-					%a#hl-edit{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
-						.trip-area-light.text-center.dotted-box 
-							%h3 Add Trip Highlights
-							=image_tag("insta.png")
-							%p Add specific memories that highlight your great trip
-				-else
-					.trip-area-dark.text-center
-						%h3 Trip Highlights
-						-if @user_check
-							%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
-								+ add
-						-@trip.highlights.each do |highlight|
+					=render "trip_description"
+		-if @trip.highlights.count < 1 && @user_check
+			.block-big.pull-left	
+				%a#hl-edit{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
+					.trip-area-light.text-center.dotted-box 
+						%h3 Add Trip Highlights
+						=image_tag("insta.png")
+						%p Add specific memories that highlight your great trip
+		-elsif @trip.highlights.count > 0
+			.block-big.pull-left
+				.trip-area-dark.text-center
+					%h3 Trip Highlights
+					-if @user_check
+						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
+							+ add
+					-@trip.highlights.each_with_index do |highlight, index|
+						-if index < 5
 							.highlight-row
 								.pull-left
 									%p.text-left=highlight.name
 								.pull-left
 									%p.text-left= link_to 'remove', highlight, :method => :delete, :data => { :confirm => 'Are you sure?' }
 								.clearfix
-			.span4
-				-if @trip.mates.count < 1 && @user_check
-					%a#m-edit{"data-toggle" => "modal", :href => "#mateModal", :role => "button"} 
-						.trip-area-light.text-center.dotted-box
-							%h3 Add Trip Mates
-							=image_tag("insta.png")
-							%p Add and invite the people you shared this trip with
-				-else
-					.trip-area-light.text-center
-						%h3 Trip Mates
-						-if @user_check
-							%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#mateModal", :role => "button"}
-								+ add
-						-@trip.mates.each do |mate|
+		
+		-if @trip.mates.count < 1 && @user_check
+			.pull-left.block-small
+				%a#m-edit{"data-toggle" => "modal", :href => "#mateModal", :role => "button"} 
+					.trip-area-light.text-center.dotted-box
+						%h3 Add Trip Mates
+						=image_tag("insta.png")
+						%p Add and invite the people you shared this trip with
+		-elsif @trip.mates.count > 0
+			.pull-left.block-small
+				.trip-area-light.text-center
+					%h3 Trip Mates
+					-if @user_check
+						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#mateModal", :role => "button"}
+							+ add
+					-@trip.mates.each_with_index do |mate, index|
+						-if index < 6
 							.highlight-row
 								.pull-left
 									%p.text-left=mate.name
 								.pull-left
 									%p.text-left= link_to 'remove', mate, :method => :delete, :data => { :confirm => 'Are you sure?' }
 								.clearfix
-		.row{style:"margin-top:10px;"}
-			.span8
-				-if @user_check == true && @auth_check == false
-					= link_to user_omniauth_authorize_path(:instagram) do
-						.trip-area-light.text-center.dotted-box
-							%h3 Trip Instagrams
-							=image_tag("insta.png")
-							%p Add my Instagrams from this trip with one click
-				-elsif @auth_check
-					- if @instagram_photos.count > 0
-						.trip-area-light.text-center
-							%h3 Trip Instagrams
-							.insta-frame
-								-@instas.each_with_index do |insta, index|
-									- if index < 6
-										=link_to insta, { :class => "instarange", :rel => "instarange#{@trip.id}" } do
-											.pull-left
-												.insta-thumb
-													=image_tag(insta)
-							-if @instas.count >6
-								.instagram-photos
-									=link_to @instas[6], { :class => "instarange", :rel => "instarange#{@trip.id}" } do
-										=image_tag("insta.png")
-										View More Photos
-							.clearfix
-					-else
-						No Instagram Photos
-			.span4				
-				-if @trip.places.count < 1 && @user_check
-					%a#p-edit{"data-toggle" => "modal", :href => "#placeModal", :role => "button"} 
-						.trip-area-light.text-center.dotted-box
-							%h3 Add Trip Places
-							=image_tag("insta.png")
-							%p Add the places you have been on the trip. This can include cities, restaurants, hotels, or anything important to you.
-				-else
-					.trip-area-light.text-center
-						%h3 Trip Places
-						-if @user_check
-							%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#placeModal", :role => "button"}
-								+ add
-						-@trip.places.each do |place|
+		-if @trip.places.count < 1 && @user_check
+			.pull-left.block-small
+				%a#p-edit{"data-toggle" => "modal", :href => "#placeModal", :role => "button"} 
+					.trip-area-light.text-center.dotted-box
+						%h3 Add Trip Places
+						=image_tag("insta.png")
+						%p Add the places you have been on the trip. This can include cities, restaurants, hotels, or anything important to you.
+		-elsif @trip.places.count > 0
+			.pull-left.block-small
+				.trip-area-light.text-center
+					%h3 Trip Places
+					-if @user_check
+						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#placeModal", :role => "button"}
+							+ add
+					-@trip.places.each_with_index do |place, index|
+						-if index < 6
 							.highlight-row
 								.pull-left
 									%p.text-left=place.location
 								.pull-left
 									%p.text-left= link_to 'remove', place, :method => :delete, :data => { :confirm => 'Are you sure?' }
 								.clearfix
-		.row{style:"margin-top:10px;"}
-			.span4
+		-if @user_check == true && @auth_check == false
+			.pull-left{style:"min-width:75%;"}
+				= link_to user_omniauth_authorize_path(:instagram) do
+					.trip-area-light.text-center.dotted-box
+						%h3 Trip Instagrams
+						=image_tag("insta.png")
+						%p Add my Instagrams from this trip with one click
+		-elsif @auth_check
+			- if @instagram_photos.count > 0
+				.pull-left{style:"min-width:75%;"}
+					.trip-area-light.text-center
+						%h3 Trip Instagrams
+						.insta-frame
+							-@instas.each_with_index do |insta, index|
+								- if index < 6
+									=link_to insta, { :class => "instarange", :rel => "instarange#{@trip.id}" } do
+										.pull-left
+											.insta-thumb
+												=image_tag(insta)
+						-if @instas.count >6
+							.instagram-photos
+								=link_to @instas[6], { :class => "instarange", :rel => "instarange#{@trip.id}" } do
+									=image_tag("insta.png")
+									View More Photos
+						.clearfix				
+		-if @facebook
+			.pull-left.block-small
+				.trip-area-dark.text-center
+					%h3 Trip Tweets
+		-if @twitter
+			.pull-left.block-small
+				.trip-area-light.text-center
+					%h3 Trip Facebook Posts
+		.row
+			.span6
 				.trip-area-light.text-center
 					%h3 Flight Details
 					-@trip.flights.each do |flight|
@@ -124,13 +133,20 @@
 							.flight-meta.pull-left
 								=Airline.find(flight.airline_id).name
 							.clearfix
-				
-			.span4
-				.trip-area-dark.text-center
-					%h3 Trip Tweets
-			.span4
+			.span6
 				.trip-area-light.text-center
-					%h3 Trip Facebook Posts
+					%h3 Trip Statistics
+					%p
+						Length of Stay: 
+						8
+					%p
+						Number of Times Visited: 
+						4
+					%p
+						Left of a 
+						Friday
+						Came back on a 
+						Tuesday
 
 
 .other

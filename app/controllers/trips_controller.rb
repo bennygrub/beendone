@@ -5,7 +5,7 @@ class TripsController < ApplicationController
   before_action :authenticate_user!, except: [:show]
   before_action :admin, only: [:index]
   skip_before_action :verify_authenticity_token
-  autocomplete :airport, :city, :extra_data => [:faa], :display_value => :funky_method, :full => true
+  autocomplete :airport, :city, :extra_data => [:faa], :display_value => :funky_method#, :full => true
   # GET /tripes
   # GET /tripes.json
   def index
