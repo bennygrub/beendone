@@ -20,9 +20,8 @@
 		-if @trip.highlights.count < 1 && @user_check
 			.block-big.pull-left	
 				%a#hl-edit{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
-					.trip-area-light.text-center.dotted-box 
+					.trip-area-light.text-center.dotted-box.social-image-highlights
 						%h3 Add Trip Highlights
-						=image_tag("insta.png")
 						%p Add specific memories that highlight your great trip
 		-elsif @trip.highlights.count > 0
 			.block-big.pull-left
@@ -43,9 +42,8 @@
 		-if @trip.mates.count < 1 && @user_check
 			.pull-left.block-small
 				%a#m-edit{"data-toggle" => "modal", :href => "#mateModal", :role => "button"} 
-					.trip-area-light.text-center.dotted-box
+					.trip-area-light.text-center.dotted-box.social-image-mates
 						%h3 Add Trip Mates
-						=image_tag("insta.png")
 						%p Add and invite the people you shared this trip with
 		-elsif @trip.mates.count > 0
 			.pull-left.block-small
@@ -65,9 +63,8 @@
 		-if @trip.places.count < 1 && @user_check
 			.pull-left.block-small
 				%a#p-edit{"data-toggle" => "modal", :href => "#placeModal", :role => "button"} 
-					.trip-area-light.text-center.dotted-box
+					.trip-area-light.text-center.dotted-box.social-image-places
 						%h3 Add Trip Places
-						=image_tag("insta.png")
 						%p Add the places you have been on the trip. This can include cities, restaurants, hotels, or anything important to you.
 		-elsif @trip.places.count > 0
 			.pull-left.block-small
@@ -88,10 +85,10 @@
 		-if @user_check == true && @twitter_check == false
 			.pull-left.block-small
 				= link_to user_omniauth_authorize_path(:twitter) do
-					.trip-area-light.text-center.dotted-box
+					.trip-area-light.text-center.dotted-box.social-image-twitter
 						%h3 Add Your Trip Tweets
-						=image_tag("insta.png")
 						%p Add my Tweets from this trip with one click
+						
 		-elsif @twitter_check == true && @tweets.count > 0
 			.pull-left.block-small
 				.trip-area-light.text-center
@@ -105,9 +102,8 @@
 		-if @user_check == true && @auth_check == false
 			.pull-left.block-big
 				= link_to user_omniauth_authorize_path(:instagram) do
-					.trip-area-light.text-center.dotted-box
+					.trip-area-light.text-center.dotted-box.social-image-instagram
 						%h3 Trip Instagrams
-						=image_tag("insta.png")
 						%p Add my Instagrams from this trip with one click
 		-elsif @auth_check
 			- if @instagram_photos.count > 0
@@ -130,10 +126,10 @@
 		-if @user_check == true && @facebook_check == false
 			.pull-left.block-small
 				= link_to user_omniauth_authorize_path(:facebook) do
-					.trip-area-light.text-center.dotted-box
+					.trip-area-light.text-center.dotted-box.social-image-facebook
 						%h3 Add Your Trip Facebook Posts
-						=image_tag("insta.png")
 						%p Add my FB Posts from this trip with one click
+						
 		-elsif @facebook_check == true && @statuses.count > 0
 			.pull-left.block-small
 				.trip-area-light.text-center

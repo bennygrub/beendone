@@ -40,6 +40,25 @@ a#cover-edit.edit-link{
 	cursor:pointer;
 }
 
+
+.social-image-instagram{background-image: url(/assets/instagram-same.png);}
+.social-image-instagram:hover{background-image: url(/assets/instagram-white.png);}
+.social-image-facebook{background-image: url(/assets/facebook-same.png);}
+.social-image-facebook:hover{background-image: url(/assets/facebook-white.png);}
+.social-image-twitter{background-image: url(/assets/twitter-same.png);}
+.social-image-twitter:hover{background-image: url(/assets/twitter-white.png);}
+.social-image-places{background-image: url(/assets/places-same.png);}
+.social-image-places:hover{background-image: url(/assets/places-white.png);}
+.social-image-mates{background-image: url(/assets/mates-same.png);}
+.social-image-mates:hover{background-image: url(/assets/mates-white.png);}
+.social-image-highlights{background-image: url(/assets/highlights-same.png);}
+.social-image-highlights:hover{background-image: url(/assets/highlights-white.png);}
+.social-image-highlights, .social-image-mates, .social-image-places, .social-image-instagram, .social-image-facebook, .social-image-twitter{background-repeat: no-repeat;background-position: 50% 80%;}
+
+
+
+
+
 .field #trip_name{
 	margin:10px 0;
 }
@@ -49,7 +68,7 @@ margin: 0 auto;
 }
 
 .trip-area-light{
-	background:rgb(247, 247, 247);
+	background-color:rgb(247, 247, 247);
 	//border: 1px solid grey;
 }
 
@@ -73,7 +92,7 @@ margin: 0 auto;
 	color:white;
 }
 
-.trip-prompt a{
+#trip-description a:hover, .trip-prompt a{
 	text-decoration:none;
 }
 
@@ -85,12 +104,15 @@ margin: 0 auto;
 	padding: 0 5px;
 }
 .dotted-box{
-	background:rgba(245, 245, 245, 1);
+	background-color:rgba(245, 245, 245, 1);
 	border: dashed 1px #0088cc;
 }
 .dotted-box:hover{
-	background:rgb(224, 224, 224);
+	background-color:#7B7B7B;
+	color:white;
+	border: solid 1px white;
 }
+.block-small a:hover, .block-big a:hover{text-decoration: none!important;}
 
 .description-add{
 	margin:10px 0;
