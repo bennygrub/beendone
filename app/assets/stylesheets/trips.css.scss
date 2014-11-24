@@ -155,14 +155,28 @@ margin: 0 auto;
 	margin: 0 10px 10px 0;
 }
 
-.highlight-row{
+.trip-item-row{
 	padding: 5px;
 }
 .highlight-name{
 	font-size: 14px;
 	font-weight: 500;
 }
+.title-desc{
+	padding:0 5px;
+}
 
+.trip-row-title{
+	font-weight:bold;
+}
+.trip-row-desc{
+	font-size:11px;
+}
+.all-link{
+	position:absolute;
+	bottom:2px;
+	font-size:10px;
+}
 @media (max-width: 1000px) {
 	.block-big{width: 47%;margin: 0 10px 10px 0;}
 	.block-small{width: 47%;margin: 0 10px 10px 0;}

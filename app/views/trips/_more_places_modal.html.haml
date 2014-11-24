@@ -1,0 +1,7 @@
+#morePlacesModal.modal.hide.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :tabindex => "-1"}
+	.modal-header
+		%button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} ×
+		%h3#coverModalLabel Trip Places
+	.modal-body
+		-@trip.places.each_with_index do |place, index|
+			=render :partial => "places_list", :locals => {:place => place}

@@ -33,17 +33,15 @@
 					.hr
 					-@trip.highlights.each_with_index do |highlight, index|
 						-if index < 5
-							.highlight-row
+							.trip-item-row
 								.pull-left
 									=image_tag("highlights-same.png", class: "category-circle")
-								.pull-left
+								.pull-left.title-desc
 									.text-left
-										.
-										=highlight.name
-										%br
-										=highlight.description
+										.trip-row-title=highlight.name
+										.trip-row-desc=highlight.description
 
-								.pull-left
+								.pull-right
 									.text-left= link_to 'remove', highlight, :method => :delete, :data => { :confirm => 'Are you sure?' }
 								.clearfix
 							.hr
@@ -60,14 +58,19 @@
 					-if @user_check
 						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#mateModal", :role => "button"}
 							+ add
+					.hr
 					-@trip.mates.each_with_index do |mate, index|
 						-if index < 6
-							.highlight-row
+							.trip-item-row
 								.pull-left
-									%p.text-left=mate.name
-								.pull-left
-									%p.text-left= link_to 'remove', mate, :method => :delete, :data => { :confirm => 'Are you sure?' }
+									=image_tag("user.png", class: "category-circle")
+								.pull-left.title-desc
+									.text-left
+										.trip-row-title{style:"padding:10px 0 0 0;"}=mate.name
+								.pull-right
+									.text-left= link_to 'remove', mate, :method => :delete, :data => { :confirm => 'Are you sure?' }
 								.clearfix
+							.hr
 		-if @trip.places.count < 1 && @user_check
 			.pull-left.block-small
 				%a#p-edit{"data-toggle" => "modal", :href => "#placeModal", :role => "button"} 
@@ -81,14 +84,15 @@
 					-if @user_check
 						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#placeModal", :role => "button"}
 							+ add
+					.hr
 					-@trip.places.each_with_index do |place, index|
 						-if index < 6
-							.highlight-row
-								.pull-left
-									%p.text-left=place.location
-								.pull-left
-									%p.text-left= link_to 'remove', place, :method => :delete, :data => { :confirm => 'Are you sure?' }
-								.clearfix			
+							=render :partial => "places_list", :locals => {:place => place}
+
+					=#render "more_places_modal" 		
+
+					%a.all-link{"data-toggle" => "modal", :href => "#morePlacesModal", :role => "button"}
+						See All Places
 		
 		-if @user_check == true && @twitter_check == false
 			.pull-left.block-small
@@ -190,3 +194,4 @@
 	=render "mate_modal"
 	=render "description_modal"
 	=render "place_modal"
+=render "more_places_modal"
