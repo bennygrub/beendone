@@ -25,20 +25,28 @@
 						%p Add specific memories that highlight your great trip
 		-elsif @trip.highlights.count > 0
 			.block-big.pull-left
-				.trip-area-dark.text-center
+				.trip-area-light.text-center
 					%h3 Trip Highlights
 					-if @user_check
 						%a#highlight-edit.yellow-btn{"data-toggle" => "modal", :href => "#highlightModal", :role => "button"}
 							+ add
+					.hr
 					-@trip.highlights.each_with_index do |highlight, index|
 						-if index < 5
 							.highlight-row
 								.pull-left
-									%p.text-left=highlight.name
+									=image_tag("highlights-same.png", class: "category-circle")
 								.pull-left
-									%p.text-left= link_to 'remove', highlight, :method => :delete, :data => { :confirm => 'Are you sure?' }
+									.text-left
+										.
+										=highlight.name
+										%br
+										=highlight.description
+
+								.pull-left
+									.text-left= link_to 'remove', highlight, :method => :delete, :data => { :confirm => 'Are you sure?' }
 								.clearfix
-		
+							.hr
 		-if @trip.mates.count < 1 && @user_check
 			.pull-left.block-small
 				%a#m-edit{"data-toggle" => "modal", :href => "#mateModal", :role => "button"} 

@@ -71,13 +71,16 @@ margin: 0 auto;
 	background-color:rgb(247, 247, 247);
 	//border: 1px solid grey;
 }
-
+.trip-area-light h3{
+	margin: 0;
+	padding: 10px 0;
+}
 .trip-area-dark{
 	background:grey;
 	//border: 1px solid lightgrey;
 	color:white;
 }
-
+.category-circle{height:40px;width: 40px;}
 .trip-area-light, .trip-area-dark{
 	//-webkit-border-radius: 3px;
 	//-moz-border-radius: 3px;
@@ -150,6 +153,14 @@ margin: 0 auto;
 .block-small{
 	width: 26%;
 	margin: 0 10px 10px 0;
+}
+
+.highlight-row{
+	padding: 5px;
+}
+.highlight-name{
+	font-size: 14px;
+	font-weight: 500;
 }
 
 @media (max-width: 1000px) {
