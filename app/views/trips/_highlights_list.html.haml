@@ -1,0 +1,12 @@
+.trip-item-row
+	.pull-left
+		=image_tag("highlights-same.png", class: "category-circle")
+	.pull-left.title-desc
+		.text-left
+			.trip-row-title=highlight.name
+			.trip-row-desc=highlight.description
+
+	.pull-right
+		.text-left= link_to 'remove', highlight, :method => :delete, :data => { :confirm => 'Are you sure?' }
+	.clearfix
+.hr

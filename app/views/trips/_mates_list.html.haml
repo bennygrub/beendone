@@ -1,0 +1,10 @@
+.trip-item-row
+	.pull-left
+		=image_tag("user.png", class: "category-circle")
+	.pull-left.title-desc
+		.text-left
+			.trip-row-title{style:"padding:10px 0 0 0;"}=mate.name
+	.pull-right
+		.text-left= link_to 'remove', mate, :method => :delete, :data => { :confirm => 'Are you sure?' }
+	.clearfix
+.hr

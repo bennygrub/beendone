@@ -1,0 +1,7 @@
+#moreMatesModal.modal.hide.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :tabindex => "-1"}
+	.modal-header
+		%button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} ×
+		%h3#coverModalLabel Trip Mates
+	.modal-body
+		-@trip.mates.each_with_index do |mate, index|
+			=render :partial => "mates_list", :locals => {:mate => mate}

@@ -1,0 +1,7 @@
+#moreHighlightsModal.modal.hide.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :tabindex => "-1"}
+	.modal-header
+		%button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} ×
+		%h3#coverModalLabel Trip Highlights
+	.modal-body
+		-@trip.highlights.each_with_index do |highlight, index|
+			=render :partial => "highlights_list", :locals => {:highlight => highlight}

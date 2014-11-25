@@ -32,19 +32,10 @@
 							+ add
 					.hr
 					-@trip.highlights.each_with_index do |highlight, index|
-						-if index < 5
-							.trip-item-row
-								.pull-left
-									=image_tag("highlights-same.png", class: "category-circle")
-								.pull-left.title-desc
-									.text-left
-										.trip-row-title=highlight.name
-										.trip-row-desc=highlight.description
-
-								.pull-right
-									.text-left= link_to 'remove', highlight, :method => :delete, :data => { :confirm => 'Are you sure?' }
-								.clearfix
-							.hr
+						-if index < 3
+							=render :partial => "highlights_list", :locals => {:highlight => highlight}
+					%a.all-link{"data-toggle" => "modal", :href => "#moreHighlightModal", :role => "button"}
+						See All Momments	
 		-if @trip.mates.count < 1 && @user_check
 			.pull-left.block-small
 				%a#m-edit{"data-toggle" => "modal", :href => "#mateModal", :role => "button"} 
@@ -60,17 +51,11 @@
 							+ add
 					.hr
 					-@trip.mates.each_with_index do |mate, index|
-						-if index < 6
-							.trip-item-row
-								.pull-left
-									=image_tag("user.png", class: "category-circle")
-								.pull-left.title-desc
-									.text-left
-										.trip-row-title{style:"padding:10px 0 0 0;"}=mate.name
-								.pull-right
-									.text-left= link_to 'remove', mate, :method => :delete, :data => { :confirm => 'Are you sure?' }
-								.clearfix
-							.hr
+						-if index < 3
+							=render :partial => "mates_list", :locals => {:mate => mate}
+					
+					%a.all-link{"data-toggle" => "modal", :href => "#moreMatesModal", :role => "button"}
+						See All Trip Mates
 		-if @trip.places.count < 1 && @user_check
 			.pull-left.block-small
 				%a#p-edit{"data-toggle" => "modal", :href => "#placeModal", :role => "button"} 
@@ -86,10 +71,8 @@
 							+ add
 					.hr
 					-@trip.places.each_with_index do |place, index|
-						-if index < 6
-							=render :partial => "places_list", :locals => {:place => place}
-
-					=#render "more_places_modal" 		
+						-if index < 3
+							=render :partial => "places_list", :locals => {:place => place}		
 
 					%a.all-link{"data-toggle" => "modal", :href => "#morePlacesModal", :role => "button"}
 						See All Places
@@ -194,4 +177,6 @@
 	=render "mate_modal"
 	=render "description_modal"
 	=render "place_modal"
+=render "more_highlights_modal"
 =render "more_places_modal"
+=#render "more_mates_modal"
