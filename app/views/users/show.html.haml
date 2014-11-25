@@ -124,7 +124,7 @@
 												.front{style: "background: url('#{destination.avatar.url}');background-size: cover;"}
 													.front-overlay
 														%h3
-															=destination.city
+															=render :partial => "trip_title", :locals => {:destination => destination, :trip => trip}
 														%h4
 															in
 															=trip.flights.first.depart_time.strftime("%B")
@@ -144,7 +144,9 @@
 															&#9679;
 
 												.back
-													%h3=destination.city
+													
+													%h3
+														=render :partial => "trip_title", :locals => {:destination => destination, :trip => trip}
 													.trip-date-range
 														-start = trip.flights.first.depart_time
 														-finish = trip.flights.last.arrival_time
