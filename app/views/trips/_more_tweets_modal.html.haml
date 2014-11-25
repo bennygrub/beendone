@@ -4,8 +4,9 @@
 		%h3#coverModalLabel Trip Tweets
 	.modal-body
 		.hr
-		-@tweets.each_with_index do |tweet, index|
-			.pull-left.insta-thumb
-				=tweet.text
-			.clearfix
-			.hr
+		-unless @tweets 
+			-@tweets.each_with_index do |tweet, index|
+				.pull-left.insta-thumb
+					=tweet.text
+				.clearfix
+				.hr
