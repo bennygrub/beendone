@@ -40,7 +40,6 @@ class UsersController < ApplicationController
   	@by_day_of_week_return = @trips.map{|trip| trip.flights.last.depart_time.strftime("%A")}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }
     @airlines = @user.flights.map{|flight| Airline.find(flight.airline_id).name}.each_with_object(Hash.new(0)) { |word,counts| counts[word] += 1 }.sort_by{ |key, value| -value }
 
-
   	@flights = @user.flights
     d_airport_ids = @flights.map{|f| f.depart_airport}
     a_airport_ids = @flights.map{|f| f.arrival_airport}
@@ -91,7 +90,6 @@ class UsersController < ApplicationController
     @client = Instagram.client(:access_token => @user.authentications.where("provider = ?", "instagram").first.token) unless @auth_check
     @trip = Trip.new
     @trip.flights.build
-    @airlines = Airline.all.order('name ASC')
   end
   # DELETE /flight_fixes/1
   # DELETE /flight_fixes/1.json
