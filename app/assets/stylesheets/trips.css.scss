@@ -41,18 +41,18 @@ a#cover-edit.edit-link{
 }
 
 
-.social-image-instagram{background-image: url(/assets/instagram-same.png);}
-.social-image-instagram:hover{background-image: url(/assets/instagram-white.png);}
-.social-image-facebook{background-image: url(/assets/facebook-same.png);}
-.social-image-facebook:hover{background-image: url(/assets/facebook-white.png);}
-.social-image-twitter{background-image: url(/assets/twitter-same.png);}
-.social-image-twitter:hover{background-image: url(/assets/twitter-white.png);}
-.social-image-places{background-image: url(/assets/places-same.png);}
-.social-image-places:hover{background-image: url(/assets/places-white.png);}
-.social-image-mates{background-image: url(/assets/mates-same.png);}
-.social-image-mates:hover{background-image: url(/assets/mates-white.png);}
-.social-image-highlights{background-image: url(/assets/highlights-same.png);}
-.social-image-highlights:hover{background-image: url(/assets/highlights-white.png);}
+.social-image-instagram{background-image: image-url(/assets/instagram-same.png);}
+.social-image-instagram:hover{background-image: image-url(/assets/instagram-white.png);}
+.social-image-facebook{background-image: image-url(/assets/facebook-same.png);}
+.social-image-facebook:hover{background-image: image-url(/assets/facebook-white.png);}
+.social-image-twitter{background-image: image-url(/assets/twitter-same.png);}
+.social-image-twitter:hover{background-image: image-url(/assets/twitter-white.png);}
+.social-image-places{background-image: image-url(/assets/places-same.png);}
+.social-image-places:hover{background-image: image-url(/assets/places-white.png);}
+.social-image-mates{background-image: image-url(/assets/mates-same.png);}
+.social-image-mates:hover{background-image: image-url(/assets/mates-white.png);}
+.social-image-highlights{background-image: image-url(/assets/highlights-same.png);}
+.social-image-highlights:hover{background-image: image-url(/assets/highlights-white.png);}
 .social-image-highlights, .social-image-mates, .social-image-places, .social-image-instagram, .social-image-facebook, .social-image-twitter{background-repeat: no-repeat;background-position: 50% 80%;}
 
 
