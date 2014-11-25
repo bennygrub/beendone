@@ -16,7 +16,9 @@ class TripsController < ApplicationController
   # GET /tripes/1.json
   def show
     @map_page = true
+    @user = User.find(@trip.user_id)
     @destination = destination_city(@trip)
+    @num_of_visits = @user.flights.where("arrival_airport = ?", @destination.id).select{|flight| is_destination(flight)}
     if @trip.cover.blank? 
       @cover = @destination.avatar.url
     else
@@ -30,12 +32,12 @@ class TripsController < ApplicationController
     @mate = Mate.new
     @place = Place.new
     @categories = Category.all
-    @user = User.find(@trip.user_id)
     @user_check = @user.id == current_user.id if current_user#checks to if the current user owns the trip
     @auth_check = @user.authentications.where("provider = ?", "instagram").count != 0 #check if the user has instagram auth
     if @auth_check
       @client = Instagram.client(:access_token => @user.authentications.where("provider = ?", "instagram").first.token)
-      @instagram_photos = @client.user_recent_media(:min_timestamp => @arrive.to_i, :max_timestamp => @depart.to_i)
+      #@instagram_photos = @client.user_recent_media(:min_timestamp => @arrive.to_i, :max_timestamp => @depart.to_i)
+      @instagram_photos = @client.user_recent_media(:min_timestamp => 3.years.ago.to_i, :max_timestamp => Time.now.to_i)
       @instas = @instagram_photos.map{|media_item| media_item.images.standard_resolution.url}
     end
     @facebook_check = @user.authentications.where("provider = ?", "facebook").count != 0 #check if the user has instagram auth
@@ -59,6 +61,7 @@ class TripsController < ApplicationController
     if @facebook_check
       @fb_auth = @user.authentications.where("provider = ?", "facebook").first
       @statuses = FbGraph::User.me(@fb_auth.token).statuses(:until => @arrive.to_i, :since => @depart.to_i)
+      #@statuses = FbGraph::User.me(@fb_auth.token).statuses(:until => Time.now.to_i, :since => 3.years.ago.to_i)
     end
   end
 

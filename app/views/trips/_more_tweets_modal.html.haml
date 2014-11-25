@@ -1,0 +1,11 @@
+#moreTweetsModal.modal.hide.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :tabindex => "-1"}
+	.modal-header
+		%button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} ×
+		%h3#coverModalLabel Trip Tweets
+	.modal-body
+		.hr
+		-@tweets.each_with_index do |tweet, index|
+			.pull-left.insta-thumb
+				=tweet.text
+			.clearfix
+			.hr
