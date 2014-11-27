@@ -8,6 +8,7 @@
   	-moz-background-size: cover;
   	-o-background-size: cover;
   	background-size: cover;
+  	position:relative;
 }
 
 .modal-body button input{
@@ -36,10 +37,14 @@ a#cover-edit.edit-link{
 	z-index: 3;
 }
 #trip_name{
-	margin-top:50px;
+	margin-top:130px;
 	cursor:pointer;
 }
 
+#trip-description{
+	font-size:18px;
+	padding:10px;
+}
 
 .social-image-instagram{background-image: image-url("instagram-same.png");}
 .social-image-instagram:hover{background-image: image-url("instagram-white.png");}
@@ -109,6 +114,7 @@ margin: 0 auto;
 .dotted-box{
 	background-color:rgba(245, 245, 245, 1);
 	border: dashed 1px #0088cc;
+	padding: 0 20px;
 }
 .dotted-box:hover{
 	background-color:#7B7B7B;

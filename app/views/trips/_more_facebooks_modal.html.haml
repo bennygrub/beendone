@@ -1,0 +1,10 @@
+#moreFacebooksModal.modal.hide.fade{"aria-hidden" => "true", "aria-labelledby" => "myModalLabel", :role => "dialog", :tabindex => "-1"}
+	.modal-header
+		%button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} ×
+		%h3#coverModalLabel Trip Facebook Posts
+	.modal-body
+		.hr
+		-@statuses.each_with_index do |post, index|
+			.pull-left.insta-thumb
+				=post.story
+			.hr

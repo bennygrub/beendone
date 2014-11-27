@@ -36,8 +36,8 @@ class TripsController < ApplicationController
     @auth_check = @user.authentications.where("provider = ?", "instagram").count != 0 #check if the user has instagram auth
     if @auth_check
       @client = Instagram.client(:access_token => @user.authentications.where("provider = ?", "instagram").first.token)
-      #@instagram_photos = @client.user_recent_media(:min_timestamp => @arrive.to_i, :max_timestamp => @depart.to_i)
-      @instagram_photos = @client.user_recent_media(:min_timestamp => 3.years.ago.to_i, :max_timestamp => Time.now.to_i)
+      @instagram_photos = @client.user_recent_media(:min_timestamp => @arrive.to_i, :max_timestamp => @depart.to_i)
+      #@instagram_photos = @client.user_recent_media(:min_timestamp => 3.years.ago.to_i, :max_timestamp => Time.now.to_i)
       @instas = @instagram_photos.map{|media_item| media_item.images.standard_resolution.url}
     end
     @facebook_check = @user.authentications.where("provider = ?", "facebook").count != 0 #check if the user has instagram auth

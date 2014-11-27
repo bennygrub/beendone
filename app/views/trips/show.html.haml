@@ -1,21 +1,22 @@
 .trip-bg.text-center{style: "background:url('#{@cover}');"}
-	-if @user_check
-		%a.edit-link#cover-edit{"data-toggle" => "modal", :href => "#coverModal", :role => "button"} (Edit Cover Photo)
-	.clearfix
-	=render "trip_cover"
-	#timeframe
-		%h3
-			=@arrive.strftime("%b %d")
-			to
-			="#{@depart.strftime("%b %d")},"
-			=@depart.strftime("%Y")
-	-if @user_check
-		%a.edit-link#name-edit{"data-toggle" => "modal", :href => "#nameModal", :role => "button"} (Edit Trip Name)
+	.front-overlay
+		-if @user_check
+			%a.edit-link#cover-edit{"data-toggle" => "modal", :href => "#coverModal", :role => "button"} (Edit Cover Photo)
+		.clearfix
+		=render "trip_cover"
+		#timeframe
+			%h3
+				=@arrive.strftime("%b %d")
+				to
+				="#{@depart.strftime("%b %d")},"
+				=@depart.strftime("%Y")
+		-if @user_check
+			%a.edit-link#name-edit{"data-toggle" => "modal", :href => "#nameModal", :role => "button"} (Edit Trip Name)
 .container
 	.content
 		.row
 			.span12
-				#trip-description
+				#trip-description.text-center
 					=render "trip_description"
 		-if @trip.highlights.count < 1 && @user_check
 			.block-big.pull-left	
@@ -146,10 +147,14 @@
 				.trip-area-light.text-center
 					%h3 Trip Facebook Posts
 					.insta-frame
+						.hr
 						-@statuses.each_with_index do |post, index|
 							- if index < 2
 								.pull-left.insta-thumb
 									=post.story
+								.hr
+					%a.all-link{"data-toggle" => "modal", :href => "#moreFacebooksModal", :role => "button"}
+						See All Posts
 		-elsif @facebook_check == true && @statuses.count < 1 && @user_check
 			.pull-left.block-small
 				.trip-area-light.text-center
