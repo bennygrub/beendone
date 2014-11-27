@@ -68,7 +68,7 @@ class TripsController < ApplicationController
   # GET /tripes/new
   def new
     @trip = Trip.new
-    @trip.flights.build
+    2.times {@trip.flights.build}
     @airlines = Airline.all.order('name ASC')
     #@airports = Airport.where("faa is NOT NULL").order('city ASC')
   end
@@ -90,11 +90,10 @@ class TripsController < ApplicationController
       @trip = Trip.create(user_id: current_user.id, name: trip_params[:name])
       trip_params[:flights_attributes].each do |flight|
         d = flight[1][:depart_time].split('/')
-        a = flight[1][:arrival_time].split('/')
         depart_airport = Airport.find_by_faa(flight[1][:depart_airport].scan(/\((.*?)\)/).first.first).id
         arrival_airport = Airport.find_by_faa(flight[1][:arrival_airport].scan(/\((.*?)\)/).first.first).id
         depart_time = DateTime.new(d[2].to_i, d[0].to_i,d[1].to_i,11,30, 0, 0)
-        arrival_time = DateTime.new(a[2].to_i, a[0].to_i,a[1].to_i,16,30, 0, 0)
+        arrival_time = DateTime.new(d[2].to_i, d[0].to_i,d[1].to_i,13,30, 0, 0)
         Flight.create(
           airline_id: flight[1][:airline_id],
           trip_id: @trip.id,
@@ -105,9 +104,9 @@ class TripsController < ApplicationController
         )
       end
     
-      redirect_to @trip, notice: 'Trip was Created'
+      redirect_to @trip, notice: 'Your trip was created'
     rescue
-      redirect_to new_trip_path, notice: 'Please select a listed airport with FAA code'
+      redirect_to new_trip_path, notice: 'Please re-select an airport with the format [City(FAA)]'
     end
   end
 

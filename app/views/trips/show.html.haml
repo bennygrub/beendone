@@ -160,10 +160,11 @@
 			.span6
 				.trip-area-light.text-center
 					%h3 Flight Details
+					.hr
 					-@trip.flights.each do |flight|
 						.flight-row										
 							.flight-date.pull-left
-								=image_tag "plane.png", style: "max-width:20px;margin-right:8px;"
+								=image_tag "plane-dark.png", style: "max-width:20px;margin-right:8px;"
 								=flight.depart_time.strftime("%b %e")
 							.flight-airports.pull-left
 								=Airport.find(flight.depart_airport).faa.upcase
@@ -172,6 +173,7 @@
 							.flight-meta.pull-left
 								=Airline.find(flight.airline_id).name
 							.clearfix
+						.hr
 			.span6
 				.trip-area-light.text-center
 					%h3 Trip Statistics
