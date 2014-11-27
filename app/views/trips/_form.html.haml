@@ -13,24 +13,21 @@
   %h4 Flights (minimum 1)
   =f.fields_for :flights do |t|
     .flight-add-box
-      .field
-        =t.label "Flight Airline"
-        =t.select :airline_id, options_from_collection_for_select(@airlines, 'id', 'name')
-      .field
-        =t.label "Depart Airport"
-        =t.autocomplete_field :depart_airport, autocomplete_airport_city_trips_path
-      .field.field-time
-        =t.label "Depart Time (mm/dd/year)"
-        =t.text_field :depart_time, class: "date_picker"
-      .field
-        =t.label "Arrival Airport"
-        =t.autocomplete_field :arrival_airport, autocomplete_airport_city_trips_path
-      .field.field-time
-        =t.label "Arrival Time (mm/dd/year)"
-        =t.text_field :arrival_time, class: "date_picker"
-      .field.remove-flight-link
-        =t.link_to_remove "Remove this Flight"
-
+      .row
+        .field.span2
+          =t.label "Flight Airline"
+          =t.select :airline_id, options_from_collection_for_select(@airlines, 'id', 'name')
+        .field.span3
+          =t.label "Departure Airport"
+          =t.autocomplete_field :depart_airport, autocomplete_airport_city_trips_path, placeholder: "From"
+        .field.span3
+          =t.label "Arrival Airport"
+          =t.autocomplete_field :arrival_airport, autocomplete_airport_city_trips_path, placeholder: "To"
+        .field.span2.field-time
+          =t.label "Departure Date"
+          =t.text_field :depart_time, class: "date_picker", placeholder: "(mm/dd/year)"
+        .field.remove-flight-link.span1
+          =t.link_to_remove "X"
   %p= f.link_to_add "Add Another Flight", :flights
   .actions
     = f.submit 'Add New Trip'
