@@ -82,7 +82,7 @@
 			.pull-left.block-small
 				= link_to user_omniauth_authorize_path(:twitter) do
 					.trip-area-light.text-center.dotted-box.social-image-twitter
-						%h3 Add Your Trip Tweets
+						%h3 Add Your Tweets
 						%p Add my Tweets from this trip with one click
 						
 		-elsif @twitter_check == true && @tweets.count > 0
@@ -111,7 +111,7 @@
 			.pull-left.block-big
 				= link_to user_omniauth_authorize_path(:instagram) do
 					.trip-area-light.text-center.dotted-box.social-image-instagram
-						%h3 Add Trip Instagrams
+						%h3 Add Instagrams
 						%p Add my Instagrams from this trip with one click
 		-elsif @auth_check
 			- if @instagram_photos.count > 0
@@ -139,7 +139,7 @@
 			.pull-left.block-small
 				= link_to user_omniauth_authorize_path(:facebook) do
 					.trip-area-light.text-center.dotted-box.social-image-facebook
-						%h3 Add Your Trip Facebook Posts
+						%h3 Add Facebook Posts
 						%p Add my FB Posts from this trip with one click
 						
 		-elsif @facebook_check == true && @statuses.count > 0
