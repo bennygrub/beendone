@@ -22,7 +22,7 @@ class UserMailer < ActionMailer::Base
     @invitee_email = invitee_email
     destination = destination_city(@trip)
     @name = @trip.name.blank? ? destination.city : @trip.name
-    mail(to: "#{@invitee_name} <#{@invitee_mail}>", subject: "#{@user.name} wants to share in the memories of your #{@name} trip", from: "#{@user.name} <#{@user.email}>")
+    mail(to: "#{@invitee_name} <#{@invitee_email}>", subject: "#{@user.name} wants you to share in the memories of your #{@name} trip", from: "#{@user.name} <#{@user.email}>")
   end
 
 end
