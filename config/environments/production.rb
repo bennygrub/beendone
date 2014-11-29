@@ -95,6 +95,6 @@ Beendone::Application.configure do
     :domain         => 'heroku.com',
     :enable_starttls_auto => true
   }
-  config.action_mailer.asset_host = "http://ancient-citadel-8002.herokuapp.com"
-  config.action_mailer.default_url_options = { host: 'http://ancient-citadel-8002.herokuapp.com' }
+  config.action_mailer.asset_host = "http://www.boardingpast.com"
+  config.action_mailer.default_url_options = { host: 'http://www.boardingpast.com' }
 end

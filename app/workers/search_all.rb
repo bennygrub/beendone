@@ -28,6 +28,6 @@ class SearchAll
 
     
     Resque.enqueue(StatusCheck, job_ids, user_id) if flag == 2
-    Resque.enqueue(SearchAll, current_user.id, 2) if flag == 0
+    Resque.enqueue(SearchAll, user_id, 2) if flag == 0
   end
 end
