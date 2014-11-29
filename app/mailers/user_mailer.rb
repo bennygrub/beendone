@@ -1,6 +1,7 @@
 class UserMailer < ActionMailer::Base
   default from: "Ben at BoardingPast <ben@boardingpast.com>"
-  helper ApplicationHelper
+  include ApplicationHelper
+  helper :application
 
   def finished_scan(user)
     @user = User.find(user)
@@ -12,6 +13,16 @@ class UserMailer < ActionMailer::Base
   def new_user_admin(user)
     @user = User.find(user)
     mail(to: "blgruber@gmail.com", subject: "A New User Signed Up for BoardingPast")
+  end
+
+  def invite(user, invitee_email, invitee_name, trip)
+    @user = User.find(user)
+    @trip = Trip.find(trip)
+    @invitee_name = invitee_name
+    @invitee_email = invitee_email
+    destination = destination_city(@trip)
+    @name = @trip.name.blank? ? destination.city : @trip.name
+    mail(to: "#{@invitee_name} <#{@invitee_mail}>", subject: "#{@user.name} wants to share in the memories of your #{@name} trip", from: "#{@user.name} <#{@user.email}>")
   end
 
 end

@@ -25,13 +25,12 @@ class MatesController < ApplicationController
   # POST /mates.json
   def create
     @mate = Mate.new(mate_params)
-
     respond_to do |format|
       if @mate.save
         format.html { redirect_to trip_path(@mate.trip_id), notice: 'Your Trip Mate was successfully created.' }
         format.json { render action: 'show', status: :created, location: @mate }
       else
-        format.html { render action: 'new' }
+        format.html { redirect_to trip_path(@mate.trip_id), notice: "#{@mate.errors.full_messages.map{|m| m}}" }
         format.json { render json: @mate.errors, status: :unprocessable_entity }
       end
     end
@@ -69,6 +68,6 @@ class MatesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def mate_params
-      params.require(:mate).permit(:trip_id, :email, :name)
+      params.require(:mate).permit(:trip_id, :email, :name, :email_user, :user_id)
     end
 end
