@@ -4,13 +4,13 @@
 		.blacker
 			%h1.white-shadow{style:"margin:0px;"} Where Has Life Taken You?
 			%h3.white-shadow{style:"margin:0px;"} Relive the Fun of Every Trip You've Taken with An Interactive Map
-			%p.text-center.white-shadow{style:"margin:0 0 30px 0;"} All of your past & future travel data updated automatically by analyzing your email travel receipts.
+			%p.text-center.white-shadow{style:"margin:0 0 30px 0;"} With just one click, all of your past & future travel data is automatically updated by analyzing your email travel receipts.
 			= form_for(:user, :as => :user, :url => registration_path(:user)) do |f|
 				= f.text_field :name, placeholder: "Name"
 				= f.email_field :email, placeholder: "Email" 
 				= f.password_field :password, placeholder: "Password"
 				= button_tag :type => :submit do
-					Create My Map
+					Create My Map FREE
 			
 			.text-center
 				=link_to "#howhome", class: "clearbutton" do 
@@ -63,7 +63,7 @@
 	.row{style:"padding-bottom:25px"}
 		.span6
 			.home-explain.text-center
-				%h3 Future Travel Update Automatically
+				%h3 Future Travel Updates Automatically
 				%p Every time you go on a new trip, BoardingPast will work behind the scenes to update your map, stats, and everything else in your account without you lifting a finger.
 				%br
 				%br	
